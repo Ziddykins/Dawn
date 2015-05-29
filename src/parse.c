@@ -66,13 +66,15 @@ void parse_private_message (Message *message) {
 }
 
 void parse_room_message (Message *message, Bot *dawn) {
-    Bot test;
-    size_t size = sizeof(test);
+    Bot temp;
+    size_t size = sizeof(temp);
     printf("%s <%s(%s)%s> %s\n", message->receiver, message->sender_nick,
             message->sender_ident, message->sender_hostmask, message->message);
     if (strcmp(message->message, ";new") == 0) {
         init_new_character(message->sender_nick, "temp", dawn, message);
     } else if (strcmp(message->message, ";save") == 0) {
         save_players(dawn, size);
+    } else if (strcmp(message->message, ";sheet") == 0) {
+        print_sheet(dawn, message);
     }
 }

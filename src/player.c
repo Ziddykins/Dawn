@@ -59,11 +59,12 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
 }
 
 void save_players (Bot *dawn, size_t size) {
+    char out[1024];
     FILE *file = fopen("players.db", "wb");
     if (file != NULL) {
         fwrite(dawn, size, 1, file);
         fclose(file);
-        printf("wrote %zu bytes to players.db\n", size);
+        printf("Wrote %zu bytes to players.db\r\n", size);
     }
 }
 
@@ -74,5 +75,20 @@ void load_players (Bot *dawn, size_t size) {
         fclose(file);
         printf("loaded %zu bytes from players.db\n", size);
     }
-    printf("%d weeeee\n", dawn->player_count);
+}
+
+void print_sheet (Bot *dawn, Message *message) {
+    char out[1024];
+    int i;
+    for (i=0; i<=dawn->player_count; i++) {
+        if (strcmp(dawn->players[i].username, message->sender_nick)) {
+            sprintf(out, 
+                    "PRIVMSG %s :[%s] Str: %lu - Int: %lu - MDef: %lu - Def: %lu\r\n",
+                    message->receiver, message->sender_nick, dawn->players[i].strength,
+                    dawn->players[i].intelligence, dawn->players[i].m_def,
+                    dawn->players[i].defense);
+            send_socket(out);
+            return;
+        }
+    }
 }

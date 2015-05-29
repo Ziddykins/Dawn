@@ -22,7 +22,6 @@ int init_connect_server (char *ip_addr, char *port) {
     connect(con_socket, res->ai_addr, res->ai_addrlen);
     printf("gud\n");
     free(res);
-    printf("Connected\n");
     return errno;
 }
 

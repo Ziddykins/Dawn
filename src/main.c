@@ -21,15 +21,26 @@ int main (void) {
 
     Bot dawn;
 
-    load_players(&dawn, sizeof(dawn));
+    //Load characters
+    //File must exist otherwise errno gets sad and it won't connect
+    //to the server; touch players.db - if file is empty, it won't load it.
+    if (access("players.db", F_OK) != -1) {
+        FILE *file = fopen("players.db", "r");
+        fseek(file, 0L, SEEK_END);
+        int sz = ftell(file);
+        fseek(file, 0L, SEEK_SET);
+        if (sz > 0) {
+            load_players(&dawn, sizeof(dawn));
+        }
+    }
+
     dawn.nickname     = "WellFuk";
     dawn.realname     = "Helo";
     dawn.ident        = "hehe";
     dawn.password     = "none";
     dawn.login_sent   = 0;
     dawn.in_rooms     = 0;
-    dawn.player_count ? dawn.player_count : 0;
-
+    if (!dawn.player_count) dawn.player_count = 0;
 
     if (init_connect_server(dalnet, port) == 0) { 
         printf("ok\n");
@@ -99,6 +110,7 @@ int main (void) {
             }
         }
     } else {
+        printf("didn't connect: %d\n", errno);
         close(con_socket);
         return 1;
     }
