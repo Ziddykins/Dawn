@@ -12,7 +12,7 @@
 
 int main (void) {
     int len, match;
-    char dalnet[]  = "154.35.174.2";
+    char dalnet[]  = "108.61.240.240";
     char port[]    = "6667";
 
     //Keep a NULL at the end
@@ -21,22 +21,23 @@ int main (void) {
 
     Bot dawn;
 
+    load_players(&dawn, sizeof(dawn));
     dawn.nickname     = "WellFuk";
     dawn.realname     = "Helo";
     dawn.ident        = "hehe";
     dawn.password     = "none";
     dawn.login_sent   = 0;
     dawn.in_rooms     = 0;
-    dawn.player_count = 0;
+    dawn.player_count ? dawn.player_count : 0;
 
-    load_players(&dawn, sizeof(dawn));
 
     if (init_connect_server(dalnet, port) == 0) { 
         printf("ok\n");
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
             buffer[len] = '\0';
             char out[1024];
-
+printf("%s\n", buffer);
+printf("login_sent: %d\n", dawn.login_sent);
             //Handle keepalive pings from the server
             if (check_if_matches_regex(buffer, "PING :(.*)")) {
                 sprintf(out, "PONG: %s\r\n", regex_group[1]);
