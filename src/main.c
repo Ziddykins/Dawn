@@ -36,8 +36,7 @@ int main (void) {
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
             buffer[len] = '\0';
             char out[1024];
-printf("%s\n", buffer);
-printf("login_sent: %d\n", dawn.login_sent);
+
             //Handle keepalive pings from the server
             if (check_if_matches_regex(buffer, "PING :(.*)")) {
                 sprintf(out, "PONG: %s\r\n", regex_group[1]);
