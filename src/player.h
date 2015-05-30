@@ -7,11 +7,6 @@ typedef struct {
 } Spells;
 
 typedef struct {
-   unsigned int int_potions, def_potions, str_potions, dilaudid;
-   unsigned int available_slots, available_capacity;
-} Inventory;
-
-typedef struct {
     int attr_health, attr_defense, attr_intelligence, attr_strength;
     int attr_mdef, req_level, weight;
     int socket_one, socket_two, socket_three;
@@ -19,7 +14,13 @@ typedef struct {
 } Equipment;
 
 typedef struct {
-    Inventory inventory[100];
+   unsigned int int_potions, def_potions, str_potions, dilaudid;
+   unsigned int available_slots, available_capacity;
+   Equipment equipment[25];
+} Inventory;
+
+typedef struct {
+    Inventory inventory;
     char username[64], password[64];
     char first_class[64], second_class[64], title[64];
     long stone, steel, wood, ore, bronze, diamond, mail, leather, health;

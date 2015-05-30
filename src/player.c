@@ -52,8 +52,17 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     np.intelligence = 5;
     np.defense = 5;
     np.m_def = 5;
+    np.inventory.int_potions = 0;
+    np.inventory.def_potions = 0;
+    np.inventory.str_potions = 0;
+    np.inventory.dilaudid = 0;
+    np.inventory.available_slots = 25;
+    np.inventory.available_capacity = 100;
+    printf("%lu %lu %lu %lu\n", np.strength, np.intelligence, np.defense, np.m_def);
+    printf("playercount before: %d\n", dawn->player_count);
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
+    printf("playercount after: %d\n", dawn->player_count);
     sprintf(out, "PRIVMSG %s :Account created for user %s\r\n", message->receiver, username);
     send_socket(out);
 }
@@ -78,15 +87,20 @@ void load_players (Bot *dawn, size_t size) {
 }
 
 void print_sheet (Bot *dawn, Message *message) {
-    char out[1024];
     int i;
+    char out[1024];
     for (i=0; i<=dawn->player_count; i++) {
-        if (strcmp(dawn->players[i].username, message->sender_nick)) {
+        if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
             sprintf(out, 
                     "PRIVMSG %s :[%s] Str: %lu - Int: %lu - MDef: %lu - Def: %lu\r\n",
                     message->receiver, message->sender_nick, dawn->players[i].strength,
                     dawn->players[i].intelligence, dawn->players[i].m_def,
                     dawn->players[i].defense);
+            send_socket(out);
+            return;
+        } else {
+            sprintf(out, "PRIVMSG %s :Character sheet not found, create character by issuing \";new\"\r\n",
+                    message->receiver);
             send_socket(out);
             return;
         }
