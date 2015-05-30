@@ -16,7 +16,7 @@ int main (void) {
     char port[]    = "6667";
 
     //Keep a NULL at the end
-    char *rooms[]  = { "#stacked", NULL, "#teens", NULL }, **n;
+    char *rooms[]  = { "#stacked", NULL, NULL }, **n;
     n = rooms;
 
     Bot dawn;
