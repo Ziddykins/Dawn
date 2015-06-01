@@ -32,6 +32,7 @@ int main (void) {
         if (sz > 0) {
             load_players(&dawn, sizeof(dawn));
         }
+        fclose(file);
     }
 
     dawn.nickname     = "WellFuk";
@@ -46,7 +47,7 @@ int main (void) {
         printf("ok\n");
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
             buffer[len] = '\0';
-            char out[1024];
+            char out[MAX_MESSAGE_BUFFER];
 
             //Handle keepalive pings from the server
             if (check_if_matches_regex(buffer, "PING :(.*)")) {

@@ -42,7 +42,7 @@ int check_if_matches_regex (char *buffer, char *regular_expression) {
 
     if (pcre_return > 0) {
         int j;
-        for(j=0; j<pcre_return; j++) {
+        for (j=0; j<pcre_return; j++) {
             pcre_get_substring(buffer, substring_vec, pcre_return, j, &(psubStrMatchStr));
             strcpy(regex_group[j], psubStrMatchStr);
             pcre_free_substring(psubStrMatchStr);
@@ -54,7 +54,7 @@ int check_if_matches_regex (char *buffer, char *regular_expression) {
 }
 
 void handle_login (char *nick, char *pass, char *real, char *ident) {
-    char out[1024];
+    char out[MAX_MESSAGE_BUFFER];
     sprintf(out, "NICK %s\r\n", nick);
     send_socket(out);
     sprintf(out, "USER %s * * :%s\r\n", ident, real);
@@ -80,5 +80,8 @@ void parse_room_message (Message *message, Bot *dawn) {
         print_sheet(dawn, message);
     } else if (strcmp(message->message, ";inv") == 0) {
         print_inventory(dawn, message);
+    } else if (check_if_matches_regex(message->message, ";equip (\\d+)")) {
+        int slot = atoi(regex_group[1]);
+        equip_inventory(dawn, message, slot);
     }
 }

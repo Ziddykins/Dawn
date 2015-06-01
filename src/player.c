@@ -8,7 +8,7 @@
 void init_new_character (char username[64], char password[64], Bot *dawn, Message *message) {
     //Check if user exists
     int i;
-    char out[1024];
+    char out[MAX_MESSAGE_BUFFER];
     for (i=0; i<=dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, username) == 0) {
             sprintf(out, "PRIVMSG %s :You already have an account!\r\n", message->receiver);
@@ -70,7 +70,7 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
 }
 
 void save_players (Bot *dawn, size_t size) {
-    char out[1024];
+    char out[MAX_MESSAGE_BUFFER];
     FILE *file = fopen("players.db", "wb");
     if (file != NULL) {
         fwrite(dawn, size, 1, file);
@@ -90,7 +90,7 @@ void load_players (Bot *dawn, size_t size) {
 
 void print_sheet (Bot *dawn, Message *message) {
     int i;
-    char out[1024];
+    char out[MAX_MESSAGE_BUFFER];
     for (i=0; i<=dawn->player_count; i++) {
         printf("at user %s\n", dawn->players[i].username);
         if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
