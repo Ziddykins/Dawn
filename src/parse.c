@@ -5,6 +5,8 @@
 #include "parse.h"
 #include "status.h"
 #include "player.h"
+#include "inventory.h"
+
 char regex_group[15][2048];
 
 int check_if_matches_regex (char *buffer, char *regular_expression) {
@@ -76,5 +78,7 @@ void parse_room_message (Message *message, Bot *dawn) {
         save_players(dawn, size);
     } else if (strcmp(message->message, ";sheet") == 0) {
         print_sheet(dawn, message);
+    } else if (strcmp(message->message, ";inv") == 0) {
+        print_inventory(dawn, message);
     }
 }

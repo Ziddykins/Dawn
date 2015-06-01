@@ -11,6 +11,7 @@ typedef struct {
     int attr_mdef, req_level, weight;
     int socket_one, socket_two, socket_three;
     int type, rusted;
+    char name[100];
 } Equipment;
 
 typedef struct {
