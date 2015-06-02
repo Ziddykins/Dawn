@@ -59,7 +59,7 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     np.inventory.available_slots = 24;
     np.inventory.available_capacity = 99;
     //See player.h
-    Equipment sword = {0, 0, 0, 5, 0, 1, 5, 0, 0, 0, 1, 0};
+    Equipment sword = {0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 1, 0, 0, 1};
     strcpy(sword.name, "Wooden Sword");
     np.inventory.equipment[0] = sword;
     

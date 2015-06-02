@@ -10,7 +10,7 @@ typedef struct {
     int attr_health, attr_defense, attr_intelligence, attr_strength;
     int attr_mdef, req_level, weight;
     int socket_one, socket_two, socket_three;
-    int type, rusted;
+    int type, rusted, equipped, equippable;
     char name[100];
 } Equipment;
 

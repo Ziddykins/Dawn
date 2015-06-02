@@ -16,7 +16,7 @@ int main (void) {
     char port[]    = "6667";
 
     //Keep a NULL at the end
-    char *rooms[]  = { "#stacked", NULL, NULL }, **n;
+    char *rooms[]  = { "#stacked", NULL }, **n;
     n = rooms;
 
     Bot dawn;
@@ -35,19 +35,24 @@ int main (void) {
         fclose(file);
     }
 
-    dawn.nickname     = "WellFuk";
-    dawn.realname     = "Helo";
-    dawn.ident        = "hehe";
-    dawn.password     = "none";
-    dawn.login_sent   = 0;
-    dawn.in_rooms     = 0;
+    //Initial settings
+    strcpy(dawn.nickname, "WellFuk");
+    strcpy(dawn.realname, "Helo");
+    strcpy(dawn.ident, "hehe");
+    strcpy(dawn.password, "none");
+    strcpy(dawn.active_room, rooms[0]);
+    dawn.login_sent = 0;
+    dawn.in_rooms = 0;
     if (!dawn.player_count) dawn.player_count = 0;
+
+    init_timers(&dawn);
 
     if (init_connect_server(dalnet, port) == 0) { 
         printf("ok\n");
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
-            buffer[len] = '\0';
             char out[MAX_MESSAGE_BUFFER];
+            buffer[len] = '\0';
+            check_timers(&dawn);
 
             //Handle keepalive pings from the server
             if (check_if_matches_regex(buffer, "PING :(.*)")) {
