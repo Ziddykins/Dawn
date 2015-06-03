@@ -59,6 +59,7 @@ void handle_login (char *nick, char *pass, char *real, char *ident) {
     send_socket(out);
     sprintf(out, "USER %s * * :%s\r\n", ident, real);
     send_socket(out);
+    printf("%s\n", pass); //TODO:quieting down warnings for now
 }
 
 void parse_private_message (Message *message) {

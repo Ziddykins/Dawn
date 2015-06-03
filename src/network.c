@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -7,7 +9,7 @@
 #include <netdb.h>
 #include "network.h"
 #include "limits.h"
- 
+
 char buffer[MAX_RECV_BUFFER + 1];
 int con_socket;
 

@@ -33,6 +33,11 @@ int main (void) {
             load_players(&dawn, sizeof(dawn));
         }
         fclose(file);
+    } else {
+        FILE *file = fopen("players.db", "w+");
+        fclose(file);
+        printf("Player database not found, creating.\nPlease rerun\n");
+        exit(1);
     }
 
     //Initial settings
