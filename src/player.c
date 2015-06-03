@@ -52,15 +52,11 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     np.intelligence = 5;
     np.defense = 5;
     np.m_def = 5;
-    np.inventory.int_potions = 0;
-    np.inventory.def_potions = 0;
-    np.inventory.str_potions = 0;
-    np.inventory.dilaudid = 0;
-    np.inventory.available_slots = 24;
-    np.inventory.available_capacity = 99;
+    np.available_slots = 24;
+    np.available_capacity = 85;
     //See player.h
-    Equipment sword = {0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 1, 0, 0, 1, "Wooden Sword"};
-    np.inventory.equipment[0] = sword;
+    Inventory sword = {0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 1, 0, 0, 1, "Wooden Sword"};
+    np.inventory[0] = sword;
     
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
@@ -93,10 +89,11 @@ void print_sheet (Bot *dawn, Message *message) {
         printf("at user %s\n", dawn->players[i].username);
         if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
             sprintf(out, 
-                    "PRIVMSG %s :[%s] Str: %lu - Int: %lu - MDef: %lu - Def: %lu\r\n",
-                    message->receiver, message->sender_nick, dawn->players[i].strength,
-                    dawn->players[i].intelligence, dawn->players[i].m_def,
-                    dawn->players[i].defense);
+                    "PRIVMSG %s :[%s] [%ld/%lu \0034HP\003] - [%lu/%lu \00310MP\003] Str: %lu - Int: %lu - MDef: %lu"
+                    " - Def: %lu\r\n",
+                    message->receiver, message->sender_nick, dawn->players[i].health, dawn->players[i].max_health,
+                    dawn->players[i].mana, dawn->players[i].max_mana, dawn->players[i].strength,
+                    dawn->players[i].intelligence, dawn->players[i].m_def, dawn->players[i].defense);
             send_socket(out);
             return;
         }

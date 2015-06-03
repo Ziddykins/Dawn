@@ -64,6 +64,8 @@ void init_timers (Bot *dawn) {
 void update_weather (Bot *dawn) {
     int weather = rand() % 4;
     char out[MAX_MESSAGE_BUFFER];
+    //Avoid same weather
+    while (weather == dawn->weather) weather = rand() % 4;
     switch (weather) {
         case 0:
             sprintf(out, "PRIVMSG %s :The clouds disperse, allowing "
@@ -74,7 +76,7 @@ void update_weather (Bot *dawn) {
             break;
         case 1:
             sprintf(out, "PRIVMSG %s :Dark clouds roll in, plunging the town"
-                         "of stacked into darkness. Rain begins to fall from"
+                         " of stacked into darkness. Rain begins to fall from"
                          " the sky.\r\n", dawn->active_room);
             send_socket(out);
             dawn->weather = RAINING;

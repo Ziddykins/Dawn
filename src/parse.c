@@ -30,8 +30,7 @@ int check_if_matches_regex (char *buffer, char *regular_expression) {
     pcre_optimized = pcre_study(regex_compiled, 0, &pcre_error);
 
     if (pcre_error != NULL) {
-        printf("Could not optimize regular expression: %s (%s)\n",
-                regular_expression, pcre_error);
+        printf("Could not optimize regular expression: %s (%s)\n", regular_expression, pcre_error);
         exit(1);
     }
 
@@ -64,13 +63,12 @@ void handle_login (char *nick, char *pass, char *real, char *ident) {
 
 void parse_private_message (Message *message) {
     printf("<%s(%s)%s> %s\n",
-            message->sender_nick, message->sender_ident, message->sender_hostmask,
-            message->message);
+            message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);
 }
 
 void parse_room_message (Message *message, Bot *dawn) {
-    printf("%s <%s(%s)%s> %s\n", message->receiver, message->sender_nick,
-            message->sender_ident, message->sender_hostmask, message->message);
+    printf("%s <%s(%s)%s> %s\n", message->receiver, 
+            message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);
     if (strcmp(message->message, ";new") == 0) {
         init_new_character(message->sender_nick, "temp", dawn, message);
     } else if (strcmp(message->message, ";sheet") == 0) {
@@ -79,6 +77,9 @@ void parse_room_message (Message *message, Bot *dawn) {
         print_inventory(dawn, message);
     } else if (check_if_matches_regex(message->message, ";equip (\\d+)")) {
         int slot = atoi(regex_group[1]);
-        equip_inventory(dawn, message, slot);
+        equip_inventory(dawn, message, slot, 0);
+    } else if (check_if_matches_regex(message->message, ";unequip (\\d+)")) {
+        int slot = atoi(regex_group[1]);
+        equip_inventory(dawn, message, slot, 1);
     }
 }

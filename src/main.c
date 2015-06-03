@@ -70,8 +70,7 @@ int main (void) {
                 match = check_if_matches_regex(buffer, "AUTH");
                 if (match) {
                     printf("[!] Server checking for AUTH, sending nick/user\n");
-                    handle_login(dawn.nickname, dawn.password,
-                                 dawn.realname, dawn.ident);
+                    handle_login(dawn.nickname, dawn.password, dawn.realname, dawn.ident);
                     dawn.login_sent = 1;
                 }
             }
