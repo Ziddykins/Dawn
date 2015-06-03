@@ -4,6 +4,7 @@
 #include "player.h"
 #include "status.h"
 #include "network.h"
+#include "stats.h"
 
 void init_new_character (char username[64], char password[64], Bot *dawn, Message *message) {
     //Check if user exists
@@ -55,7 +56,7 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     np.available_slots = 24;
     np.available_capacity = 85;
     //See player.h
-    Inventory sword = {0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 1, 0, 0, 1, "Wooden Sword"};
+    Inventory sword = {0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 1, 0, 0, 1, "Wooden Sword", 0};
     np.inventory[0] = sword;
     
     dawn->players[dawn->player_count] = np;
@@ -85,15 +86,17 @@ void load_players (Bot *dawn, size_t size) {
 void print_sheet (Bot *dawn, Message *message) {
     int i;
     char out[MAX_MESSAGE_BUFFER];
-    for (i=0; i<=dawn->player_count; i++) {
+    for (i=0; i<dawn->player_count; i++) {
         printf("at user %s\n", dawn->players[i].username);
         if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
+            int stats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
+                             dawn->players[i].strength, dawn->players[i].intelligence,
+                             dawn->players[i].m_def, dawn->players[i].defense };
+            get_stat(dawn, message, stats);
             sprintf(out, 
-                    "PRIVMSG %s :[%s] [%ld/%lu \0034HP\003] - [%lu/%lu \00310MP\003] Str: %lu - Int: %lu - MDef: %lu"
-                    " - Def: %lu\r\n",
-                    message->receiver, message->sender_nick, dawn->players[i].health, dawn->players[i].max_health,
-                    dawn->players[i].mana, dawn->players[i].max_mana, dawn->players[i].strength,
-                    dawn->players[i].intelligence, dawn->players[i].m_def, dawn->players[i].defense);
+                    "PRIVMSG %s :[%s] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
+                    " - Def: %d\r\n", message->receiver, message->sender_nick, dawn->players[i].health,
+                    stats[0], dawn->players[i].mana, stats[1], stats[2], stats[3], stats[4], stats[5]);
             send_socket(out);
             return;
         }

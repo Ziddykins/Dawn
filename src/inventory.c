@@ -33,10 +33,6 @@ void equip_inventory (Bot *dawn, Message *message, int slot, int unequip) {
             if (unequip && dawn->players[i].inventory[slot].equipped) {
                 sprintf(out, "PRIVMSG %s :%s unequipped\r\n", message->receiver, dawn->players[i].inventory[slot].name);
                 dawn->players[i].inventory[slot].equipped = 0;
-                dawn->players[i].strength     -= dawn->players[i].inventory[slot].attr_strength;
-                dawn->players[i].defense      -= dawn->players[i].inventory[slot].attr_defense;
-                dawn->players[i].intelligence -= dawn->players[i].inventory[slot].attr_intelligence;
-                dawn->players[i].m_def        -= dawn->players[i].inventory[slot].attr_mdef;
                 send_socket(out);
                 return;
             } else if (unequip && !dawn->players[i].inventory[slot].equipped) {
@@ -49,13 +45,6 @@ void equip_inventory (Bot *dawn, Message *message, int slot, int unequip) {
                     && !dawn->players[i].inventory[slot].equipped) {
                 sprintf(out, "PRIVMSG %s :%s equipped\r\n", message->receiver, dawn->players[i].inventory[slot].name);
                 dawn->players[i].inventory[slot].equipped = 1;
-                //TODO:Going to have to be moved to stats.c
-                //Make new functions to return user stats taking into account all
-                //of the boosts, such as equipment boosts, boosts from sockets, etc
-                dawn->players[i].strength     += dawn->players[i].inventory[slot].attr_strength;
-                dawn->players[i].defense      += dawn->players[i].inventory[slot].attr_defense;
-                dawn->players[i].intelligence += dawn->players[i].inventory[slot].attr_intelligence;
-                dawn->players[i].m_def        += dawn->players[i].inventory[slot].attr_mdef;
             } else {
                 sprintf(out, "PRIVMSG %s :%s is either unequippable or already equipped\r\n",
                         message->receiver,

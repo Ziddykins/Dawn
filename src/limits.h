@@ -4,6 +4,7 @@
 #define MAX_RECV_BUFFER     4096
 #define MAX_MESSAGE_BUFFER  420
 #define MAX_TIMERS          3
+#define MAX_INVENTORY_SLOTS 25
 //Seconds
 #define WEATHER_INTERVAL    3600
 #define HEALING_INTERVAL    1800
