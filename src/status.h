@@ -2,7 +2,6 @@
 #define STATUS_H_INCLUDED
 #include "limits.h"
 
-
 typedef struct {
     int time_finished;
 } Timers;
@@ -50,6 +49,7 @@ typedef struct {
 
 enum Events {WEATHER,
              HEALING,
+             SAVING,
              BATTLE
 };
 

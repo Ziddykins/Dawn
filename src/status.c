@@ -4,6 +4,7 @@
 #include "status.h"
 #include "limits.h"
 #include "network.h"
+#include "player.h"
 
 //Prototype
 void update_weather (Bot *);
@@ -18,26 +19,45 @@ void check_timers (Bot *dawn) {
     int i;
     time_t epoch = time(NULL);
     for (i=0; i<MAX_TIMERS; i++) {
-        switch (i) {
-            case WEATHER:
-                if (dawn->timer[i].time_finished - epoch <= 0) {
-                      update_weather(dawn);
-                      set_timer(WEATHER, dawn, 120);
-                      printf("Weather timer set to %ld\n", (epoch + 120));
-                } else {
-                    printf("%ld time remaining in weather timer\n", dawn->timer[i].time_finished - epoch);
+        if (dawn->timer[i].time_finished - epoch <= 0) {
+            printf("Timer %d expired\n", i);
+            switch (i) {
+                case WEATHER:
+                    update_weather(dawn);
+                    set_timer(WEATHER, dawn, WEATHER_INTERVAL);
+                    break;
+                case HEALING: {
+                    int j;
+                    for (j=0; j<dawn->player_count; j++) {
+                        if ((dawn->players[i].health + 5)
+                                <= dawn->players[i].max_health) {
+                            dawn->players[i].health += 5;
+                        } else {
+                            dawn->players[i].health = dawn->players[i].max_health;
+                        }
+                    }
+                    set_timer(HEALING, dawn, HEALING_INTERVAL);
+                    break;
                 }
-                break;
-            default:
-                printf("Timer not being set, skipping\n");
-                continue;
+                case SAVING: {
+                    Bot temp;
+                    size_t size = sizeof(temp);
+                    save_players(dawn, size);
+                    set_timer(SAVING, dawn, SAVING_INTERVAL);
+                    break;
+                }
+                default:
+                    continue;
+            }
         }
     }
 }
 
 void init_timers (Bot *dawn) {
-    set_timer(WEATHER, dawn, 10);
-    set_timer(HEALING, dawn, 120);
+    //Times are defined in limits.h and are in seconds
+    set_timer(WEATHER, dawn, SAVING_INTERVAL);
+    set_timer(HEALING, dawn, HEALING_INTERVAL);
+    set_timer(SAVING,  dawn, SAVING_INTERVAL);
     printf("Timers started\n");
 }
 
