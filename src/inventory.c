@@ -1,12 +1,13 @@
 #include <string.h>
 #include <stdio.h>
-#include "player.h"
 #include "status.h"
+#include "player.h"
 #include "network.h"
 #include "parse.h"
 
 void print_inventory (Bot *dawn, Message *message) {
-    int i, j;
+    int i;
+    unsigned int j;
     char out[MAX_MESSAGE_BUFFER];
     for (i=0; i<dawn->player_count; i++) {
         if (strcmp(message->sender_nick, dawn->players[i].username) == 0) {

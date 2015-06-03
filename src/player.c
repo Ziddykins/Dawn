@@ -70,7 +70,6 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
 }
 
 void save_players (Bot *dawn, size_t size) {
-    char out[MAX_MESSAGE_BUFFER];
     FILE *file = fopen("players.db", "wb");
     if (file != NULL) {
         fwrite(dawn, size, 1, file);

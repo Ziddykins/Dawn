@@ -4,11 +4,11 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <stdlib.h>
+#include "status.h"
+#include "player.h"
 #include "network.h"
 #include "limits.h"
 #include "parse.h"
-#include "status.h"
-#include "player.h"
 
 int main (void) {
     int len, match;

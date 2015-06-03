@@ -1,13 +1,14 @@
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "status.h"
 #include "limits.h"
+#include "network.h"
 
 //Prototype
 void update_weather (Bot *);
 
 void set_timer (int timer, Bot *dawn, int amount) {
-    enum Events event;
     time_t epoch = time(NULL);
     dawn->timer[timer].time_finished = epoch + amount;
     printf("Timer %d set to %ld\n", timer, (epoch + amount));
@@ -43,7 +44,6 @@ void init_timers (Bot *dawn) {
 void update_weather (Bot *dawn) {
     int weather = rand() % 4;
     char out[MAX_MESSAGE_BUFFER];
-    enum Weather weather_type;
     switch (weather) {
         case 0:
             sprintf(out, "PRIVMSG %s :The clouds disperse, allowing "
