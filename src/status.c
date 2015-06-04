@@ -5,9 +5,11 @@
 #include "limits.h"
 #include "network.h"
 #include "player.h"
+#include "colors.h"
 
 //Prototype
 void update_weather (Bot *);
+void call_monster (Bot *);
 
 void set_timer (int timer, Bot *dawn, int amount) {
     time_t epoch = time(NULL);
@@ -29,8 +31,7 @@ void check_timers (Bot *dawn) {
                 case HEALING: {
                     int j;
                     for (j=0; j<dawn->player_count; j++) {
-                        if ((dawn->players[i].health + 5)
-                                <= dawn->players[i].max_health) {
+                        if ((dawn->players[i].health + 5) <= dawn->players[i].max_health) {
                             dawn->players[i].health += 5;
                         } else {
                             dawn->players[i].health = dawn->players[i].max_health;
@@ -46,6 +47,11 @@ void check_timers (Bot *dawn) {
                     set_timer(SAVING, dawn, SAVING_INTERVAL);
                     break;
                 }
+                case BATTLE: {
+                    call_monster(dawn);
+                    set_timer(BATTLE, dawn, BATTLE_INTERVAL);
+                    break;
+                }
                 default:
                     continue;
             }
@@ -58,6 +64,7 @@ void init_timers (Bot *dawn) {
     set_timer(WEATHER, dawn, SAVING_INTERVAL);
     set_timer(HEALING, dawn, HEALING_INTERVAL);
     set_timer(SAVING,  dawn, SAVING_INTERVAL);
+    set_timer(BATTLE,  dawn, BATTLE_INTERVAL);
     printf("Timers started\n");
 }
 
@@ -88,4 +95,22 @@ void update_weather (Bot *dawn) {
             dawn->weather = SNOWING;
             break;
     }
+}
+
+void call_monster (Bot *dawn) {
+    char out[MAX_MESSAGE_BUFFER];
+    //If a global monster already exists, reset its health and call a random one
+    //into the room and assign global_monster to the one chosen
+    if (dawn->global_monster.active) {
+        dawn->global_monster.hp = dawn->global_monster.mhp;
+        dawn->global_monster = dawn->monsters[rand()%MAX_MONSTERS];
+    } else {
+        dawn->global_monster = dawn->monsters[rand()%MAX_MONSTERS];
+    }
+    sprintf(out, "PRIVMSG %s :Monster spawned in room: [%s] [%d/%d %sHP%s] - [%d STR] - [%d DEF] - [%d INT] -"
+                 " [%d MDEF]\r\n", 
+                 dawn->active_room, dawn->global_monster.name, dawn->global_monster.hp,
+                 dawn->global_monster.mhp, red, normal, dawn->global_monster.str, dawn->global_monster.def,
+                 dawn->global_monster.intel, dawn->global_monster.mdef);
+    send_socket(out);
 }

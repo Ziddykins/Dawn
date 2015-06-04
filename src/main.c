@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <stdlib.h>
+#include <time.h>
 #include "status.h"
 #include "player.h"
 #include "network.h"
@@ -11,6 +12,7 @@
 #include "parse.h"
 
 int main (void) {
+    srand(time(NULL));
     int len, match;
     char dalnet[]  = "108.61.240.240";
     char port[]    = "6667";
@@ -31,13 +33,51 @@ int main (void) {
         fseek(file, 0L, SEEK_SET);
         if (sz > 0) {
             load_players(&dawn, sizeof(dawn));
+        } else {
+            printf("Error reading players.db\n");
+            exit(1);
         }
         fclose(file);
     } else {
         FILE *file = fopen("players.db", "w+");
         fclose(file);
-        printf("Player database not found, creating.\nPlease rerun\n");
+        printf("Player database not found, creating\nPlease rerun\n");
         exit(1);
+    }
+
+    if (access("monsters.raw", F_OK) != -1) {
+        FILE *file = fopen("monsters.raw", "r");
+        char line[1024];
+        int count = 0;
+        char name[100];
+        int hp, str, def, intel, mdef, gold, exp, mhp, range;
+        printf("1\n");
+        if (file != NULL) {
+            printf("2\n");
+            while (fgets(line, sizeof(line), file)) {
+                //TODO: Add ranges to raw files
+                if (sscanf(line, "%[^:]:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                        name, &hp, &str, &def, &intel, &mdef, &gold, &exp, &mhp, &range) != 9) {
+                    printf("Malformed monster file at line %d\n", count);
+                    exit(1);
+                }
+                strcpy(dawn.monsters[count].name, name);
+                dawn.monsters[count].hp     = hp;
+                dawn.monsters[count].str    = str;
+                dawn.monsters[count].def    = def;
+                dawn.monsters[count].intel  = intel;
+                dawn.monsters[count].mdef   = mdef;
+                dawn.monsters[count].gold   = gold;
+                dawn.monsters[count].exp    = exp;
+                dawn.monsters[count].mhp    = mhp;
+                dawn.monsters[count].range  = range;
+                dawn.monsters[count].active = 0;
+                count++;
+            }
+        } else {
+            printf("Error opening raw monsters\n");
+            exit(1);
+        }
     }
 
     //Initial settings

@@ -1,11 +1,8 @@
+#ifndef MONSTERS_H_INCLUDED
+#define MONSTERS_H_INCLUDED
 typedef struct {
     char name[64];
-    int health;
-    int max_health;
-    int mana;
-    int max_mana;
-    int strength;
-    int defense;
-    int magic_defense;
-    int intelligence;
+    int hp, mhp, def, str, intel, mdef, gold, exp, range;
+    int active;
 } Monsters;
+#endif

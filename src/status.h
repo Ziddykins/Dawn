@@ -1,6 +1,7 @@
 #ifndef STATUS_H_INCLUDED
 #define STATUS_H_INCLUDED
 #include "limits.h"
+#include "monsters.h"
 
 typedef struct {
     int time_finished;
@@ -26,6 +27,7 @@ typedef struct {
     long kills, deaths, gold, experience;
     int mana, strength, intelligence, defense, m_def;
     unsigned int available_slots, available_capacity;
+    Monsters personal_monster;
 } Player;
 
 typedef struct {
@@ -40,6 +42,8 @@ typedef struct {
     int weather;
     Player players[100];
     Timers timer[MAX_TIMERS];
+    Monsters monsters[MAX_MONSTERS];
+    Monsters global_monster;
 } Bot;
 
 
