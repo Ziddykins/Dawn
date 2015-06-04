@@ -14,7 +14,7 @@ void print_inventory (Bot *dawn, Message *message) {
         if (strcmp(message->sender_nick, dawn->players[i].username) == 0) {
             sprintf(out, "PRIVMSG %s :", message->receiver);
             char temp[100];
-            for (j=0; j<=dawn->players[i].available_slots-24; j++) {
+            for (j=0; j<(MAX_INVENTORY_SLOTS - dawn->players[i].available_slots); j++) {
                 int equipped = dawn->players[i].inventory[j].equipped;
                 temp[0] = '\0';
                 sprintf(temp, "[%s%d%s] - %s ", equipped ? green : red, j, normal, dawn->players[i].inventory[j].name);

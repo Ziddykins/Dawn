@@ -53,11 +53,14 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     np.intelligence = 5;
     np.defense = 5;
     np.m_def = 5;
-    np.available_slots = 24;
-    np.available_capacity = 85;
-    //See player.h
-    Inventory sword = {0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 1, 0, 0, 1, "Wooden Sword", 0};
+    np.available_slots = 23;
+    np.available_capacity = 70;
+    //health, def, int, str, mdef, req lvl, weight, s1, s2, s3
+    //type, rusted, equipped, equippable, name, mana
+    Inventory sword  = {0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 1, 0, 0, 1, "Wooden Sword", 0};
+    Inventory shield = {5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 2, 0, 0, 1, "Wooden Shield", 5};
     np.inventory[0] = sword;
+    np.inventory[1] = shield;
     
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
