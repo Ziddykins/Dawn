@@ -4,6 +4,7 @@
 #include "player.h"
 #include "network.h"
 #include "parse.h"
+#include "colors.h"
 
 void print_inventory (Bot *dawn, Message *message) {
     int i;
@@ -12,12 +13,15 @@ void print_inventory (Bot *dawn, Message *message) {
     for (i=0; i<dawn->player_count; i++) {
         if (strcmp(message->sender_nick, dawn->players[i].username) == 0) {
             sprintf(out, "PRIVMSG %s :", message->receiver);
+            char temp[100];
             for (j=0; j<=dawn->players[i].available_slots-24; j++) {
-                char temp[100];
                 int equipped = dawn->players[i].inventory[j].equipped;
-                sprintf(temp, "[%c%d ] - %s ", equipped ? '*' : ' ', j, dawn->players[i].inventory[j].name);
+                temp[0] = '\0';
+                sprintf(temp, "[%s%d%s] - %s ", equipped ? green : red, j, normal, dawn->players[i].inventory[j].name);
                 strcat(out, temp);
             }
+            sprintf(temp, " - Available slots: %d", dawn->players[i].available_slots);
+            strcat(out, temp);
             strcat(out, "\r\n");
             send_socket(out);
         }
