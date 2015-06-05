@@ -58,9 +58,10 @@ enum Weather {SUNNY,
               SNOWING
 };
 
+
 //Prototypes
-void set_timers (int, Bot *, int);
-void check_timers(Bot *);
-void init_timers(Bot *);
+void set_timer (int, Bot *, int);
+void check_timers (Bot *);
+void init_timers (Bot *);
 
 #endif

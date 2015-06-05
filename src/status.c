@@ -113,4 +113,5 @@ void call_monster (Bot *dawn) {
                  dawn->global_monster.mhp, red, normal, dawn->global_monster.str, dawn->global_monster.def,
                  dawn->global_monster.intel, dawn->global_monster.mdef);
     send_socket(out);
+    dawn->global_monster.active = 1;
 }
