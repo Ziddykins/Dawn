@@ -6,6 +6,8 @@
 #include "network.h"
 #include "stats.h"
 
+void save_players (Bot *, size_t);
+
 void init_new_character (char username[64], char password[64], Bot *dawn, Message *message) {
     //Check if user exists
     int i;
@@ -65,6 +67,8 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
     sprintf(out, "PRIVMSG %s :Account created for user %s\r\n", message->receiver, username);
+    Bot temp;
+    save_players (dawn, sizeof(temp));
     send_socket(out);
 }
 

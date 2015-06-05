@@ -83,7 +83,7 @@ void parse_room_message (Message *message, Bot *dawn) {
         int slot = atoi(regex_group[1]);
         equip_inventory(dawn, message, slot, 1);
     } else if (strcmp(message->message, ";gmelee") == 0) {
-        player_attack(dawn, message, 1, 0);
+        player_attacks(dawn, message, 1, 0);
     } else if (strcmp(message->message, ";gib ples") == 0) {
         set_timer(BATTLE, dawn,  0);
         check_timers(dawn);

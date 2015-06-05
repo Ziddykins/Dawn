@@ -33,9 +33,6 @@ int main (void) {
         fseek(file, 0L, SEEK_SET);
         if (sz > 0) {
             load_players(&dawn, sizeof(dawn));
-        } else {
-            printf("Error reading players.db\n");
-            exit(1);
         }
         fclose(file);
     } else {
