@@ -59,12 +59,15 @@ void player_attacks (Bot *dawn, Message *message, int global) {
 
     for (i=0; i<dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
+            int player_attack, monster_defense, player_defense, critical;
             int ustats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
                               dawn->players[i].strength, dawn->players[i].intelligence,
                               dawn->players[i].m_def, dawn->players[i].defense };
+
             get_stat(dawn, message, ustats);
-            int player_attack, monster_defense, player_defense, critical;
             player_defense = rand() % dawn->players[i].defense;
+
+            //15% chance to critical hit (double) attack
             if ((rand() % 100) < 15) {
                 critical = 1;
                 player_attack = (rand() % ustats[2]) * 2;
@@ -72,61 +75,65 @@ void player_attacks (Bot *dawn, Message *message, int global) {
                 critical = 0;
                 player_attack = rand() % ustats[2];
             }
+
             if (dawn->players[i].health <= 0) {
                 sprintf(out, "PRIVMSG %s :%s, you are dead and can't make an attack; revive at a shrine"
                              ", use a potion, or have someone revive you!\r\n", message->receiver, message->sender_nick);
                 send_socket(out);
                 return;
-            } else {
-                if (global) {
-                    if (!dawn->global_monster.active) {
-                        sprintf(out, "PRIVMSG %s :%s, there is no monster in the room!\r\n",
-                                     message->receiver, message->sender_nick);
-                        send_socket(out);
-                        return;
+            }
+
+            if (global) {
+                if (!dawn->global_monster.active) {
+                    sprintf(out, "PRIVMSG %s :%s, there is no monster in the room!\r\n",
+                                 message->receiver, message->sender_nick);
+                    send_socket(out);
+                    return;
+                }
+
+                if (player_attack == 0) {
+                    sprintf(out, "PRIVMSG %s :%s trips over his shoelace and misses\r\n", message->receiver,
+                                 message->sender_nick);
+                    send_socket(out);
+                    monster_attacks(dawn, message, player_defense, i); 
+                } else {
+                    //Avoid floating point exceptions
+                    if (!dawn->global_monster.def == 0) {
+                        monster_defense = rand() % dawn->global_monster.def;
                     } else {
-                        if (player_attack == 0) {
-                            sprintf(out, "PRIVMSG %s :%s trips over his shoelace and misses\r\n", message->receiver,
-                                         message->sender_nick);
-                            send_socket(out);
-                            monster_attacks(dawn, message, player_defense, i); 
+                        monster_defense = 0;
+                    }
+                    if (player_attack - monster_defense > 0) {
+                        //Icky
+                        calc_contribution(
+                                    dawn, 
+                                    i, 
+                                    (player_attack - monster_defense), 
+                                    dawn->global_monster.mhp,
+                                    dawn->global_monster.hp
+                                );
+
+                        dawn->global_monster.hp -= (player_attack - monster_defense);
+
+                        if (critical) {
+                            sprintf(out, "PRIVMSG %s :%s attacks the %s for %d %sCRITICAL%s damage! "
+                                    "Remaining (%d)\r\n",
+                                    message->receiver, message->sender_nick, dawn->global_monster.name,
+                                    player_attack - monster_defense, red, normal, dawn->global_monster.hp);
                         } else {
-                            //Avoid floating point exceptions
-                            if (!dawn->global_monster.def == 0) {
-                                monster_defense = rand() % dawn->global_monster.def;
-                            } else {
-                                monster_defense = 0;
-                            }
-                            if (player_attack - monster_defense > 0) {
-                                //Icky
-                                calc_contribution(
-                                            dawn, 
-                                            i, 
-                                            (player_attack - monster_defense), 
-                                            dawn->global_monster.mhp,
-                                            dawn->global_monster.hp
-                                        );
-                               dawn->global_monster.hp -= (player_attack - monster_defense);
-                               if (critical) {
-                                    sprintf(out, "PRIVMSG %s :%s attacks the %s for %d %sCRITICAL%s damage! "
-                                            "Remaining (%d)\r\n",
-                                            message->receiver, message->sender_nick, dawn->global_monster.name,
-                                            player_attack - monster_defense, red, normal, dawn->global_monster.hp);
-                                } else {
-                                    sprintf(out, "PRIVMSG %s :%s attacks the %s for %d damage! (Remaining: %d)\r\n",
-                                            message->receiver, message->sender_nick, dawn->global_monster.name,
-                                            player_attack - monster_defense, dawn->global_monster.hp);
-                                }
-                                send_socket(out);
-                                check_alive(dawn, message);
-                                monster_attacks(dawn, message, player_defense, i);
-                            } else {
-                                sprintf(out, "PRIVMSG %s :The %s has blocked %s's attack!\r\n", message->receiver,
-                                        dawn->global_monster.name, message->sender_nick);
-                                monster_attacks(dawn, message, player_defense, i);
-                                send_socket(out);
-                            }
+                            sprintf(out, "PRIVMSG %s :%s attacks the %s for %d damage! (Remaining: %d)\r\n",
+                                    message->receiver, message->sender_nick, dawn->global_monster.name,
+                                    player_attack - monster_defense, dawn->global_monster.hp);
                         }
+
+                        send_socket(out);
+                        check_alive(dawn, message);
+                        monster_attacks(dawn, message, player_defense, i);
+                    } else {
+                        sprintf(out, "PRIVMSG %s :The %s has blocked %s's attack!\r\n", message->receiver,
+                                dawn->global_monster.name, message->sender_nick);
+                        monster_attacks(dawn, message, player_defense, i);
+                        send_socket(out);
                     }
                 }
             }

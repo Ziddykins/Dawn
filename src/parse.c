@@ -14,10 +14,10 @@ int check_if_matches_regex (char *buffer, char *regular_expression) {
     pcre *regex_compiled;
     pcre_extra *pcre_optimized;
     int pcre_return;
-    const char *pcre_error;
     int pcre_error_offset;
     int substring_vec[30];
     const char *psubStrMatchStr;
+    const char *pcre_error;
 
     regex_compiled = pcre_compile(regular_expression, PCRE_MULTILINE,
                                   &pcre_error, &pcre_error_offset, NULL);
@@ -59,7 +59,7 @@ void handle_login (char *nick, char *pass, char *real, char *ident) {
     send_socket(out);
     sprintf(out, "USER %s * * :%s\r\n", ident, real);
     send_socket(out);
-    printf("%s\n", pass); //TODO:quieting down warnings for now
+    printf("%s\n", pass); //TODO:quieting down warnings for now but this will be nickserv
 }
 
 void parse_private_message (Message *message) {
@@ -87,6 +87,5 @@ void parse_room_message (Message *message, Bot *dawn) {
     } else if (check_if_matches_regex(message->message, ";gib (\\d+)")) {
         call_monster(dawn, atoi(regex_group[1]));
         set_timer(BATTLE, dawn, BATTLE_INTERVAL);
-        check_timers(dawn);
     }
 }

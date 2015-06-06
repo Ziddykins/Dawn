@@ -26,37 +26,38 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     strcpy(np.first_class, "None");
     strcpy(np.second_class, "None");
     strcpy(np.title, "Newbie");
-    np.stone = 0;
-    np.steel = 0;
-    np.wood  = 0;
-    np.ore   = 0;
-    np.bronze = 0;
-    np.diamond = 0;
-    np.mail = 0;
-    np.leather = 0;
-    np.health = 100;
-    np.addiction = 0;
-    np.x_pos = 1;
-    np.y_pos = 1;
-    np.hunger = 0;
-    np.alignment = 0;
-    np.alive = 1;
-    np.available = 1;
-    np.level = 1;
+    np.stone        = 0;
+    np.steel        = 0;
+    np.wood         = 0;
+    np.ore          = 0;
+    np.bronze       = 0;
+    np.diamond      = 0;
+    np.mail         = 0;
+    np.leather      = 0;
+    np.health       = 100;
+    np.addiction    = 0;
+    np.x_pos        = 1;
+    np.y_pos        = 1;
+    np.hunger       = 0;
+    np.alignment    = 0;
+    np.alive        = 1;
+    np.available    = 1;
+    np.level        = 1;
     np.contribution = 0;
-    np.max_health = 100;
-    np.max_mana = 100;
-    np.kills = 0;
-    np.deaths = 0;
-    np.gold = 100;
-    np.experience = 0;
-    np.mana = 100;
-    np.strength = 5;
+    np.max_health   = 100;
+    np.max_mana     = 100;
+    np.kills        = 0;
+    np.deaths       = 0;
+    np.gold         = 100;
+    np.experience   = 0;
+    np.mana         = 100;
+    np.strength     = 5;
     np.intelligence = 5;
-    np.defense = 5;
-    np.m_def = 5;
+    np.defense      = 5;
+    np.m_def        = 5;
     np.available_slots = 23;
     np.available_capacity = 70;
+    
     //health, def, int, str, mdef, req lvl, weight, s1, s2, s3
     //type, rusted, equipped, equippable, name, mana
     Inventory sword  = {0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 1, 0, 0, 1, "Wooden Sword", 0};
@@ -67,6 +68,7 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
     sprintf(out, "PRIVMSG %s :Account created for user %s\r\n", message->receiver, username);
+
     Bot temp;
     save_players (dawn, sizeof(temp));
     send_socket(out);
@@ -99,10 +101,12 @@ void print_sheet (Bot *dawn, Message *message) {
                              dawn->players[i].strength, dawn->players[i].intelligence,
                              dawn->players[i].m_def, dawn->players[i].defense };
             get_stat(dawn, message, stats);
+
             sprintf(out, 
                     "PRIVMSG %s :[%s] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
                     " - Def: %d\r\n", message->receiver, message->sender_nick, dawn->players[i].health,
                     stats[0], dawn->players[i].mana, stats[1], stats[2], stats[3], stats[4], stats[5]);
+
             send_socket(out);
             return;
         }

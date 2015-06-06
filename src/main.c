@@ -45,12 +45,10 @@ int main (void) {
     if (access("monsters.raw", F_OK) != -1) {
         FILE *file = fopen("monsters.raw", "r");
         char line[1024];
-        int count = 0;
         char name[100];
+        int count = 0;
         int hp, str, def, intel, mdef, gold, exp, mhp, range;
-        printf("1\n");
         if (file != NULL) {
-            printf("2\n");
             while (fgets(line, sizeof(line), file)) {
                 //TODO: Add ranges to raw files
                 if (sscanf(line, "%[^:]:%d:%d:%d:%d:%d:%d:%d:%d:%d",
@@ -83,14 +81,16 @@ int main (void) {
     strcpy(dawn.ident, "hehe");
     strcpy(dawn.password, "none");
     strcpy(dawn.active_room, rooms[0]);
+
     dawn.login_sent = 0;
     dawn.in_rooms = 0;
+
     if (!dawn.player_count) dawn.player_count = 0;
 
     init_timers(&dawn);
 
     if (init_connect_server(dalnet, port) == 0) { 
-        printf("ok\n");
+        printf("[!] Connected to server %s\n", dalnet);
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
             char out[MAX_MESSAGE_BUFFER];
             buffer[len] = '\0';
@@ -117,7 +117,7 @@ int main (void) {
             if (!dawn.in_rooms && dawn.login_sent == 1) {
                 match = check_if_matches_regex(buffer, ":(.*?)\\s001(.*)");
                 if (match) {
-                    printf("[!] Got welcome message from server\n");
+                    printf("[!] Got welcome message from server, joining rooms\n");
                     while (*n != NULL) {
                         sprintf(out, "JOIN %s\r\n", *n++);
                         send_socket(out);
@@ -157,10 +157,11 @@ int main (void) {
             }
         }
     } else {
-        printf("didn't connect: %d\n", errno);
+        printf("[*] Could not connect, error: %d\n", errno);
         close(con_socket);
         return 1;
     }
     close(con_socket);
+    printf("[!] Program exiting normally\n");
     return 0;
 }
