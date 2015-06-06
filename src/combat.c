@@ -17,6 +17,7 @@ void calc_contribution (Bot *dawn, int i, int amount, int monster_mhp, int monst
         } else {
             dawn->players[i].contribution += amount;
         }
+        if ((int)dawn->players[i].contribution > monster_mhp) dawn->players[i].contribution = monster_mhp;
     }
 }
  
@@ -105,7 +106,7 @@ void player_attacks (Bot *dawn, Message *message, int global) {
                                             dawn->global_monster.mhp,
                                             dawn->global_monster.hp
                                         );
-                                dawn->global_monster.hp -= (player_attack - monster_defense);
+                               dawn->global_monster.hp -= (player_attack - monster_defense);
                                if (critical) {
                                     sprintf(out, "PRIVMSG %s :%s attacks the %s for %d %sCRITICAL%s damage! "
                                             "Remaining (%d)\r\n",
@@ -136,7 +137,7 @@ void player_attacks (Bot *dawn, Message *message, int global) {
 void monster_attacks (Bot *dawn, Message *message, int player_defense, int i) {
     int monster_attack = rand() % dawn->global_monster.str;
     char out[MAX_MESSAGE_BUFFER];
-    if (monster_attack > 0 && (monster_attack - player_defense) > 0 ) {
+    if (monster_attack > 0 && (monster_attack - player_defense) > 0) {
         check_alive(dawn, message);
         dawn->players[i].health -= monster_attack;
         sprintf(out, "PRIVMSG %s :The %s attacks %s viciously for %d damage! (Remaining: %ld)\r\n",
@@ -145,8 +146,10 @@ void monster_attacks (Bot *dawn, Message *message, int player_defense, int i) {
         send_socket(out);
         check_alive(dawn, message);
     } else {
-        sprintf(out, "PRIVMSG %s :%s has blocked the %s's attack!\r\n", 
-                message->receiver, message->sender_nick, dawn->global_monster.name);
-        send_socket(out);
+        if (dawn->global_monster.hp > 0) {
+            sprintf(out, "PRIVMSG %s :%s has blocked the %s's attack!\r\n", 
+                    message->receiver, message->sender_nick, dawn->global_monster.name);
+            send_socket(out);
+        }
     }
 }
