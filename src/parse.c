@@ -68,8 +68,8 @@ void parse_private_message (Message *message) {
 }
 
 void parse_room_message (Message *message, Bot *dawn) {
-    printf("%s <%s(%s)%s> %s\n", message->receiver, 
-            message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);
+/*    printf("%s <%s(%s)%s> %s\n", message->receiver, 
+            message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);*/
     if (strcmp(message->message, ";new") == 0) {
         init_new_character(message->sender_nick, "temp", dawn, message);
     } else if (strcmp(message->message, ";sheet") == 0) {
@@ -84,8 +84,9 @@ void parse_room_message (Message *message, Bot *dawn) {
         equip_inventory(dawn, message, slot, 1);
     } else if (strcmp(message->message, ";gmelee") == 0) {
         player_attacks(dawn, message, 1, 0);
-    } else if (strcmp(message->message, ";gib ples") == 0) {
-        set_timer(BATTLE, dawn,  0);
+    } else if (check_if_matches_regex(message->message, ";gib (\\d+)")) {
+        call_monster(dawn, atoi(regex_group[1]));
+        set_timer(BATTLE, dawn, BATTLE_INTERVAL);
         check_timers(dawn);
     }
 }

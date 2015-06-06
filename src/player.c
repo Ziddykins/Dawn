@@ -94,7 +94,6 @@ void print_sheet (Bot *dawn, Message *message) {
     int i;
     char out[MAX_MESSAGE_BUFFER];
     for (i=0; i<dawn->player_count; i++) {
-        printf("at user %s\n", dawn->players[i].username);
         if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
             int stats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
                              dawn->players[i].strength, dawn->players[i].intelligence,

@@ -9,7 +9,6 @@
 
 //Prototype
 void update_weather (Bot *);
-void call_monster (Bot *);
 
 void set_timer (int timer, Bot *dawn, int amount) {
     time_t epoch = time(NULL);
@@ -48,7 +47,7 @@ void check_timers (Bot *dawn) {
                     break;
                 }
                 case BATTLE: {
-                    call_monster(dawn);
+                    call_monster(dawn, -1);
                     set_timer(BATTLE, dawn, BATTLE_INTERVAL);
                     break;
                 }
@@ -97,21 +96,31 @@ void update_weather (Bot *dawn) {
     }
 }
 
-void call_monster (Bot *dawn) {
+void call_monster (Bot *dawn, int which) {
     char out[MAX_MESSAGE_BUFFER];
+    int i;
+
     //If a global monster already exists, reset its health and call a random one
     //into the room and assign global_monster to the one chosen
     if (dawn->global_monster.active) {
         dawn->global_monster.hp = dawn->global_monster.mhp;
-        dawn->global_monster = dawn->monsters[rand()%MAX_MONSTERS];
+        dawn->global_monster = dawn->monsters[which == -1 ? rand()%MAX_MONSTERS : which];
     } else {
-        dawn->global_monster = dawn->monsters[rand()%MAX_MONSTERS];
+        dawn->global_monster = dawn->monsters[which == -1 ? rand()%MAX_MONSTERS : which];
     }
+
     sprintf(out, "PRIVMSG %s :Monster spawned in room: [%s] [%d/%d %sHP%s] - [%d STR] - [%d DEF] - [%d INT] -"
                  " [%d MDEF]\r\n", 
                  dawn->active_room, dawn->global_monster.name, dawn->global_monster.hp,
                  dawn->global_monster.mhp, red, normal, dawn->global_monster.str, dawn->global_monster.def,
                  dawn->global_monster.intel, dawn->global_monster.mdef);
     send_socket(out);
+    
+    //set active monster
     dawn->global_monster.active = 1;
+    
+    //Reset damage contribution for users
+    for (i=0; i<dawn->player_count; i++) {
+        dawn->players[i].contribution = 0;
+    }
 }
