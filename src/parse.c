@@ -87,5 +87,13 @@ void parse_room_message (Message *message, Bot *dawn) {
     } else if (check_if_matches_regex(message->message, ";gib (\\d+)")) {
         call_monster(dawn, atoi(regex_group[1]));
         set_timer(BATTLE, dawn, BATTLE_INTERVAL);
+    } else if (strcmp(message->message, ";rev ples") == 0) {
+        int i;
+        for (i=0; i<dawn->player_count; i++) {
+            if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
+                dawn->players[i].health = 100;
+                printf("user %s health set to %ld\n", dawn->players[i].username, dawn->players[i].health);
+            }
+        }
     }
 }

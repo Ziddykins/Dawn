@@ -5,6 +5,7 @@
 #include "network.h"
 #include "stats.h"
 #include "colors.h"
+#include "player.h"
 
 void monster_attacks (Bot *, Message *, int, int);
 
@@ -30,11 +31,12 @@ void check_alive (Bot *dawn, Message *message) {
                 sprintf(out, "PRIVMSG %s :%s has been killed by the %s\r\n", 
                         message->receiver, message->sender_nick, dawn->global_monster.name);
                 send_socket(out);
+                dawn->players[i].deaths++;
             }
         }
     }
 
-    if (dawn->global_monster.hp <= 0) {
+    if (dawn->global_monster.hp <= 0 && dawn->global_monster.active) {
         sprintf(out, "PRIVMSG %s :The %s has been killed!\r\n", message->receiver, dawn->global_monster.name);
         send_socket(out);
         for (i=0; i<dawn->player_count; i++) {
@@ -46,7 +48,10 @@ void check_alive (Bot *dawn, Message *message) {
                 dawn->players[i].gold += (int)goldgain;
                 sprintf(out, "PRIVMSG %s :%s has helped defeat the foe and receives %d experience and %d gold"
                         " for their efforts!\r\n", message->receiver, dawn->players[i].username, (int)expgain, (int)goldgain);
+                dawn->global_monster.active = 0;
                 send_socket(out);
+                dawn->players[i].kills++;
+                check_levelup(dawn, message);
             }
         }
     }
@@ -83,14 +88,7 @@ void player_attacks (Bot *dawn, Message *message, int global) {
                 return;
             }
 
-            if (global) {
-                if (!dawn->global_monster.active) {
-                    sprintf(out, "PRIVMSG %s :%s, there is no monster in the room!\r\n",
-                                 message->receiver, message->sender_nick);
-                    send_socket(out);
-                    return;
-                }
-
+            if (global && dawn->global_monster.active) {
                 if (player_attack == 0) {
                     sprintf(out, "PRIVMSG %s :%s trips over his shoelace and misses\r\n", message->receiver,
                                  message->sender_nick);
@@ -104,14 +102,10 @@ void player_attacks (Bot *dawn, Message *message, int global) {
                         monster_defense = 0;
                     }
                     if (player_attack - monster_defense > 0) {
-                        //Icky
-                        calc_contribution(
-                                    dawn, 
-                                    i, 
+                        calc_contribution(dawn, i, 
                                     (player_attack - monster_defense), 
                                     dawn->global_monster.mhp,
-                                    dawn->global_monster.hp
-                                );
+                                    dawn->global_monster.hp);
 
                         dawn->global_monster.hp -= (player_attack - monster_defense);
 

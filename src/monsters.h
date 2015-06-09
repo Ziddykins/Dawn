@@ -3,6 +3,6 @@
 typedef struct {
     char name[64];
     int hp, mhp, def, str, intel, mdef, gold, exp, range;
-    int active;
+    int active, told;
 } Monsters;
 #endif

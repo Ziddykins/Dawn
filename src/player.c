@@ -92,6 +92,25 @@ void load_players (Bot *dawn, size_t size) {
     }
 }
 
+long int get_nextlvl_exp (Bot *dawn, char username[64]) {
+    int i;
+    for (i=0; i<dawn->player_count; i++) {
+        if (strcmp(dawn->players[i].username, username) == 0) {
+            int curr_level = dawn->players[i].level;
+            printf("found user %s has level %d\n", username, curr_level);
+            if (curr_level > 10) {
+                printf("returning >10\n");
+                return 500 * curr_level * curr_level * curr_level - 500 * curr_level;
+            } else {
+                printf("returning <10\n");
+                return 100 * curr_level * curr_level * curr_level - 100 * curr_level;
+            }
+        }
+    }
+    //To quiet warnings. We should never make it here.
+    return -1;
+}
+
 void print_sheet (Bot *dawn, Message *message) {
     int i;
     char out[MAX_MESSAGE_BUFFER];
@@ -104,11 +123,41 @@ void print_sheet (Bot *dawn, Message *message) {
 
             sprintf(out, 
                     "PRIVMSG %s :[%s] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
-                    " - Def: %d\r\n", message->receiver, message->sender_nick, dawn->players[i].health,
-                    stats[0], dawn->players[i].mana, stats[1], stats[2], stats[3], stats[4], stats[5]);
+                    " - Def: %d (%ldK/%ldD) [%ld/%ld EXP - %ld Gold]\r\n", message->receiver, message->sender_nick, 
+                    dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1], stats[2], stats[3], stats[4], stats[5],
+                    dawn->players[i].kills, dawn->players[i].deaths, dawn->players[i].experience,
+                    get_nextlvl_exp(dawn, dawn->players[i].username), dawn->players[i].gold);
 
             send_socket(out);
             return;
+        }
+    }
+}
+
+void check_levelup (Bot *dawn, Message *message) {
+    int i;
+    char out[MAX_MESSAGE_BUFFER];
+    for (i=0; i<dawn->player_count; i++) {
+        if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
+            printf("checking level of user\n");
+            long int next_level_exp = get_nextlvl_exp(dawn, message->sender_nick);
+            long int curr_level_exp = dawn->players[i].experience;
+            int curr_level = dawn->players[i].level;
+            printf("cur exp %ld nl exp %ld\n", curr_level_exp, next_level_exp);
+            if (curr_level_exp >= next_level_exp) {
+                sprintf(out, "PRIVMSG %s :%s has achieved level %d. Base stats increased +5, HP and MP"
+                        "increased +20!\r\n", message->receiver, message->sender_nick, curr_level + 1);
+                send_socket(out);
+                dawn->players[i].level++;
+                dawn->players[i].strength     += 5;
+                dawn->players[i].intelligence += 5;
+                dawn->players[i].defense      += 5;
+                dawn->players[i].m_def        += 5;
+                dawn->players[i].max_health   += 20;
+                dawn->players[i].max_mana     += 20;
+                dawn->players[i].health        = dawn->players[i].max_health;
+                dawn->players[i].mana          = dawn->players[i].max_mana;
+            }
         }
     }
 }
