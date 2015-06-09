@@ -103,7 +103,7 @@ void load_players (Bot *dawn, size_t size) {
     }
 }
 
-//Lol this entire thing Âv
+//Lol this entire thing ¯v
 const char *progress_bar (Bot *dawn, char username[64]) {
     static char bar[48];
     float temp_cyan = ((dawn->players[get_pindex(dawn, username)].experience / get_nextlvl_exp(dawn, username)) * 100) / 10;
