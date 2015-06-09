@@ -60,7 +60,6 @@ void check_alive (Bot *dawn, Message *message) {
 void player_attacks (Bot *dawn, Message *message, int global) {
     int i;
     char out[MAX_MESSAGE_BUFFER];
-    //hp, mana, str, int, mdef, def 
 
     for (i=0; i<dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {

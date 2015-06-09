@@ -5,8 +5,11 @@
 #include "status.h"
 #include "network.h"
 #include "stats.h"
+#include "colors.h"
 
+//Prototypes
 void save_players (Bot *, size_t);
+long int get_nextlvl_exp (Bot *, char []);
 
 void init_new_character (char username[64], char password[64], Bot *dawn, Message *message) {
     //Check if user exists
@@ -92,17 +95,29 @@ void load_players (Bot *dawn, size_t size) {
     }
 }
 
+//Lol this entire thing Âv
+const char *progress_bar (Bot *dawn, char username[64]) {
+    int i;
+    static char bar[48];
+    for (i=0; i<dawn->player_count; i++) {
+        if (strcmp(dawn->players[i].username, username) == 0) {
+            float temp_cyan = ((dawn->players[i].experience / get_nextlvl_exp(dawn, username)) * 100) / 10;
+            int blue_count  = 9  - (int)temp_cyan;
+            int cyan_count  = 10 - blue_count;
+            sprintf(bar, "%s,10%0*d%s,02%0*d%s", cyan, cyan_count, 0, dblue, blue_count, 0, normal);
+        }
+    }
+    return bar;
+}
+
 long int get_nextlvl_exp (Bot *dawn, char username[64]) {
     int i;
     for (i=0; i<dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, username) == 0) {
             int curr_level = dawn->players[i].level;
-            printf("found user %s has level %d\n", username, curr_level);
             if (curr_level > 10) {
-                printf("returning >10\n");
                 return 500 * curr_level * curr_level * curr_level - 500 * curr_level;
             } else {
-                printf("returning <10\n");
                 return 100 * curr_level * curr_level * curr_level - 100 * curr_level;
             }
         }
@@ -122,11 +137,12 @@ void print_sheet (Bot *dawn, Message *message) {
             get_stat(dawn, message, stats);
 
             sprintf(out, 
-                    "PRIVMSG %s :[%s] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
-                    " - Def: %d (%ldK/%ldD) [%ld/%ld EXP - %ld Gold]\r\n", message->receiver, message->sender_nick, 
-                    dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1], stats[2], stats[3], stats[4], stats[5],
-                    dawn->players[i].kills, dawn->players[i].deaths, dawn->players[i].experience,
-                    get_nextlvl_exp(dawn, dawn->players[i].username), dawn->players[i].gold);
+                    "PRIVMSG %s :[%s (%d)] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
+                    " - Def: %d (%ldK/%ldD) [EXP: %ld/%ld %s - Gold: %s%ld%s]\r\n", message->receiver, message->sender_nick, 
+                    dawn->players[i].level, dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1], 
+                    stats[2], stats[3], stats[4], stats[5], dawn->players[i].kills, dawn->players[i].deaths, 
+                    dawn->players[i].experience, get_nextlvl_exp(dawn, dawn->players[i].username),
+                    progress_bar(dawn, message->sender_nick), orange, dawn->players[i].gold, normal);
 
             send_socket(out);
             return;
@@ -139,11 +155,9 @@ void check_levelup (Bot *dawn, Message *message) {
     char out[MAX_MESSAGE_BUFFER];
     for (i=0; i<dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
-            printf("checking level of user\n");
             long int next_level_exp = get_nextlvl_exp(dawn, message->sender_nick);
             long int curr_level_exp = dawn->players[i].experience;
             int curr_level = dawn->players[i].level;
-            printf("cur exp %ld nl exp %ld\n", curr_level_exp, next_level_exp);
             if (curr_level_exp >= next_level_exp) {
                 sprintf(out, "PRIVMSG %s :%s has achieved level %d. Base stats increased +5, HP and MP"
                         "increased +20!\r\n", message->receiver, message->sender_nick, curr_level + 1);

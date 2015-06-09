@@ -99,7 +99,7 @@ void update_weather (Bot *dawn) {
 void call_monster (Bot *dawn, int which) {
     char out[MAX_MESSAGE_BUFFER];
     int i;
-
+    if (which >= MAX_MONSTERS) return;
     //If a global monster already exists, reset its health and call a random one
     //into the room and assign global_monster to the one chosen
     if (dawn->global_monster.active) {
