@@ -74,6 +74,9 @@ void parse_room_message (Message *message, Bot *dawn) {
         init_new_character(message->sender_nick, "temp", dawn, message);
     } else if (strcmp(message->message, ";sheet") == 0) {
         print_sheet(dawn, message);
+    } else if (check_if_matches_regex(message->message, ";sheet (\\w+)")) {
+        strcpy(message->sender_nick, regex_group[1]);
+        print_sheet(dawn, message);
     } else if (strcmp(message->message, ";inv") == 0) {
         print_inventory(dawn, message);
     } else if (check_if_matches_regex(message->message, ";equip (\\d+)")) {
@@ -88,12 +91,7 @@ void parse_room_message (Message *message, Bot *dawn) {
         call_monster(dawn, atoi(regex_group[1]));
         set_timer(BATTLE, dawn, BATTLE_INTERVAL);
     } else if (strcmp(message->message, ";rev ples") == 0) {
-        int i;
-        for (i=0; i<dawn->player_count; i++) {
-            if (strcmp(dawn->players[i].username, message->sender_nick) == 0) {
-                dawn->players[i].health = 100;
-                printf("user %s health set to %ld\n", dawn->players[i].username, dawn->players[i].health);
-            }
-        }
+        int i = get_pindex(dawn, message->sender_nick);
+        dawn->players[i].health = 100;
     }
 }
