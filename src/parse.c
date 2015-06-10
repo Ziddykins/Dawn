@@ -70,6 +70,20 @@ void parse_private_message (Message *message) {
 void parse_room_message (Message *message, Bot *dawn) {
 /*    printf("%s <%s(%s)%s> %s\n", message->receiver, 
             message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);*/
+
+    //To avoid fiery death, check if user is sending a command,
+    //and if so, check to see if the user exists. get_pindex() will
+    //return -1 if the user isn't found, which, doesn't work well
+    //for array bounds.
+    if (check_if_matches_regex(message->message, "^;(.*)")) {
+        if (get_pindex(dawn, message->sender_nick) == -1) {
+            char out[MAX_MESSAGE_BUFFER];
+            sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", message->receiver);
+            send_socket(out);
+            return;
+        }
+    }
+
     if (strcmp(message->message, ";new") == 0) {
         init_new_character(message->sender_nick, "temp", dawn, message);
     } else if (strcmp(message->message, ";sheet") == 0) {
