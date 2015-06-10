@@ -13,7 +13,8 @@
 
 int main (void) {
     srand(time(NULL));
-    int len, match;
+    int match;
+    ssize_t len;
     char dalnet[]  = "108.61.240.240";
     char port[]    = "6667";
 
@@ -27,7 +28,7 @@ int main (void) {
     if (access("players.db", F_OK) != -1) {
         FILE *file = fopen("players.db", "r");
         fseek(file, 0L, SEEK_END);
-        int sz = ftell(file);
+        ssize_t sz = ftell(file);
         fseek(file, 0L, SEEK_SET);
         if (sz > 0) {
             load_players(&dawn, sizeof(dawn));
@@ -45,11 +46,11 @@ int main (void) {
         char line[1024];
         char name[100];
         int count = 0;
-        int hp, str, def, intel, mdef, gold, exp, mhp, range;
+        unsigned int hp, str, def, intel, mdef, gold, exp, mhp, range;
         if (file != NULL) {
             while (fgets(line, sizeof(line), file)) {
                 //TODO: Add ranges to raw files
-                if (sscanf(line, "%[^:]:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                if (sscanf(line, "%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u",
                         name, &hp, &str, &def, &intel, &mdef, &gold, &exp, &mhp, &range) != 9) {
                     printf("Malformed monster file at line %d\n", count);
                     exit(1);

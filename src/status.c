@@ -10,7 +10,7 @@
 //Prototype
 void update_weather (Bot *);
 
-void set_timer (int timer, Bot *dawn, int amount) {
+void set_timer (int timer, Bot *dawn, time_t amount) {
     time_t epoch = time(NULL);
     dawn->timer[timer].time_finished = epoch + amount;
     printf("Timer %d set to %ld\n", timer, (epoch + amount));

@@ -1,19 +1,20 @@
 #ifndef STATUS_H_INCLUDED
 #define STATUS_H_INCLUDED
+#include <time.h>
 #include "limits.h"
 #include "monsters.h"
 
 typedef struct {
-    int time_finished;
+    time_t time_finished;
 } Timers;
 
 typedef struct {
-   int attr_health, attr_defense, attr_intelligence, attr_strength;
-   int attr_mdef, req_level, weight;
-   int socket_one, socket_two, socket_three;
-   int type, rusted, equipped, equippable;
+   unsigned int attr_health, attr_defense, attr_intelligence, attr_strength;
+   unsigned int attr_mdef, req_level, weight;
+   unsigned int socket_one, socket_two, socket_three;
+   unsigned int type, rusted, equipped, equippable;
    char name[100];
-   int attr_mana;
+   unsigned int attr_mana;
 } Inventory;
 
 typedef struct {
@@ -21,12 +22,11 @@ typedef struct {
     char username[64], password[64];
     char first_class[64], second_class[64], title[64];
     long stone, steel, wood, ore, bronze, diamond, mail, leather, health;
-    short addiction, x_pos, y_pos, hunger;
-    int alignment, max_health, max_mana;
-    unsigned int alive, available, level, contribution;
     long kills, deaths, gold, experience;
-    int mana, strength, intelligence, defense, m_def;
+    short addiction, x_pos, y_pos, hunger;
+    unsigned int alive, available, level, contribution, max_health, max_mana;
     unsigned int available_slots, available_capacity;
+    unsigned int mana, strength, intelligence, defense, m_def, alignment;
     Monsters personal_monster;
 } Player;
 
@@ -60,7 +60,7 @@ enum Weather {SUNNY,
 
 
 //Prototypes
-void set_timer (int, Bot *, int);
+void set_timer (int, Bot *, time_t);
 void check_timers (Bot *);
 void init_timers (Bot *);
 void call_monster (Bot *, int);

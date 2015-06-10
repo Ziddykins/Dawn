@@ -1,0 +1,271 @@
+In file included from combat.c:4:
+./status.h:20:9: warning: padding size of 'Player' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+combat.c:12:6: warning: no previous prototype for function 'calc_contribution' [-Wmissing-prototypes]
+void calc_contribution (Bot *dawn, int i, int amount, int monster_mhp, int monster_hp) {
+     ^
+combat.c:14:41: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        dawn->players[i].contribution = monster_mhp;
+                                      ~ ^~~~~~~~~~~
+combat.c:17:46: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+            dawn->players[i].contribution += monster_hp;
+                                          ~~ ^~~~~~~~~~
+combat.c:19:46: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+            dawn->players[i].contribution += amount;
+                                          ~~ ^~~~~~
+combat.c:21:95: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        if ((int)dawn->players[i].contribution > monster_mhp) dawn->players[i].contribution = monster_mhp;
+                                                                                            ~ ^~~~~~~~~~~
+In file included from combat.c:4:
+./status.h:33:9: warning: padding size of 'Bot' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+combat.c:25:6: warning: no previous prototype for function 'check_alive' [-Wmissing-prototypes]
+void check_alive (Bot *dawn, Message *message) {
+     ^
+combat.c:58:6: warning: no previous prototype for function 'player_attacks' [-Wmissing-prototypes]
+void player_attacks (Bot *dawn, Message *message, int global) {
+     ^
+combat.c:62:40: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+    int ustats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
+                    ~ ~~~~~~~~~~~~~~~~~^~~~~~~~~~
+combat.c:62:69: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+    int ustats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
+                    ~                              ~~~~~~~~~~~~~~~~~^~~~~~~~
+combat.c:63:40: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                      dawn->players[i].strength, dawn->players[i].intelligence,
+                      ~~~~~~~~~~~~~~~~~^~~~~~~~
+combat.c:63:67: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                      dawn->players[i].strength, dawn->players[i].intelligence,
+                                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+combat.c:64:40: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                      dawn->players[i].m_def, dawn->players[i].defense };
+                      ~~~~~~~~~~~~~~~~~^~~~~
+combat.c:64:64: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                      dawn->players[i].m_def, dawn->players[i].defense };
+                                              ~~~~~~~~~~~~~~~~~^~~~~~~
+combat.c:67:29: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+    player_defense = rand() % dawn->players[i].defense;
+                   ~ ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+combat.c:67:22: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+    player_defense = rand() % dawn->players[i].defense;
+                     ^~~~~~ ~
+combat.c:94:42: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                monster_defense = rand() % dawn->global_monster.def;
+                                ~ ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+combat.c:94:35: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+                monster_defense = rand() % dawn->global_monster.def;
+                                  ^~~~~~ ~
+combat.c:101:50: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                            dawn->global_monster.mhp,
+                            ~~~~~~~~~~~~~~~~~~~~~^~~
+combat.c:131:33: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+    int monster_attack = rand() % dawn->global_monster.str;
+        ~~~~~~~~~~~~~~   ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+combat.c:131:26: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+    int monster_attack = rand() % dawn->global_monster.str;
+                         ^~~~~~ ~
+22 warnings generated.
+In file included from inventory.c:3:
+./status.h:20:9: warning: padding size of 'Player' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+inventory.c:10:6: warning: no previous prototype for function 'print_inventory' [-Wmissing-prototypes]
+void print_inventory (Bot *dawn, Message *message) {
+     ^
+inventory.c:18:54: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+        int equipped = dawn->players[i].inventory[j].equipped;
+            ~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+In file included from inventory.c:3:
+./status.h:33:9: warning: padding size of 'Bot' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+inventory.c:30:6: warning: no previous prototype for function 'equip_inventory' [-Wmissing-prototypes]
+void equip_inventory (Bot *dawn, Message *message, unsigned int slot, int unequip) {
+     ^
+5 warnings generated.
+In file included from main.c:8:
+./status.h:20:9: warning: padding size of 'Player' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+main.c:22:24: warning: initializing 'char *' with an expression of type 'const char [9]' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+    char *rooms[]  = { "#stacked", NULL }, **n;
+                       ^~~~~~~~~~
+In file included from main.c:8:
+./status.h:33:9: warning: padding size of 'Bot' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+main.c:59:47: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                dawn.monsters[count].hp     = hp;
+                                            ~ ^~
+main.c:99:48: warning: passing 'const char [11]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+            if (check_if_matches_regex(buffer, "PING :(.*)")) {
+                                               ^~~~~~~~~~~~
+./parse.h:4:42: note: passing argument to parameter here
+int check_if_matches_regex(char *, char *);
+                                         ^
+main.c:106:56: warning: passing 'const char [5]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+                match = check_if_matches_regex(buffer, "AUTH");
+                                                       ^~~~~~
+./parse.h:4:42: note: passing argument to parameter here
+int check_if_matches_regex(char *, char *);
+                                         ^
+main.c:117:56: warning: passing 'const char [16]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+                match = check_if_matches_regex(buffer, ":(.*?)\\s001(.*)");
+                                                       ^~~~~~~~~~~~~~~~~~
+./parse.h:4:42: note: passing argument to parameter here
+int check_if_matches_regex(char *, char *);
+                                         ^
+main.c:138:25: warning: passing 'const char [44]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+                        ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n");
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./parse.h:4:42: note: passing argument to parameter here
+int check_if_matches_regex(char *, char *);
+                                         ^
+main.c:15:11: warning: implicit conversion loses integer precision: 'time_t' (aka 'long') to 'unsigned int' [-Wshorten-64-to-32]
+    srand(time(NULL));
+    ~~~~~ ^~~~~~~~~~
+9 warnings generated.
+In file included from network.c:10:
+In file included from ./network.h:4:
+./status.h:20:9: warning: padding size of 'Player' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+network.c:30:24: warning: declaration shadows a variable in the global scope [-Wshadow]
+void close_socket (int con_socket) {
+                       ^
+network.c:14:5: note: previous declaration is here
+int con_socket;
+    ^
+2 warnings generated.
+In file included from parse.c:4:
+In file included from ./network.h:4:
+./status.h:20:9: warning: padding size of 'Player' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+parse.c:13:35: warning: declaration shadows a variable in the global scope [-Wshadow]
+int check_if_matches_regex (char *buffer, char *regular_expression) {
+                                  ^
+./network.h:10:13: note: previous declaration is here
+extern char buffer[MAX_RECV_BUFFER + 1];
+            ^
+parse.c:39:29: warning: implicit conversion loses integer precision: 'unsigned long' to 'int' [-Wshorten-64-to-32]
+                            strlen(buffer), 0, PCRE_NOTEOL, substring_vec, 30);
+                            ^~~~~~~~~~~~~~
+parse.c:80:50: warning: passing 'const char [7]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+    if (check_if_matches_regex(message->message, "^;(.*)")) {
+                                                 ^~~~~~~~
+parse.c:13:49: note: passing argument to parameter 'regular_expression' here
+int check_if_matches_regex (char *buffer, char *regular_expression) {
+                                                ^
+parse.c:93:50: warning: passing 'const char [5]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        init_new_character(message->sender_nick, "temp", dawn, message);
+                                                 ^~~~~~
+./player.h:10:40: note: passing argument to parameter here
+void init_new_character (char [], char [], Bot *, Message *);
+                                       ^
+parse.c:96:57: warning: passing 'const char [13]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+    } else if (check_if_matches_regex(message->message, ";sheet (\\w+)")) {
+                                                        ^~~~~~~~~~~~~~~
+parse.c:13:49: note: passing argument to parameter 'regular_expression' here
+int check_if_matches_regex (char *buffer, char *regular_expression) {
+                                                ^
+parse.c:103:57: warning: passing 'const char [13]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+    } else if (check_if_matches_regex(message->message, ";equip (\\d+)")) {
+                                                        ^~~~~~~~~~~~~~~
+parse.c:13:49: note: passing argument to parameter 'regular_expression' here
+int check_if_matches_regex (char *buffer, char *regular_expression) {
+                                                ^
+parse.c:106:57: warning: passing 'const char [15]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+    } else if (check_if_matches_regex(message->message, ";unequip (\\d+)")) {
+                                                        ^~~~~~~~~~~~~~~~~
+parse.c:13:49: note: passing argument to parameter 'regular_expression' here
+int check_if_matches_regex (char *buffer, char *regular_expression) {
+                                                ^
+parse.c:111:57: warning: passing 'const char [11]' to parameter of type 'char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+    } else if (check_if_matches_regex(message->message, ";gib (\\d+)")) {
+                                                        ^~~~~~~~~~~~~
+parse.c:13:49: note: passing argument to parameter 'regular_expression' here
+int check_if_matches_regex (char *buffer, char *regular_expression) {
+                                                ^
+In file included from parse.c:4:
+In file included from ./network.h:4:
+./status.h:33:9: warning: padding size of 'Bot' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+10 warnings generated.
+In file included from player.c:4:
+In file included from ./player.h:3:
+./status.h:20:9: warning: padding size of 'Player' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+./status.h:33:9: warning: padding size of 'Bot' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+player.c:107:13: warning: no previous prototype for function 'progress_bar' [-Wmissing-prototypes]
+const char *progress_bar (Bot *dawn, char username[64]) {
+            ^
+player.c:110:62: warning: cast from function call of type 'long' to non-matching type 'float' [-Wbad-function-cast]
+    float temp_cyan = ((dawn->players[i].experience / (float)get_nextlvl_exp(dawn, username)) * 100) / 10;
+                                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+player.c:118:64: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+    int curr_level = dawn->players[get_pindex(dawn, username)].level;
+        ~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+player.c:125:13: warning: will never be executed [-Wunreachable-code]
+    return -1;
+            ^
+player.c:131:39: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+    int stats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
+                   ~ ~~~~~~~~~~~~~~~~~^~~~~~~~~~
+player.c:131:68: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+    int stats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
+                   ~                              ~~~~~~~~~~~~~~~~~^~~~~~~~
+player.c:132:39: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                     dawn->players[i].strength, dawn->players[i].intelligence,
+                     ~~~~~~~~~~~~~~~~~^~~~~~~~
+player.c:132:66: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                     dawn->players[i].strength, dawn->players[i].intelligence,
+                                                ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+player.c:133:39: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                     dawn->players[i].m_def, dawn->players[i].defense };
+                     ~~~~~~~~~~~~~~~~~^~~~~
+player.c:133:63: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+                     dawn->players[i].m_def, dawn->players[i].defense };
+                                             ~~~~~~~~~~~~~~~~~^~~~~~~
+player.c:153:39: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+    int curr_level = dawn->players[i].level;
+        ~~~~~~~~~~   ~~~~~~~~~~~~~~~~~^~~~~
+13 warnings generated.
+In file included from stats.c:3:
+./status.h:20:9: warning: padding size of 'Player' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+stats.c:8:6: warning: no previous prototype for function 'get_stat' [-Wmissing-prototypes]
+void get_stat (Bot *b, Message *m, unsigned int stats[6]) {
+     ^
+In file included from stats.c:3:
+./status.h:33:9: warning: padding size of 'Bot' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+3 warnings generated.
+In file included from status.c:4:
+./status.h:20:9: warning: padding size of 'Player' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+./status.h:33:9: warning: padding size of 'Bot' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct {
+        ^
+status.c:106:56: warning: implicit conversion changes signedness: 'unsigned int' to 'int' [-Wsign-conversion]
+        dawn->global_monster.hp = dawn->global_monster.mhp;
+                                ~ ~~~~~~~~~~~~~~~~~~~~~^~~
+3 warnings generated.
+/tmp/parse-88b450.o: In function `check_if_matches_regex':
+parse.c:(.text+0x34): undefined reference to `pcre_compile'
+parse.c:(.text+0x85): undefined reference to `pcre_study'
+parse.c:(.text+0x165): undefined reference to `pcre_exec'
+parse.c:(.text+0x170): undefined reference to `pcre_free'
+parse.c:(.text+0x181): undefined reference to `pcre_free'
+parse.c:(.text+0x1d0): undefined reference to `pcre_get_substring'
+parse.c:(.text+0x21c): undefined reference to `pcre_free_substring'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

@@ -5,7 +5,7 @@
 #include "network.h"
 #include "player.h"
 
-void get_stat (Bot *b, Message *m, int stats[6]) {
+void get_stat (Bot *b, Message *m, unsigned int stats[6]) {
     int i = get_pindex(b, m->sender_nick);
     unsigned int j;
     for (j=0; j<(MAX_INVENTORY_SLOTS - b->players[i].available_slots); j++) {

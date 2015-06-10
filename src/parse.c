@@ -95,7 +95,9 @@ void parse_room_message (Message *message, Bot *dawn) {
         print_sheet(dawn, message);
     } else if (check_if_matches_regex(message->message, ";sheet (\\w+)")) {
         strcpy(message->sender_nick, regex_group[1]);
-        print_sheet(dawn, message);
+        if (get_pindex(dawn, regex_group[1]) != -1) {
+            print_sheet(dawn, message);
+        }
     } else if (strcmp(message->message, ";inv") == 0) {
         print_inventory(dawn, message);
     } else if (check_if_matches_regex(message->message, ";equip (\\d+)")) {
