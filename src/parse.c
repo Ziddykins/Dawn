@@ -47,8 +47,10 @@ int check_if_matches_regex (char *buffer, char *regular_expression) {
             strcpy(regex_group[j], psubStrMatchStr);
             pcre_free_substring(psubStrMatchStr);
         }
+        //We've found a match
         return 1;
     } else {
+        //We've not found a match
         return 0;
     }
 }
@@ -85,6 +87,9 @@ void parse_room_message (Message *message, Bot *dawn) {
     }
 
     if (strcmp(message->message, ";new") == 0) {
+        //TODO: Add a proper login system.
+        //Thought: Add hostmask. If hostmask matches nick, we're good
+        //If not : Give ability to add hostmask if password matches
         init_new_character(message->sender_nick, "temp", dawn, message);
     } else if (strcmp(message->message, ";sheet") == 0) {
         print_sheet(dawn, message);
@@ -107,5 +112,8 @@ void parse_room_message (Message *message, Bot *dawn) {
     } else if (strcmp(message->message, ";rev ples") == 0) {
         int i = get_pindex(dawn, message->sender_nick);
         dawn->players[i].health = 100;
+    } else if (strcmp(message->message, ";gib xp") == 0) {
+        int i = get_pindex(dawn, message->sender_nick);
+        dawn->players[i].experience += 100;
     }
 }

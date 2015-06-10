@@ -24,8 +24,6 @@ int main (void) {
     Bot dawn;
 
     //Load characters
-    //File must exist otherwise errno gets sad and it won't connect
-    //to the server; touch players.db - if file is empty, it won't load it.
     if (access("players.db", F_OK) != -1) {
         FILE *file = fopen("players.db", "r");
         fseek(file, 0L, SEEK_END);
@@ -78,12 +76,12 @@ int main (void) {
     //Initial settings
     strcpy(dawn.nickname, "WellFuk");
     strcpy(dawn.realname, "Helo");
-    strcpy(dawn.ident, "hehe");
+    strcpy(dawn.ident,    "hehe");
     strcpy(dawn.password, "none");
     strcpy(dawn.active_room, rooms[0]);
 
     dawn.login_sent = 0;
-    dawn.in_rooms = 0;
+    dawn.in_rooms   = 0;
 
     if (!dawn.player_count) dawn.player_count = 0;
 

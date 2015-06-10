@@ -106,7 +106,8 @@ void load_players (Bot *dawn, size_t size) {
 //Lol this entire thing ¯v
 const char *progress_bar (Bot *dawn, char username[64]) {
     static char bar[48];
-    float temp_cyan = ((dawn->players[get_pindex(dawn, username)].experience / get_nextlvl_exp(dawn, username)) * 100) / 10;
+    int i = get_pindex(dawn, username);
+    float temp_cyan = ((dawn->players[i].experience / (float)get_nextlvl_exp(dawn, username)) * 100) / 10;
     int blue_count  = 9  - (int)temp_cyan;
     int cyan_count  = 10 - blue_count;
     sprintf(bar, "%s,10%0*d%s,02%0*d%s", cyan, cyan_count, 0, dblue, blue_count, 0, normal);
