@@ -46,12 +46,12 @@ int main (void) {
         char line[1024];
         char name[100];
         int count = 0;
-        unsigned int hp, str, def, intel, mdef, gold, exp, mhp, range;
+        unsigned int hp, str, def, intel, mdef, gold, exp, mhp, drop_level;
         if (file != NULL) {
             while (fgets(line, sizeof(line), file)) {
                 //TODO: Add ranges to raw files
                 if (sscanf(line, "%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u",
-                        name, &hp, &str, &def, &intel, &mdef, &gold, &exp, &mhp, &range) != 9) {
+                        name, &hp, &str, &def, &intel, &mdef, &gold, &exp, &mhp, &drop_level) != 10) {
                     printf("Malformed monster file at line %d\n", count);
                     exit(1);
                 }
@@ -64,7 +64,7 @@ int main (void) {
                 dawn.monsters[count].gold   = gold;
                 dawn.monsters[count].exp    = exp;
                 dawn.monsters[count].mhp    = mhp;
-                dawn.monsters[count].range  = range;
+                dawn.monsters[count].drop_level = drop_level;
                 dawn.monsters[count].active = 0;
                 count++;
             }

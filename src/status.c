@@ -116,9 +116,8 @@ void call_monster (Bot *dawn, int which) {
                  dawn->global_monster.intel, dawn->global_monster.mdef);
     send_socket(out);
     
-    //set active monster and not told of deceased monster
+    //set active global monster
     dawn->global_monster.active = 1;
-    dawn->global_monster.told  = 0;
     
     //Reset damage contribution for users
     for (i=0; i<dawn->player_count; i++) {

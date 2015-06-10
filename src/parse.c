@@ -7,6 +7,7 @@
 #include "player.h"
 #include "inventory.h"
 #include "combat.h"
+#include "items.h"
 
 char regex_group[15][2048];
 
@@ -72,7 +73,12 @@ void parse_private_message (Message *message) {
 void parse_room_message (Message *message, Bot *dawn) {
 /*    printf("%s <%s(%s)%s> %s\n", message->receiver, 
             message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);*/
-
+    if (strcmp(message->message, ";new") == 0) {
+        //TODO: Add a proper login system.
+        //Thought: Add hostmask. If hostmask matches nick, we're good
+        //If not : Give ability to add hostmask if password matches
+        init_new_character(message->sender_nick, "temp", dawn, message);
+    }
     //To avoid fiery death, check if user is sending a command,
     //and if so, check to see if the user exists. get_pindex() will
     //return -1 if the user isn't found, which, doesn't work well
@@ -86,12 +92,7 @@ void parse_room_message (Message *message, Bot *dawn) {
         }
     }
 
-    if (strcmp(message->message, ";new") == 0) {
-        //TODO: Add a proper login system.
-        //Thought: Add hostmask. If hostmask matches nick, we're good
-        //If not : Give ability to add hostmask if password matches
-        init_new_character(message->sender_nick, "temp", dawn, message);
-    } else if (strcmp(message->message, ";sheet") == 0) {
+    if (strcmp(message->message, ";sheet") == 0) {
         print_sheet(dawn, message);
     } else if (check_if_matches_regex(message->message, ";sheet (\\w+)")) {
         strcpy(message->sender_nick, regex_group[1]);
@@ -117,5 +118,7 @@ void parse_room_message (Message *message, Bot *dawn) {
     } else if (strcmp(message->message, ";gib xp") == 0) {
         int i = get_pindex(dawn, message->sender_nick);
         dawn->players[i].experience += 100;
+    } else if (strcmp(message->message, ";item test") == 0) {
+        generate_drop(dawn, message);
     }
 }

@@ -9,16 +9,16 @@ typedef struct {
 } Timers;
 
 typedef struct {
+   char name[100];
    unsigned int attr_health, attr_defense, attr_intelligence, attr_strength;
    unsigned int attr_mdef, req_level, weight;
    unsigned int socket_one, socket_two, socket_three;
    unsigned int type, rusted, equipped, equippable;
-   char name[100];
-   unsigned int attr_mana;
+   unsigned int attr_mana, rarity;
 } Inventory;
 
 typedef struct {
-    Inventory inventory[25];
+    Inventory inventory[MAX_INVENTORY_SLOTS];
     char username[64], password[64];
     char first_class[64], second_class[64], title[64];
     long stone, steel, wood, ore, bronze, diamond, mail, leather, health;
@@ -46,18 +46,8 @@ typedef struct {
     Monsters global_monster;
 } Bot;
 
-
-enum Events {WEATHER,
-             HEALING,
-             SAVING,
-             BATTLE
-};
-
-enum Weather {SUNNY,
-              RAINING,
-              SNOWING
-};
-
+enum Events {WEATHER, HEALING, SAVING, BATTLE};
+enum Weather {SUNNY, RAINING, SNOWING};
 
 //Prototypes
 void set_timer (int, Bot *, time_t);
