@@ -17,19 +17,18 @@
 #define FORSAKEN  95.02f //0.02%
 
 void generate_drop (Bot *dawn, Message *message) {
-    char out[MAX_MESSAGE_BUFFER] = "";
-    char *rarity[]  = {NULL, "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
-    char *type[]    = {"Weapon", "Shield", "Armor"};
+    char out[MAX_MESSAGE_BUFFER];
+    char *rarity[]  = {"h", "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
     char *weapons[] = {"Sword", "Mace", "Scimitar", "Axe", "Club", "Staff", "Wand"};
-    char *shields[] = {"Tower ", "Round ", "Small ", "Large ", "Medium "};
-    char *armor[]   = {"Leather ", "Breastplate ", "Fullplate ", "Chainmail ", "Cloth "};
-    char item_name[200] = "";
+    char *shields[] = {"Tower Shield", "Round Shield", "Small Shield", "Large Shield", "Medium Shield"};
+    char *armor[]   = {"Leather Armor", "Breastplate Armor", "Fullplate Armor", "Chainmail Armor", "Cloth Armor"};
+    char item_name[200];
+    item_name[0] = '\0';
     
     float rarity_chance = (float)rand()/(float)(RAND_MAX/100.0f);
     int type_chance     = rand()%ITEM_MAX_TYPE;
     int p_index         = get_pindex(dawn, message->sender_nick);
     int drop_level      = dawn->global_monster.drop_level;
-
     unsigned int str, def, intel, mdef;
 
     Inventory item_dropped;
@@ -65,12 +64,13 @@ void generate_drop (Bot *dawn, Message *message) {
         //will be potions and stuff i guess
         item_dropped.rarity = 1;
     }
-    
+
     strcat(item_name, rarity[item_dropped.rarity]);
 
     switch (type_chance) {
         case 0: {
             char weapon_type[48];
+            weapon_type[0] = '\0';
             str   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             def   = 1 + rand() % str;
@@ -81,31 +81,29 @@ void generate_drop (Bot *dawn, Message *message) {
         }
         case 1: {
             char shield_type[48];
+            shield_type[0] = '\0';
             def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % def;
             str   = 1 + rand() % def;
             mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             strcat(shield_type, shields[rand()%SHIELD_MAX_TYPE]);
             strcat(item_name, shield_type);
-            strcat(item_name, type[type_chance]);
             break;
         }
         case 2: {
             char armor_type[48];
+            armor_type[0] = '\0';
             def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % def;
             str   = 1 + rand() % def;
             mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             strcat(armor_type, armor[rand()%ARMOR_MAX_TYPE]);
             strcat(item_name, armor_type);
-            strcat(item_name, type[type_chance]);
             break;
         }
     }
 
     strcat(item_name, normal);
-    size_t len = strlen(item_name);
-    item_name[len] = '\0';
 
     strcpy(item_dropped.name, item_name);
     item_dropped.attr_strength     = str;
