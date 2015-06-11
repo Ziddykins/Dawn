@@ -6,6 +6,7 @@
 #include "stats.h"
 #include "colors.h"
 #include "player.h"
+#include "items.h"
 
 void monster_attacks (Bot *, Message *, int, int);
 
@@ -39,6 +40,7 @@ void check_alive (Bot *dawn, Message *message) {
         int j;
         for (j=0; j<dawn->player_count; j++) {
             if (dawn->players[j].contribution > 0) {
+                int drop_chance = rand()%100;
                 float percent  = ((float)dawn->players[j].contribution / (float)dawn->global_monster.mhp);
                 float expgain  = percent * dawn->global_monster.exp;
                 float goldgain = percent * dawn->global_monster.gold;
@@ -50,6 +52,10 @@ void check_alive (Bot *dawn, Message *message) {
                 send_socket(out);
                 dawn->players[j].kills++;
                 check_levelup(dawn, message);
+                out[0] = '\0';
+                if (drop_chance < 15) {
+                    generate_drop(dawn, message);
+                }
             }
         }
     }

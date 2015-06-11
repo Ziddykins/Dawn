@@ -68,13 +68,22 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     np.m_def        = 5;
     np.available_slots = 23;
     np.available_capacity = 70;
-    
+    for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
+        np.inventory[i].name[0] = '\0';
+        np.inventory[i].attr_health = np.inventory[i].attr_defense = np.inventory[i].attr_intelligence = 
+            np.inventory[i].attr_strength = np.inventory[i].attr_mdef = np.inventory[i].req_level = 
+            np.inventory[i].weight = np.inventory[i].socket_one = np.inventory[i].socket_two =
+            np.inventory[i].socket_three = np.inventory[i].type = np.inventory[i].rusted = np.inventory[i].equipped =
+            np.inventory[i].equippable = np.inventory[i].attr_mana = np.inventory[i].rarity = 0;
+    }
+
     //name, health, def, int, str, mdef, req lvl, weight, s1, s2, s3
     //type, rusted, equipped, equippable, mana, rarity
     Inventory sword  = {"Wooden Sword", 0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 1, 0, 0};
     Inventory shield = {"Wooden Shield", 5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 1, 0, 0, 1, 5, 0};
     np.inventory[0] = sword;
     np.inventory[1] = shield;
+
     
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;

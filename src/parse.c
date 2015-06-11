@@ -118,7 +118,8 @@ void parse_room_message (Message *message, Bot *dawn) {
     } else if (strcmp(message->message, ";gib xp") == 0) {
         int i = get_pindex(dawn, message->sender_nick);
         dawn->players[i].experience += 100;
-    } else if (strcmp(message->message, ";item test") == 0) {
-        generate_drop(dawn, message);
+    } else if (check_if_matches_regex(message->message, ";drop (\\d+)")) {
+        int slot = atoi(regex_group[1]);
+        drop_item(dawn, message, slot);
     }
 }

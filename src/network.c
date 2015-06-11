@@ -32,7 +32,7 @@ void close_socket (int con_socket) {
 }
 
 void send_socket (char *out_buf) {
-    ssize_t bytes = 0;
-    bytes = write(con_socket, out_buf, strlen(out_buf));
-    printf("Sending (%4zu bytes): %s", bytes, out_buf);
+//    ssize_t bytes = 0;
+    write(con_socket, out_buf, strlen(out_buf));
+    //printf("Sending (%4zu bytes): %s", bytes, out_buf);
 }

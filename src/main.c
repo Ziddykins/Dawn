@@ -12,7 +12,16 @@
 #include "parse.h"
 
 int main (void) {
-    srand(time(NULL));
+    FILE *urandom = fopen("/dev/urandom", "r");
+    unsigned int seed;
+    if (urandom == NULL) {
+        fprintf (stderr, "Cannot open /dev/urandom!\n");
+        exit (1);
+    }
+    fread(&seed, sizeof (seed), 1, urandom);
+    srand(seed);
+    fclose(urandom);
+
     int match;
     ssize_t len;
     char dalnet[]  = "108.61.240.240";
