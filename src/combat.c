@@ -28,8 +28,8 @@ int check_alive (Bot *dawn, Message *message) {
     char out[MAX_MESSAGE_BUFFER];
 
     if (dawn->players[i].health <= 0) {
-        sprintf(out, "PRIVMSG %s :%s has been killed by the %s\r\n", 
-                message->receiver, message->sender_nick, dawn->global_monster.name);
+        sprintf(out, "PRIVMSG %s :%s has been killed!\r\n", 
+                message->receiver, message->sender_nick);
         send_socket(out);
         dawn->players[i].deaths++;
         return 0;

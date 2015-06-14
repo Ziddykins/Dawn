@@ -9,10 +9,11 @@
 #define MAX_EVENT_TYPE      4
 #define MAX_SHRINE_TYPE     3
 #define MAX_REWARD_TYPE     3
-#define ITEM_MAX_TYPE       3
-#define WEAPON_MAX_TYPE     7
-#define SHIELD_MAX_TYPE     5
-#define ARMOR_MAX_TYPE      5
+#define MAX_PUNISHMENT_TYPE 3
+#define MAX_ITEM_TYPE       3
+#define MAX_WEAPON_TYPE     7
+#define MAX_SHIELD_TYPE     5
+#define MAX_ARMOR_TYPE      5
 //Seconds
 #define HEALING_INTERVAL    1800
 #define SAVING_INTERVAL     900

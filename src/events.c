@@ -6,6 +6,7 @@
 #include "player.h"
 #include "network.h"
 #include "colors.h"
+#include "combat.h"
 
 void random_shrine (Bot *dawn, char username[64]) {
     char out[MAX_MESSAGE_BUFFER];
@@ -22,13 +23,12 @@ void random_shrine (Bot *dawn, char username[64]) {
             break;
         case 1: {
             int health_gain = 15;
-            if ((dawn->players[index].health + health_gain) > dawn->players[index].max_health) {
+            dawn->players[index].health += health_gain;
+            if (dawn->players[index].health >= dawn->players[index].max_health) {
                 dawn->players[index].health = dawn->players[index].max_health;
-            } else {
-                dawn->players[index].health += health_gain;
             }
-            sprintf(out, "PRIVMSG %s :has come across a spring! %s hops in and relaxes... A bit too much. %s"
-                   " has peed in the spring! HP +%d\r\n", dawn->active_room, username, username, health_gain);
+            sprintf(out, "PRIVMSG %s :%s has come across a spring! %s hops in and relaxes... A bit too much. %s"
+                   " has peed in the spring! HP +%d\r\n", dawn->active_room, username, username, username, health_gain);
             send_socket(out);
             break;
         }
@@ -55,7 +55,7 @@ void random_reward (Bot *dawn, char username[64]) {
 
     switch (which) {
         case 0: {
-            int gold_gain = rand() % (dawn->players[index].level * 75);
+            int gold_gain = rand() % (dawn->players[index].level * 75) + 1;
             dawn->players[index].gold += gold_gain;
             sprintf(out, "PRIVMSG %s :While %s was walking, they found a pouch on the ground. Upon further inspection,"
                    " the pouch contained some gold! Score! Gold +%d\r\n", dawn->active_room, username, gold_gain);
@@ -63,7 +63,7 @@ void random_reward (Bot *dawn, char username[64]) {
             break;
         }
         case 1: {
-            int gold_gain = rand() % (dawn->players[index].level * 125);
+            int gold_gain = rand() % (dawn->players[index].level * 125) + 1;
             dawn->players[index].gold += gold_gain;
             sprintf(out, "PRIVMSG %s :%s has tripped! As they bring their head up, a large sack is spotted behind"
                    " a rock. %s hops up and goes to inspect the sack, to discover it is full of gold! Gold +%d\r\n",
@@ -74,8 +74,47 @@ void random_reward (Bot *dawn, char username[64]) {
         case 2:
             dawn->players[index].fullness += 5;
             if (dawn->players[index].fullness > 100) dawn->players[index].fullness = 100;
-            sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to try a wedge,"
-                   " and it is delicious! Fullness +5\r\n", dawn->active_room, username);
+            sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to try a "
+                    "wedge, and it is delicious! Fullness +5\r\n", dawn->active_room, username);
+            send_socket(out);
+            break;
+    }
+}
+
+void random_punishment (Bot *dawn, char username[64]) {
+    char out[MAX_MESSAGE_BUFFER];
+    int index = get_pindex(dawn, username);
+    int which = rand() % MAX_PUNISHMENT_TYPE;
+
+    switch (which) {
+        case 0: {
+            int damage_taken = rand() % 25 + 1;
+            Message temp;
+            strcpy(temp.sender_nick, username);
+            strcpy(temp.receiver, dawn->active_room);
+            dawn->players[index].health -= damage_taken;
+            sprintf(out, "PRIVMSG %s :A pack of wolves corner %s and munch on them a little bit. HP -%d\r\n",
+                    dawn->active_room, username, damage_taken);
+            send_socket(out);
+            check_alive(dawn, &temp);
+            break;
+        }
+        case 1: {
+            int damage_taken = rand() % 45 + 1;
+            Message temp;
+            strcpy(temp.sender_nick, username);
+            strcpy(temp.receiver, dawn->active_room);
+            dawn->players[index].health -= damage_taken;
+            sprintf(out, "PRIVMSG %s :While walking, %s was struck by lightning! HP -%d\r\n",
+                    dawn->active_room, username, damage_taken);
+            send_socket(out);
+            check_alive(dawn, &temp);
+            break;
+        }
+        case 2:
+            dawn->players[index].fullness -= 5;
+            sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to "
+                    "try a wedge, and it is awful! You promptly vomit.  Fullness -5\r\n", dawn->active_room, username);
             send_socket(out);
             break;
     }
@@ -89,10 +128,10 @@ void random_event_hourly (Bot *dawn) {
     int player = rand() % dawn->player_count;
     switch (event) {
         case 0:
-//            random_reward(dawn->players[player].username);
+            random_reward(dawn, dawn->players[player].username);
             break;
         case 1:
-//            random_punishment(dawn->players[player].username);
+            random_punishment(dawn, dawn->players[player].username);
             break;
         case 2:
             random_shrine(dawn, dawn->players[player].username);

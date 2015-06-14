@@ -26,7 +26,7 @@ void generate_drop (Bot *dawn, Message *message) {
     item_name[0] = '\0';
     
     float rarity_chance = (float)rand()/(float)(RAND_MAX/100.0f);
-    int type_chance     = rand()%ITEM_MAX_TYPE;
+    int type_chance     = rand()%MAX_ITEM_TYPE;
     int p_index         = get_pindex(dawn, message->sender_nick);
     int drop_level      = dawn->global_monster.drop_level;
     unsigned int str, def, intel, mdef;
@@ -75,7 +75,7 @@ void generate_drop (Bot *dawn, Message *message) {
             intel = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             def   = 1 + rand() % str;
             mdef  = 1 + rand() % str;
-            strcat(weapon_type, weapons[rand()%WEAPON_MAX_TYPE]);
+            strcat(weapon_type, weapons[rand()%MAX_WEAPON_TYPE]);
             strcat(item_name, weapon_type);
             break;
         }
@@ -86,7 +86,7 @@ void generate_drop (Bot *dawn, Message *message) {
             intel = 1 + rand() % def;
             str   = 1 + rand() % def;
             mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
-            strcat(shield_type, shields[rand()%SHIELD_MAX_TYPE]);
+            strcat(shield_type, shields[rand()%MAX_SHIELD_TYPE]);
             strcat(item_name, shield_type);
             break;
         }
@@ -97,7 +97,7 @@ void generate_drop (Bot *dawn, Message *message) {
             intel = 1 + rand() % def;
             str   = 1 + rand() % def;
             mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
-            strcat(armor_type, armor[rand()%ARMOR_MAX_TYPE]);
+            strcat(armor_type, armor[rand()%MAX_ARMOR_TYPE]);
             strcat(item_name, armor_type);
             break;
         }
