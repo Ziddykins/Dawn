@@ -23,7 +23,7 @@ typedef struct {
     char first_class[64], second_class[64], title[64];
     long stone, steel, wood, ore, bronze, diamond, mail, leather, health;
     long kills, deaths, gold, experience;
-    short addiction, x_pos, y_pos, hunger;
+    short addiction, x_pos, y_pos, fullness;
     unsigned int alive, available, level, contribution, max_health, max_mana;
     unsigned int available_slots, available_capacity;
     unsigned int mana, strength, intelligence, defense, m_def, alignment;
@@ -46,7 +46,7 @@ typedef struct {
     Monsters global_monster;
 } Bot;
 
-enum Events {WEATHER, HEALING, SAVING, BATTLE};
+enum Events {HEALING, SAVING, HOURLY};
 enum Weather {SUNNY, RAINING, SNOWING};
 
 //Prototypes

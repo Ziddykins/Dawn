@@ -111,7 +111,6 @@ void parse_room_message (Message *message, Bot *dawn) {
         player_attacks(dawn, message, 1, 0);
     } else if (check_if_matches_regex(message->message, ";gib (\\d+)")) {
         call_monster(dawn, atoi(regex_group[1]));
-        set_timer(BATTLE, dawn, BATTLE_INTERVAL);
     } else if (strcmp(message->message, ";rev ples") == 0) {
         int i = get_pindex(dawn, message->sender_nick);
         dawn->players[i].health = 100;
@@ -121,5 +120,8 @@ void parse_room_message (Message *message, Bot *dawn) {
     } else if (check_if_matches_regex(message->message, ";drop (\\d+)")) {
         int slot = atoi(regex_group[1]);
         drop_item(dawn, message, slot);
+    } else if (check_if_matches_regex(message->message, ";info (\\d+)")) {
+        int slot = atoi(regex_group[1]);
+        get_item_info(dawn, message, slot);
     }
 }

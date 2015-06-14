@@ -49,7 +49,7 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     np.addiction    = 0;
     np.x_pos        = 1;
     np.y_pos        = 1;
-    np.hunger       = 0;
+    np.fullness     = 0;
     np.alignment    = 0;
     np.alive        = 1;
     np.available    = 1;

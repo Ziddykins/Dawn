@@ -24,7 +24,7 @@ int main (void) {
 
     int match;
     ssize_t len;
-    char dalnet[]  = "108.61.240.240";
+    char dalnet[]  = "67.198.195.194";
     char port[]    = "6667";
 
     //Keep a NULL at the end

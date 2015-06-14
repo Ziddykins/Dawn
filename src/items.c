@@ -104,7 +104,7 @@ void generate_drop (Bot *dawn, Message *message) {
     }
 
     strcat(item_name, normal);
-
+    item_name[strlen(item_name)] = '\0';
     strcpy(item_dropped.name, item_name);
     item_dropped.attr_strength     = str;
     item_dropped.attr_defense      = def;
@@ -146,14 +146,45 @@ void drop_item (Bot *dawn, Message *message, int slot) {
     char item_name[128];
     int pindex = get_pindex(dawn, message->sender_nick);
     int total_items = MAX_INVENTORY_SLOTS - dawn->players[pindex].available_slots;
+
+    item_name[0] = '\0';
+    Inventory empty;
     strcpy(item_name, dawn->players[pindex].inventory[slot].name);
+
     if (total_items > 0 && slot < total_items && slot > -1) {
         int last_index = total_items - 1;
-        for (int i = slot; i<last_index; i++) {
-            dawn->players[pindex].inventory[i] = dawn->players[pindex].inventory[i+1];
+        if (slot == last_index) {
+            dawn->players[pindex].inventory[slot] = empty;
+        } else {
+            for (int i=slot; i<last_index; i++) {
+                dawn->players[pindex].inventory[i] = dawn->players[pindex].inventory[i+1];
+            }
+            dawn->players[pindex].inventory[last_index] = empty;
         }
         dawn->players[pindex].available_slots++;
         sprintf(out, "PRIVMSG %s :%s has dropped the %s\r\n", message->receiver, message->sender_nick, item_name);
+        send_socket(out);
+    }
+}
+
+void get_item_info (Bot *dawn, Message *message, int slot) {
+    char item_name[128];
+    char out[MAX_MESSAGE_BUFFER];
+    int index = get_pindex(dawn, message->sender_nick);
+    int total_items = MAX_INVENTORY_SLOTS - dawn->players[index].available_slots;
+    int str    = dawn->players[index].inventory[slot].attr_strength;
+    int intel  = dawn->players[index].inventory[slot].attr_intelligence;
+    int def    = dawn->players[index].inventory[slot].attr_defense;
+    int mdef   = dawn->players[index].inventory[slot].attr_mdef;
+    int hp     = dawn->players[index].inventory[slot].attr_health;
+    int mp     = dawn->players[index].inventory[slot].attr_mana;
+    int weight = dawn->players[index].inventory[slot].weight;
+    int reqlvl = dawn->players[index].inventory[slot].req_level;
+
+    if (slot < total_items && slot > -1) {
+        strcpy(item_name, dawn->players[index].inventory[slot].name);
+        sprintf(out, "PRIVMSG %s :%s - STR: %d - DEF: %d - INT: %d - MDEF: %d - HP: %d - MP: %d"
+               " - Weight: %d - Req lvl: %d\r\n", message->receiver, item_name, str, def, intel, mdef, hp, mp, weight, reqlvl);
         send_socket(out);
     }
 }
