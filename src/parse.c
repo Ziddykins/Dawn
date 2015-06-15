@@ -123,5 +123,26 @@ void parse_room_message (Message *message, Bot *dawn) {
     } else if (check_if_matches_regex(message->message, ";info (\\d+)")) {
         int slot = atoi(regex_group[1]);
         get_item_info(dawn, message, slot);
+    } else if (check_if_matches_regex(message->message, ";givexp (\\w+) (\\d+)")) {
+        //Just temp so I can level people back up who don't want to start over
+        if (strcmp(message->sender_nick, "ziddy") == 0) {
+            char username[64];
+            int amount = atoi(regex_group[2]);
+            int index;
+            strcpy(username, regex_group[1]);
+            index = get_pindex(dawn, username);
+            dawn->players[index].experience += amount;
+            printf("pls halp\n");
+            while (dawn->players[index].experience > get_nextlvl_exp(dawn, username)) {
+                Message temp;
+                strcpy(temp.sender_nick, username);
+                strcpy(temp.receiver, dawn->active_room);
+                check_levelup(dawn, &temp);
+            }
+        } else {
+            char out[MAX_MESSAGE_BUFFER];
+            sprintf(out, "PRIVMSG %s :You're not my real mother!\r\n", message->receiver);
+            send_socket(out);
+        }
     }
 }

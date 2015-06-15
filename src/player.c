@@ -163,7 +163,7 @@ void check_levelup (Bot *dawn, Message *message) {
 
     if (curr_level_exp >= next_level_exp) {
         sprintf(out, "PRIVMSG %s :%s has achieved level %d. Base stats increased +5, HP and MP"
-                "increased +20!\r\n", message->receiver, message->sender_nick, curr_level + 1);
+                " increased +20!\r\n", message->receiver, message->sender_nick, curr_level + 1);
         send_socket(out);
         dawn->players[i].level++;
         dawn->players[i].strength     += 5;
