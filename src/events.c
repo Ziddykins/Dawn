@@ -8,6 +8,9 @@
 #include "colors.h"
 #include "combat.h"
 
+//Prototype
+void check_famine (Bot *, int);
+
 void random_shrine (Bot *dawn, char username[64]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
@@ -116,16 +119,25 @@ void random_punishment (Bot *dawn, char username[64]) {
             sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to "
                     "try a wedge, and it is awful! You promptly vomit.  Fullness -5\r\n", dawn->active_room, username);
             send_socket(out);
+            check_famine(dawn, index);
             break;
     }
 }
 
 //Select a random event and a random player
 //which the event is directed at, should there
-//be a receiver
-void random_event_hourly (Bot *dawn) {
+//be a receiver. If the room happens to be empty,
+//no event will be chosen
+void hourly_events (Bot *dawn) {
     int event  = rand() % MAX_EVENT_TYPE;
     int player = rand() % dawn->player_count;
+    int count  = 0;
+    while (dawn->players[player].available != 1 && count < 100) {
+        player = rand() % dawn->player_count;
+        count++;
+    }
+    if (count == 99) return;
+
     switch (event) {
         case 0:
             random_reward(dawn, dawn->players[player].username);
@@ -141,6 +153,10 @@ void random_event_hourly (Bot *dawn) {
             call_monster(dawn, -1);
             break;
     }
+    for (int i=0; i<dawn->player_count; i++) {
+        dawn->players[i].fullness--;
+    }
+    check_famine(dawn, -1);
 }
 
 void update_weather (Bot *dawn) {
@@ -198,5 +214,20 @@ void call_monster (Bot *dawn, int which) {
     //Reset damage contribution for users
     for (i=0; i<dawn->player_count; i++) {
         dawn->players[i].contribution = 0;
+    }
+}
+
+void check_famine (Bot *dawn, int whom) {
+    Message temp;
+    if (whom == -1) {
+        for (int i=0; i<dawn->player_count; i++) {
+            strcpy(temp.sender_nick, dawn->players[i].username);
+            strcpy(temp.receiver, dawn->active_room);
+            check_alive(dawn, &temp);
+        }
+    } else {
+        strcpy(temp.sender_nick, dawn->players[whom].username);
+        strcpy(temp.receiver, dawn->active_room);
+        check_alive(dawn, &temp);
     }
 }

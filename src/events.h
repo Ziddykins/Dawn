@@ -1,5 +1,5 @@
 #ifndef EVENTS_H_INCLUDED
 #define EVENTS_H_INCLUDED
 void update_weather (Bot *);
-void random_event_hourly (Bot *);
+void hourly_events (Bot *);
 #endif

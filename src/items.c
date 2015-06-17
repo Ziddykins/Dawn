@@ -18,7 +18,7 @@
 
 void generate_drop (Bot *dawn, Message *message) {
     char out[MAX_MESSAGE_BUFFER];
-    char *rarity[]  = {"h", "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
+    char *rarity[]  = {NULL, "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
     char *weapons[] = {"Sword", "Mace", "Scimitar", "Axe", "Club", "Staff", "Wand"};
     char *shields[] = {"Tower Shield", "Round Shield", "Small Shield", "Large Shield", "Medium Shield"};
     char *armor[]   = {"Leather Armor", "Breastplate Armor", "Fullplate Armor", "Chainmail Armor", "Cloth Armor"};
@@ -76,7 +76,9 @@ void generate_drop (Bot *dawn, Message *message) {
             def   = 1 + rand() % str;
             mdef  = 1 + rand() % str;
             strcat(weapon_type, weapons[rand()%MAX_WEAPON_TYPE]);
+            weapon_type[strlen(weapon_type)] = '\0';
             strcat(item_name, weapon_type);
+            item_name[strlen(item_name)] = '\0';
             break;
         }
         case 1: {
@@ -87,7 +89,9 @@ void generate_drop (Bot *dawn, Message *message) {
             str   = 1 + rand() % def;
             mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             strcat(shield_type, shields[rand()%MAX_SHIELD_TYPE]);
+            shield_type[strlen(shield_type)] = '\0';
             strcat(item_name, shield_type);
+            item_name[strlen(item_name)] = '\0';
             break;
         }
         case 2: {
@@ -98,7 +102,9 @@ void generate_drop (Bot *dawn, Message *message) {
             str   = 1 + rand() % def;
             mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             strcat(armor_type, armor[rand()%MAX_ARMOR_TYPE]);
+            armor_type[strlen(armor_type)] = '\0';
             strcat(item_name, armor_type);
+            item_name[strlen(item_name)] = '\0';
             break;
         }
     }

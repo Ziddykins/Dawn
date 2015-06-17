@@ -41,7 +41,7 @@ void check_timers (Bot *dawn) {
                     break;
                 }
                 case HOURLY:
-                    random_event_hourly(dawn);
+                    hourly_events(dawn);
                     set_timer(HOURLY, dawn, 3600);
                     break;
                 default:

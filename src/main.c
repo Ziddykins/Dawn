@@ -77,6 +77,7 @@ int main (void) {
                 dawn.monsters[count].active = 0;
                 count++;
             }
+            fclose(file);
         } else {
             printf("Error opening raw monsters\n");
             exit(1);
@@ -141,11 +142,52 @@ int main (void) {
             //to see if the first character is an octothorpe (#)
             //In regex_group[4], we also check to see if this was a notice
             //or a privmsg, since they follow the same format
+            //Also checks for kicks, parts and joins and quits to control availability of users
+            //Upon joining rooms the bot will search for status 353, which is names, and will
+            //iterate through the online people, setting their status to available if they
+            //have an account on the bot
             if (dawn.in_rooms) {
                 Message message;
-                match = check_if_matches_regex(buffer, 
-                        ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n");
-                if (match) {
+                //NAMES (Status 353)
+                if (check_if_matches_regex(buffer, ":(.*?)\\s353\\s(.*?)\\s@\\s(.*?)\\s:(.*)")) {
+                    char *ch_ptr;
+                    ch_ptr = strtok(regex_group[4], " @&+");
+                    while (ch_ptr != NULL) {
+                        int index = get_pindex(&dawn, ch_ptr);
+                        if (index != -1){
+                            dawn.players[index].available = 1;
+                        }
+                        ch_ptr = strtok(NULL, " @&+\r\n");
+                    }
+                }
+                //Kicks
+                if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(\\w+)\\s(.*?)\\s(.*?)\\s:(.*)")) {
+                    if (strcmp(regex_group[4], "KICK") == 0) {
+                        int index = get_pindex(&dawn, regex_group[6]);
+                        if (index != -1) {
+                            dawn.players[index].available = 0;
+                            printf("user %s now offline, kick\n", dawn.players[index].username);
+                        }
+                    }
+                }
+                //Parting and joining
+                if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)")) {
+                    int index = get_pindex(&dawn, regex_group[1]);
+                    if (index != -1) {
+                        if (strcmp(regex_group[4], "PART") == 0) {
+                            dawn.players[index].available = 0;
+                            printf("user %s is now offline, part\n", dawn.players[index].username);
+                        } else if (strcmp(regex_group[4], "JOIN") == 0) {
+                            dawn.players[index].available = 1;
+                            printf("user %s now online, join\n", dawn.players[index].username);
+                        } else if (strcmp(regex_group[4], "QUIT") == 0) {
+                            dawn.players[index].available = 0;
+                            printf("user %s offline, quit\n", dawn.players[index].username);
+                        }
+                    }
+                }
+                //Regular messages and notices
+                if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n")) {
                     strncpy(message.sender_nick,     regex_group[1], 64);
                     strncpy(message.sender_ident,    regex_group[2], 64);
                     strncpy(message.sender_hostmask, regex_group[3], 64);

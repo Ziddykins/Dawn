@@ -27,9 +27,12 @@ int check_alive (Bot *dawn, Message *message) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
 
-    if (dawn->players[i].health <= 0) {
-        sprintf(out, "PRIVMSG %s :%s has been killed!\r\n", 
-                message->receiver, message->sender_nick);
+    if (dawn->players[i].health <= 0 || dawn->players[i].fullness <= 0) {
+        printf("health %ld fullness %d\n", dawn->players[i].health, dawn->players[i].fullness);
+        char reason[32];
+        strcpy(reason, dawn->players[i].health <= 0 ? "been mauled to death" : "died from starvation");
+        sprintf(out, "PRIVMSG %s :%s has %s!\r\n", 
+                message->receiver, message->sender_nick, reason);
         send_socket(out);
         dawn->players[i].deaths++;
         return 0;
@@ -45,6 +48,8 @@ int check_alive (Bot *dawn, Message *message) {
                 float percent  = ((float)dawn->players[j].contribution / (float)dawn->global_monster.mhp);
                 float expgain  = percent * dawn->global_monster.exp;
                 float goldgain = percent * dawn->global_monster.gold;
+                //Need to change the sender_nick so the proper drops are awarded as well as level checking
+                strcpy(message->sender_nick, dawn->players[j].username);
                 dawn->players[j].experience += (int)expgain;
                 dawn->players[j].gold += (int)goldgain;
                 sprintf(out, "PRIVMSG %s :%s has helped defeat the foe and receives %d experience and %d gold"

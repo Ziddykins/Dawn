@@ -71,6 +71,7 @@ void parse_private_message (Message *message) {
 }
 
 void parse_room_message (Message *message, Bot *dawn) {
+    char out[MAX_MESSAGE_BUFFER];
 /*    printf("%s <%s(%s)%s> %s\n", message->receiver, 
             message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);*/
     if (strcmp(message->message, ";new") == 0) {
@@ -140,8 +141,16 @@ void parse_room_message (Message *message, Bot *dawn) {
                 check_levelup(dawn, &temp);
             }
         } else {
-            char out[MAX_MESSAGE_BUFFER];
             sprintf(out, "PRIVMSG %s :You're not my real mother!\r\n", message->receiver);
+            send_socket(out);
+        }
+    } else if (strcmp(message->message, ";make snow angels") == 0) {
+        if (dawn->weather == SNOWING) {
+            sprintf(out, "PRIVMSG %s :%s falls to the ground and begins making snow angels!\r\n",
+                    message->receiver, message->sender_nick);
+            send_socket(out);
+        } else {
+            sprintf(out, "PRIVMSG %s :There is no snow\r\n", message->receiver);
             send_socket(out);
         }
     }
