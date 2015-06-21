@@ -121,7 +121,8 @@ void parse_room_message (Message *message, Bot *dawn) {
         }
     } else if (strcmp(message->message, ";rev ples") == 0) {
         int i = get_pindex(dawn, message->sender_nick);
-        dawn->players[i].health = 100;
+        dawn->players[i].health = dawn->players[i].max_health;
+        dawn->players[i].alive  = 1;
     } else if (check_if_matches_regex(message->message, ";drop (\\d+)")) {
         int slot = atoi(regex_group[1]);
         drop_item(dawn, message, slot);

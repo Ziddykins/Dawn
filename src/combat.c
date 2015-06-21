@@ -148,12 +148,13 @@ void monster_attacks (Bot *dawn, Message *message, int player_defense, int i) {
     int monster_attack = rand() % dawn->global_monster.str;
     char out[MAX_MESSAGE_BUFFER];
 
-    if (monster_attack > 0 && (monster_attack - player_defense) > 0 && check_alive(dawn, message)) {
+    if (monster_attack > 0 && (monster_attack - player_defense) > 0 && dawn->players[i].alive) {
         dawn->players[i].health -= monster_attack;
         sprintf(out, "PRIVMSG %s :The %s attacks %s viciously for %d damage! (Remaining: %ld)\r\n",
                 message->receiver, dawn->global_monster.name, message->sender_nick,
                 monster_attack, dawn->players[i].health);
         send_socket(out);
+        check_alive(dawn, message);
     } else {
         if (dawn->global_monster.hp > 0) {
             sprintf(out, "PRIVMSG %s :%s has blocked the %s's attack!\r\n", 
