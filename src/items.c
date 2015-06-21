@@ -6,6 +6,7 @@
 #include "player.h"
 #include "limits.h"
 #include "colors.h"
+#include "parse.h"
 
 #define COMMON    65.00f //65%
 #define UNCOMMON  85.00f //20%
@@ -30,6 +31,13 @@ void generate_drop (Bot *dawn, Message *message) {
     int p_index         = get_pindex(dawn, message->sender_nick);
     int drop_level      = dawn->global_monster.drop_level;
     unsigned int str, def, intel, mdef;
+
+    if (dawn->players[p_index].available_slots == 0) {
+        sprintf(out, "PRIVMSG %s :%s has found an item, but has no more room in his inventory!\r\n",
+                message->receiver, message->sender_nick);
+        send_socket(out);
+        return;
+    }
 
     Inventory item_dropped;
     item_dropped.type = type_chance;
@@ -70,48 +78,40 @@ void generate_drop (Bot *dawn, Message *message) {
     switch (type_chance) {
         case 0: {
             char weapon_type[48];
-            weapon_type[0] = '\0';
             str   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             def   = 1 + rand() % str;
             mdef  = 1 + rand() % str;
-            strcat(weapon_type, weapons[rand()%MAX_WEAPON_TYPE]);
-            weapon_type[strlen(weapon_type)] = '\0';
+            strcpy(weapon_type, weapons[rand()%MAX_WEAPON_TYPE]);
             strcat(item_name, weapon_type);
-            item_name[strlen(item_name)] = '\0';
             break;
         }
         case 1: {
             char shield_type[48];
-            shield_type[0] = '\0';
             def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % def;
             str   = 1 + rand() % def;
             mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
-            strcat(shield_type, shields[rand()%MAX_SHIELD_TYPE]);
-            shield_type[strlen(shield_type)] = '\0';
+            strcpy(shield_type, shields[rand()%MAX_SHIELD_TYPE]);
             strcat(item_name, shield_type);
-            item_name[strlen(item_name)] = '\0';
             break;
         }
         case 2: {
             char armor_type[48];
-            armor_type[0] = '\0';
             def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % def;
             str   = 1 + rand() % def;
             mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
-            strcat(armor_type, armor[rand()%MAX_ARMOR_TYPE]);
-            armor_type[strlen(armor_type)] = '\0';
+            strcpy(armor_type, armor[rand()%MAX_ARMOR_TYPE]);
             strcat(item_name, armor_type);
-            item_name[strlen(item_name)] = '\0';
             break;
         }
     }
-
+    
     strcat(item_name, normal);
-    item_name[strlen(item_name)] = '\0';
+    strcpy(item_name, nultrm(item_name));
     strcpy(item_dropped.name, item_name);
+
     item_dropped.attr_strength     = str;
     item_dropped.attr_defense      = def;
     item_dropped.attr_intelligence = intel;
@@ -128,7 +128,7 @@ void generate_drop (Bot *dawn, Message *message) {
     item_dropped.attr_mana = 0;
 
     for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
-        if (strlen(dawn->players[p_index].inventory[i].name) < 1) {
+        if (strlen(dawn->players[p_index].inventory[i].name) < 2) {
             if (dawn->players[p_index].available_slots > 0) {
                 dawn->players[p_index].inventory[i] = item_dropped;
                 dawn->players[p_index].available_slots--;
@@ -152,9 +152,10 @@ void drop_item (Bot *dawn, Message *message, int slot) {
     char item_name[128];
     int pindex = get_pindex(dawn, message->sender_nick);
     int total_items = MAX_INVENTORY_SLOTS - dawn->players[pindex].available_slots;
+    Inventory empty;
 
     item_name[0] = '\0';
-    Inventory empty;
+    empty.name[0] = '\0';
     strcpy(item_name, dawn->players[pindex].inventory[slot].name);
 
     if (total_items > 0 && slot < total_items && slot > -1) {

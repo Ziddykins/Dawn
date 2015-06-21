@@ -10,5 +10,6 @@ void print_sheet (Bot *, Message *);
 void init_new_character (char [], char [], Bot *, Message *);
 void check_levelup (Bot *, Message *);
 long get_nextlvl_exp (Bot *, char []);
-int get_pindex (Bot *, char []);
+int  get_pindex (Bot *, char []);
+
 #endif

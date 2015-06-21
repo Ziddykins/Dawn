@@ -28,14 +28,16 @@ int check_alive (Bot *dawn, Message *message) {
     char out[MAX_MESSAGE_BUFFER];
 
     if (dawn->players[i].health <= 0 || dawn->players[i].fullness <= 0) {
-        printf("health %ld fullness %d\n", dawn->players[i].health, dawn->players[i].fullness);
-        char reason[32];
-        strcpy(reason, dawn->players[i].health <= 0 ? "been mauled to death" : "died from starvation");
-        sprintf(out, "PRIVMSG %s :%s has %s!\r\n", 
-                message->receiver, message->sender_nick, reason);
-        send_socket(out);
-        dawn->players[i].deaths++;
-        return 0;
+        if (dawn->players[i].alive) {
+            char reason[32];
+            strcpy(reason, dawn->players[i].health <= 0 ? "been killed" : "died from starvation");
+            sprintf(out, "PRIVMSG %s :%s has %s!\r\n", 
+                    message->receiver, message->sender_nick, reason);
+            send_socket(out);
+            dawn->players[i].deaths++;
+            dawn->players[i].alive = 0;
+            return 0;
+        }
     }
 
     if (dawn->global_monster.hp <= 0 && dawn->global_monster.active) {
@@ -89,7 +91,7 @@ void player_attacks (Bot *dawn, Message *message, int global) {
         player_attack = rand() % ustats[2];
     }
 
-    if (dawn->players[i].health <= 0) {
+    if (!dawn->players[i].alive) {
         sprintf(out, "PRIVMSG %s :%s, you are dead and can't make an attack; revive at a shrine"
                      ", use a potion, or have someone revive you!\r\n", message->receiver, message->sender_nick);
         send_socket(out);

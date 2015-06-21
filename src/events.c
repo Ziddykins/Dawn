@@ -148,10 +148,11 @@ void hourly_events (Bot *dawn) {
         case 2:
             random_shrine(dawn, dawn->players[player].username);
             break;
-        case 3:
+        case 3: {
             //Passing -1 calls a random monster
-            call_monster(dawn, -1);
+            call_monster(dawn, NULL, 1);
             break;
+        }
     }
     for (int i=0; i<dawn->player_count; i++) {
         dawn->players[i].fullness--;
@@ -188,33 +189,40 @@ void update_weather (Bot *dawn) {
     }
 }
 
-void call_monster (Bot *dawn, int which) {
+void call_monster (Bot *dawn, char user[64], int global) {
     char out[MAX_MESSAGE_BUFFER];
+    char pstring[64];
     int i;
-    if (which >= MAX_MONSTERS) return;
+    int pindex = get_pindex(dawn, user);
+    
     //If a global monster already exists, reset its health and call a random one
     //into the room and assign global_monster to the one chosen
-    if (dawn->global_monster.active) {
-        dawn->global_monster.hp = dawn->global_monster.mhp;
-        dawn->global_monster = dawn->monsters[which == -1 ? rand()%MAX_MONSTERS : which];
+    if (global) {
+        if (dawn->global_monster.active) {
+            dawn->global_monster.hp = dawn->global_monster.mhp;
+        }
+        dawn->global_monster = dawn->monsters[rand()%MAX_MONSTERS];
+        dawn->global_monster.active = 1;
+        //Reset damage contribution for users
+        for (i=0; i<dawn->player_count; i++) {
+            dawn->players[i].contribution = 0;
+        }
+        strcpy(pstring, ":");
     } else {
-        dawn->global_monster = dawn->monsters[which == -1 ? rand()%MAX_MONSTERS : which];
+        if (dawn->players[pindex].personal_monster.active) {
+            dawn->players[pindex].personal_monster.hp = dawn->players[pindex].personal_monster.mhp;
+        }
+        dawn->players[pindex].personal_monster = dawn->monsters[rand()%MAX_MONSTERS];
+        dawn->players[pindex].personal_monster.active = 1;
+        sprintf(pstring, " and attacks %s:", user);
     }
 
-    sprintf(out, "PRIVMSG %s :Monster spawned in room: [%s] [%d/%d %sHP%s] - [%d STR] - [%d DEF] - [%d INT] -"
+    sprintf(out, "PRIVMSG %s :Monster spawned in room%s [%s] [%d/%d %sHP%s] - [%d STR] - [%d DEF] - [%d INT] -"
                  " [%d MDEF]\r\n", 
-                 dawn->active_room, dawn->global_monster.name, dawn->global_monster.hp,
+                 dawn->active_room, pstring, dawn->global_monster.name, dawn->global_monster.hp,
                  dawn->global_monster.mhp, red, normal, dawn->global_monster.str, dawn->global_monster.def,
                  dawn->global_monster.intel, dawn->global_monster.mdef);
     send_socket(out);
-    
-    //set active global monster
-    dawn->global_monster.active = 1;
-    
-    //Reset damage contribution for users
-    for (i=0; i<dawn->player_count; i++) {
-        dawn->players[i].contribution = 0;
-    }
 }
 
 void check_famine (Bot *dawn, int whom) {

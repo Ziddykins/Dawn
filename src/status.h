@@ -53,5 +53,5 @@ enum Weather {SUNNY, RAINING, SNOWING};
 void set_timer (int, Bot *, time_t);
 void check_timers (Bot *);
 void init_timers (Bot *);
-void call_monster (Bot *, int);
+void call_monster (Bot *, char [], int);
 #endif

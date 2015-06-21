@@ -94,8 +94,6 @@ int main (void) {
     dawn.login_sent = 0;
     dawn.in_rooms   = 0;
 
-    if (!dawn.player_count) dawn.player_count = 0;
-
     init_timers(&dawn);
 
     if (init_connect_server(dalnet, port) == 0) { 
@@ -166,7 +164,6 @@ int main (void) {
                         int index = get_pindex(&dawn, regex_group[6]);
                         if (index != -1) {
                             dawn.players[index].available = 0;
-                            printf("user %s now offline, kick\n", dawn.players[index].username);
                         }
                     }
                 }
@@ -176,13 +173,10 @@ int main (void) {
                     if (index != -1) {
                         if (strcmp(regex_group[4], "PART") == 0) {
                             dawn.players[index].available = 0;
-                            printf("user %s is now offline, part\n", dawn.players[index].username);
                         } else if (strcmp(regex_group[4], "JOIN") == 0) {
                             dawn.players[index].available = 1;
-                            printf("user %s now online, join\n", dawn.players[index].username);
                         } else if (strcmp(regex_group[4], "QUIT") == 0) {
                             dawn.players[index].available = 0;
-                            printf("user %s offline, quit\n", dawn.players[index].username);
                         }
                     }
                 }

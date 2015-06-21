@@ -110,14 +110,18 @@ void parse_room_message (Message *message, Bot *dawn) {
         equip_inventory(dawn, message, slot, 1);
     } else if (strcmp(message->message, ";gmelee") == 0) {
         player_attacks(dawn, message, 1, 0);
-    } else if (check_if_matches_regex(message->message, ";gib (\\d+)")) {
-        call_monster(dawn, atoi(regex_group[1]));
+    } else if (check_if_matches_regex(message->message, ";ghunt")) {
+        if (!dawn->global_monster.active) {
+            call_monster(dawn, message->sender_nick, 1);
+        }
+    } else if (strcmp(message->message, ";hunt") == 0) {
+        int i = get_pindex(dawn, message->sender_nick);
+        if (!dawn->players[i].personal_monster.active) {
+            call_monster(dawn, message->sender_nick, 0);
+        }
     } else if (strcmp(message->message, ";rev ples") == 0) {
         int i = get_pindex(dawn, message->sender_nick);
         dawn->players[i].health = 100;
-    } else if (strcmp(message->message, ";gib xp") == 0) {
-        int i = get_pindex(dawn, message->sender_nick);
-        dawn->players[i].experience += 100;
     } else if (check_if_matches_regex(message->message, ";drop (\\d+)")) {
         int slot = atoi(regex_group[1]);
         drop_item(dawn, message, slot);
@@ -133,7 +137,6 @@ void parse_room_message (Message *message, Bot *dawn) {
             strcpy(username, regex_group[1]);
             index = get_pindex(dawn, username);
             dawn->players[index].experience += amount;
-            printf("pls halp\n");
             while (dawn->players[index].experience > get_nextlvl_exp(dawn, username)) {
                 Message temp;
                 strcpy(temp.sender_nick, username);
@@ -153,5 +156,15 @@ void parse_room_message (Message *message, Bot *dawn) {
             sprintf(out, "PRIVMSG %s :There is no snow\r\n", message->receiver);
             send_socket(out);
         }
+    } else if (strcmp(message->message, ";help") == 0) {
+        sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
+                " ;info <slot>, ;sheet, ;sheet <user>\r\n", message->receiver);
+        send_socket(out);
     }
+}
+
+char *nultrm (char string[100]) {
+    size_t len = strlen(string);
+    string[len+1] = '\0';
+    return string;
 }

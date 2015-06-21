@@ -144,11 +144,12 @@ void print_sheet (Bot *dawn, Message *message) {
 
     sprintf(out, 
             "PRIVMSG %s :[%s (%d)] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
-            " - Def: %d (%ldK/%ldD) [EXP: %ld/%ld %s - Gold: %s%ld%s]\r\n", message->receiver, message->sender_nick, 
+            " - Def: %d (%ldK/%ldD) [EXP: %ld/%ld %s - Gold: %s%ld%s] [Fullness: %d%%]\r\n", message->receiver, message->sender_nick, 
             dawn->players[i].level, dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1], 
             stats[2], stats[3], stats[4], stats[5], dawn->players[i].kills, dawn->players[i].deaths, 
             dawn->players[i].experience, get_nextlvl_exp(dawn, dawn->players[i].username),
-            progress_bar(dawn, message->sender_nick), orange, dawn->players[i].gold, normal);
+            progress_bar(dawn, message->sender_nick), orange, dawn->players[i].gold, normal,
+            dawn->players[i].fullness);
 
     send_socket(out);
     return;
