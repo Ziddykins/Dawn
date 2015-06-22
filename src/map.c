@@ -5,8 +5,8 @@
 #include "player.h"
 #include "limits.h"
 
-Map set_map (int which) {
-    Map return_map;
+struct Map set_map (int which) {
+    struct Map return_map;
     switch (which) {
         case 0:
         {
@@ -23,7 +23,7 @@ Map set_map (int which) {
     return return_map;
 }
 
-void print_location (Bot *dawn, int i) {
+void print_location (struct Bot *dawn, int i) {
     char out[MAX_MESSAGE_BUFFER];
     sprintf(out, "PRIVMSG %s :%s, you are at %d,%d in %s\r\n", dawn->active_room, dawn->players[i].username,
             dawn->players[i].current_map.cur_x, dawn->players[i].current_map.cur_y,

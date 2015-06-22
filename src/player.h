@@ -4,12 +4,12 @@
 #include "network.h"
 
 //Prototypes
-void save_players (Bot *, size_t);
-void load_players (Bot *, size_t);
-void print_sheet (Bot *, Message *);
-void init_new_character (char [], char [], Bot *, Message *);
-void check_levelup (Bot *, Message *);
-long get_nextlvl_exp (Bot *, char []);
-int  get_pindex (Bot *, char []);
+void save_players (struct Bot *, size_t);
+void load_players (struct Bot *, size_t);
+void print_sheet (struct Bot *, struct Message *);
+void init_new_character (char [], char [], struct Bot *, struct Message *);
+void check_levelup (struct Bot *, struct Message *);
+long get_nextlvl_exp (struct Bot *, char []);
+int  get_pindex (struct Bot *, char []);
 
 #endif

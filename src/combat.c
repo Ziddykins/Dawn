@@ -8,9 +8,9 @@
 #include "player.h"
 #include "items.h"
 
-void monster_attacks (Bot *, Message *, int, int);
+void monster_attacks (struct Bot *, struct Message *, int, int);
 
-void calc_contribution (Bot *dawn, int i, int amount, int monster_mhp, int monster_hp) {
+void calc_contribution (struct Bot *dawn, int i, int amount, int monster_mhp, int monster_hp) {
     if (amount >= monster_mhp) {
         dawn->players[i].contribution = monster_mhp;
     } else {
@@ -23,7 +23,7 @@ void calc_contribution (Bot *dawn, int i, int amount, int monster_mhp, int monst
     }
 }
  
-int check_alive (Bot *dawn, Message *message) {
+int check_alive (struct Bot *dawn, struct Message *message) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
 
@@ -71,7 +71,7 @@ int check_alive (Bot *dawn, Message *message) {
     return 1;
 }
 
-void player_attacks (Bot *dawn, Message *message, int global) {
+void player_attacks (struct Bot *dawn, struct Message *message, int global) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
     int player_attack, monster_defense, player_defense, critical;
@@ -144,7 +144,7 @@ void player_attacks (Bot *dawn, Message *message, int global) {
     }
 }
 
-void monster_attacks (Bot *dawn, Message *message, int player_defense, int i) {
+void monster_attacks (struct Bot *dawn, struct Message *message, int player_defense, int i) {
     int monster_attack = rand() % dawn->global_monster.str;
     char out[MAX_MESSAGE_BUFFER];
 

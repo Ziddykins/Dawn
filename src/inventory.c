@@ -7,7 +7,7 @@
 #include "colors.h"
 #include "limits.h"
 
-void print_inventory (Bot *dawn, Message *message) {
+void print_inventory (struct Bot *dawn, struct Message *message) {
     int i = get_pindex(dawn, message->sender_nick);
     unsigned int j;
     char out[MAX_MESSAGE_BUFFER];
@@ -23,18 +23,16 @@ void print_inventory (Bot *dawn, Message *message) {
         int equipped = dawn->players[i].inventory[j].equipped;
         temp[0] = '\0';
         sprintf(temp, "[%s%d%s] - %s ", equipped ? green : red, j, normal,
-                                        dawn->players[i].inventory[j].name);
+                dawn->players[i].inventory[j].name);
         strcat(out, temp);
     }
     sprintf(temp, " - Available slots: %d", dawn->players[i].available_slots);
     strcat(out, temp);
     strcat(out, "\r\n");
-    size_t len = strlen(out);
-    out[len] = '\0';
     send_socket(out);
 }
 
-void equip_inventory (Bot *dawn, Message *message, unsigned int slot, int unequip) {
+void equip_inventory (struct Bot *dawn, struct Message *message, unsigned int slot, int unequip) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
     

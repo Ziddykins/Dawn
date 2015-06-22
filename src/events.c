@@ -9,9 +9,9 @@
 #include "combat.h"
 
 //Prototype
-void check_famine (Bot *, int);
+void check_famine (struct Bot *, int);
 
-void random_shrine (Bot *dawn, char username[64]) {
+void random_shrine (struct Bot *dawn, char username[64]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_SHRINE_TYPE;
@@ -37,7 +37,7 @@ void random_shrine (Bot *dawn, char username[64]) {
         }
         case 2: {
             int experience_gain = rand() % (dawn->players[index].level * 10) + 1;
-            Message temp;
+            struct Message temp;
             strcpy(temp.sender_nick, username);
             strcpy(temp.receiver, dawn->active_room);
             dawn->players[index].experience += experience_gain;
@@ -51,7 +51,7 @@ void random_shrine (Bot *dawn, char username[64]) {
     }
 }
 
-void random_reward (Bot *dawn, char username[64]) {
+void random_reward (struct Bot *dawn, char username[64]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_REWARD_TYPE;
@@ -84,7 +84,7 @@ void random_reward (Bot *dawn, char username[64]) {
     }
 }
 
-void random_punishment (Bot *dawn, char username[64]) {
+void random_punishment (struct Bot *dawn, char username[64]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_PUNISHMENT_TYPE;
@@ -92,7 +92,7 @@ void random_punishment (Bot *dawn, char username[64]) {
     switch (which) {
         case 0: {
             int damage_taken = rand() % 25 + 1;
-            Message temp;
+            struct Message temp;
             strcpy(temp.sender_nick, username);
             strcpy(temp.receiver, dawn->active_room);
             dawn->players[index].health -= damage_taken;
@@ -104,7 +104,7 @@ void random_punishment (Bot *dawn, char username[64]) {
         }
         case 1: {
             int damage_taken = rand() % 45 + 1;
-            Message temp;
+            struct Message temp;
             strcpy(temp.sender_nick, username);
             strcpy(temp.receiver, dawn->active_room);
             dawn->players[index].health -= damage_taken;
@@ -128,7 +128,7 @@ void random_punishment (Bot *dawn, char username[64]) {
 //which the event is directed at, should there
 //be a receiver. If the room happens to be empty,
 //no event will be chosen
-void hourly_events (Bot *dawn) {
+void hourly_events (struct Bot *dawn) {
     int event  = rand() % MAX_EVENT_TYPE;
     int player = rand() % dawn->player_count;
     int count  = 0;
@@ -160,11 +160,13 @@ void hourly_events (Bot *dawn) {
     check_famine(dawn, -1);
 }
 
-void update_weather (Bot *dawn) {
+void update_weather (struct Bot *dawn) {
     int weather = rand() % 4;
     char out[MAX_MESSAGE_BUFFER];
+
     //Avoid same weather
     while (weather == dawn->weather) weather = rand() % 4;
+
     switch (weather) {
         case 0:
             sprintf(out, "PRIVMSG %s :The clouds disperse, allowing "
@@ -189,7 +191,7 @@ void update_weather (Bot *dawn) {
     }
 }
 
-void call_monster (Bot *dawn, char user[64], int global) {
+void call_monster (struct Bot *dawn, char user[64], int global) {
     char out[MAX_MESSAGE_BUFFER];
     char pstring[64];
     int i;
@@ -225,8 +227,8 @@ void call_monster (Bot *dawn, char user[64], int global) {
     send_socket(out);
 }
 
-void check_famine (Bot *dawn, int whom) {
-    Message temp;
+void check_famine (struct Bot *dawn, int whom) {
+    struct Message temp;
     if (whom == -1) {
         for (int i=0; i<dawn->player_count; i++) {
             strcpy(temp.sender_nick, dawn->players[i].username);

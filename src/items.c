@@ -17,7 +17,7 @@
 #define GODLY     95.00f //0.25%
 #define FORSAKEN  95.02f //0.02%
 
-void generate_drop (Bot *dawn, Message *message) {
+void generate_drop (struct Bot *dawn, struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
     char *rarity[]  = {NULL, "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
     char *weapons[] = {"Sword", "Mace", "Scimitar", "Axe", "Club", "Staff", "Wand"};
@@ -39,7 +39,7 @@ void generate_drop (Bot *dawn, Message *message) {
         return;
     }
 
-    Inventory item_dropped;
+    struct Inventory item_dropped;
     item_dropped.type = type_chance;
 
     if (rarity_chance <= COMMON) {
@@ -147,12 +147,12 @@ void generate_drop (Bot *dawn, Message *message) {
     send_socket(out);
 }
 
-void drop_item (Bot *dawn, Message *message, int slot) {
+void drop_item (struct Bot *dawn, struct Message *message, int slot) {
     char out[MAX_MESSAGE_BUFFER];
     char item_name[128];
     int pindex = get_pindex(dawn, message->sender_nick);
     int total_items = MAX_INVENTORY_SLOTS - dawn->players[pindex].available_slots;
-    Inventory empty;
+    struct Inventory empty;
 
     item_name[0] = '\0';
     empty.name[0] = '\0';
@@ -174,7 +174,7 @@ void drop_item (Bot *dawn, Message *message, int slot) {
     }
 }
 
-void get_item_info (Bot *dawn, Message *message, int slot) {
+void get_item_info (struct Bot *dawn, struct Message *message, int slot) {
     char item_name[128];
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, message->sender_nick);

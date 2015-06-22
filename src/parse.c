@@ -65,12 +65,12 @@ void handle_login (char *nick, char *pass, char *real, char *ident) {
     printf("%s\n", pass); //TODO:quieting down warnings for now but this will be nickserv
 }
 
-void parse_private_message (Message *message) {
+void parse_private_message (struct Message *message) {
     printf("<%s(%s)%s> %s\n",
             message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);
 }
 
-void parse_room_message (Message *message, Bot *dawn) {
+void parse_room_message (struct Message *message, struct Bot *dawn) {
     char out[MAX_MESSAGE_BUFFER];
 /*    printf("%s <%s(%s)%s> %s\n", message->receiver, 
             message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);*/
@@ -139,7 +139,7 @@ void parse_room_message (Message *message, Bot *dawn) {
             index = get_pindex(dawn, username);
             dawn->players[index].experience += amount;
             while (dawn->players[index].experience > get_nextlvl_exp(dawn, username)) {
-                Message temp;
+                struct Message temp;
                 strcpy(temp.sender_nick, username);
                 strcpy(temp.receiver, dawn->active_room);
                 check_levelup(dawn, &temp);

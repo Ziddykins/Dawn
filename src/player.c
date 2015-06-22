@@ -8,10 +8,10 @@
 #include "colors.h"
 
 //Prototypes
-void save_players (Bot *, size_t);
-long int get_nextlvl_exp (Bot *, char []);
+void save_players (struct Bot *, size_t);
+long int get_nextlvl_exp (struct Bot *, char []);
 
-int get_pindex (Bot *dawn, char username[64]) {
+int get_pindex (struct Bot *dawn, char username[64]) {
     int i;
     for (i=0; i<dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, username) == 0)
@@ -21,7 +21,7 @@ int get_pindex (Bot *dawn, char username[64]) {
 }
 
 
-void init_new_character (char username[64], char password[64], Bot *dawn, Message *message) {
+void init_new_character (char username[64], char password[64], struct Bot *dawn, struct Message *message) {
     //Check if user exists
     char out[MAX_MESSAGE_BUFFER];
 
@@ -31,7 +31,7 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
         return;
     }
             
-    Player np;
+    struct Player np;
 
     np.current_map = set_map(0);
     np.current_map.cur_x = 0;
@@ -73,6 +73,7 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     np.m_def        = 5;
     np.available_slots = 23;
     np.available_capacity = 70;
+
     for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
         np.inventory[i].name[0] = '\0';
         np.inventory[i].attr_health = np.inventory[i].attr_defense = np.inventory[i].attr_intelligence = 
@@ -84,8 +85,8 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
 
     //name, health, def, int, str, mdef, req lvl, weight, s1, s2, s3
     //type, rusted, equipped, equippable, mana, rarity
-    Inventory sword  = {"Wooden Sword", 0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 1, 0, 0};
-    Inventory shield = {"Wooden Shield", 5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 1, 0, 0, 1, 5, 0};
+    struct Inventory sword  = {"Wooden Sword", 0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+    struct Inventory shield = {"Wooden Shield", 5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 1, 0, 0, 1, 5, 0};
     np.inventory[0] = sword;
     np.inventory[1] = shield;
 
@@ -94,12 +95,12 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     dawn->player_count++;
     sprintf(out, "PRIVMSG %s :Account created for user %s\r\n", message->receiver, username);
 
-    Bot temp;
+    struct Bot temp;
     save_players (dawn, sizeof(temp));
     send_socket(out);
 }
 
-void save_players (Bot *dawn, size_t size) {
+void save_players (struct Bot *dawn, size_t size) {
     FILE *file = fopen("players.db", "wb");
     if (file != NULL) {
         fwrite(dawn, size, 1, file);
@@ -108,7 +109,7 @@ void save_players (Bot *dawn, size_t size) {
     }
 }
 
-void load_players (Bot *dawn, size_t size) {
+void load_players (struct Bot *dawn, size_t size) {
     FILE *file = fopen("players.db", "rb");
     if (file != NULL) {
         fread(dawn, size, 1, file);
@@ -118,7 +119,7 @@ void load_players (Bot *dawn, size_t size) {
 }
 
 //Lol this entire thing ¯v
-const char *progress_bar (Bot *dawn, char username[64]) {
+const char *progress_bar (struct Bot *dawn, char username[64]) {
     static char bar[48];
     int i = get_pindex(dawn, username);
     float temp_cyan = ((dawn->players[i].experience / (float)get_nextlvl_exp(dawn, username)) * 100) / 10;
@@ -128,7 +129,7 @@ const char *progress_bar (Bot *dawn, char username[64]) {
     return bar;
 }
 
-long int get_nextlvl_exp (Bot *dawn, char username[64]) {
+long int get_nextlvl_exp (struct Bot *dawn, char username[64]) {
     int curr_level = dawn->players[get_pindex(dawn, username)].level;
     if (curr_level > 10) {
         return 500 * curr_level * curr_level * curr_level - 500 * curr_level;
@@ -139,7 +140,7 @@ long int get_nextlvl_exp (Bot *dawn, char username[64]) {
     return -1;
 }
 
-void print_sheet (Bot *dawn, Message *message) {
+void print_sheet (struct Bot *dawn, struct Message *message) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
     int stats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
@@ -160,7 +161,7 @@ void print_sheet (Bot *dawn, Message *message) {
     return;
 }
 
-void check_levelup (Bot *dawn, Message *message) {
+void check_levelup (struct Bot *dawn, struct Message *message) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
     long int next_level_exp = get_nextlvl_exp(dawn, message->sender_nick);

@@ -8,13 +8,13 @@
 #include "colors.h"
 #include "events.h"
 
-void set_timer (int timer, Bot *dawn, time_t amount) {
+void set_timer (int timer, struct Bot *dawn, time_t amount) {
     time_t epoch = time(NULL);
     dawn->timer[timer].time_finished = epoch + amount;
     printf("Timer %d set to %ld\n", timer, (epoch + amount));
 }
 
-void check_timers (Bot *dawn) {
+void check_timers (struct Bot *dawn) {
     int i;
     time_t epoch = time(NULL);
     for (i=0; i<MAX_TIMERS; i++) {
@@ -34,7 +34,7 @@ void check_timers (Bot *dawn) {
                     break;
                 }
                 case SAVING: {
-                    Bot temp;
+                    struct Bot temp;
                     size_t size = sizeof(temp);
                     save_players(dawn, size);
                     set_timer(SAVING, dawn, SAVING_INTERVAL);
@@ -51,7 +51,7 @@ void check_timers (Bot *dawn) {
     }
 }
 
-void init_timers (Bot *dawn) {
+void init_timers (struct Bot *dawn) {
     //Times are defined in limits.h and are in seconds
     set_timer(HEALING, dawn, HEALING_INTERVAL);
     set_timer(SAVING,  dawn, SAVING_INTERVAL);

@@ -32,7 +32,7 @@ int main (void) {
     n = rooms;
     
     //The bot structure it self
-    Bot dawn;
+    struct Bot dawn;
 
     //Load characters
     if (access("players.db", F_OK) != -1) {
@@ -146,7 +146,7 @@ int main (void) {
             //iterate through the online people, setting their status to available if they
             //have an account on the bot
             if (dawn.in_rooms) {
-                Message message;
+                struct Message message;
                 //NAMES (Status 353)
                 if (check_if_matches_regex(buffer, ":(.*?)\\s353\\s(.*?)\\s@\\s(.*?)\\s:(.*)")) {
                     char *ch_ptr;
