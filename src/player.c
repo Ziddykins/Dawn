@@ -32,6 +32,11 @@ void init_new_character (char username[64], char password[64], Bot *dawn, Messag
     }
             
     Player np;
+
+    np.current_map = set_map(0);
+    np.current_map.cur_x = 0;
+    np.current_map.cur_y = 1;
+
     strcpy(np.username, username);
     strcpy(np.password, password);
     strcpy(np.first_class, "None");

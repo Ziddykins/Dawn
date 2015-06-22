@@ -30,7 +30,8 @@ int main (void) {
     //Keep a NULL at the end
     char *rooms[]  = { "#stacked", NULL }, **n;
     n = rooms;
-
+    
+    //The bot structure it self
     Bot dawn;
 
     //Load characters

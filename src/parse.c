@@ -157,6 +157,8 @@ void parse_room_message (Message *message, Bot *dawn) {
             sprintf(out, "PRIVMSG %s :There is no snow\r\n", message->receiver);
             send_socket(out);
         }
+    } else if (strcmp(message->message, ";location") == 0) {
+        print_location(dawn, get_pindex(dawn, message->sender_nick));
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>\r\n", message->receiver);

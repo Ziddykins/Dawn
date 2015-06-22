@@ -9,6 +9,20 @@ typedef struct {
 } Timers;
 
 typedef struct {
+    unsigned int x, y;
+} Building;
+
+typedef struct {
+    char name[100];
+    unsigned int max_x, max_y;
+    unsigned int cur_x, cur_y;
+    unsigned int exitx, exity;
+    Building shop, stable, shrine, gym;
+    Building cshop, wepshop, armshop, bank;
+    unsigned int min_level;
+} Map;
+
+typedef struct {
    char name[100];
    unsigned int attr_health, attr_defense, attr_intelligence, attr_strength;
    unsigned int attr_mdef, req_level, weight;
@@ -28,6 +42,7 @@ typedef struct {
     unsigned int available_slots, available_capacity;
     unsigned int mana, strength, intelligence, defense, m_def, alignment;
     Monsters personal_monster;
+    Map current_map;
 } Player;
 
 typedef struct {
@@ -46,7 +61,7 @@ typedef struct {
     Monsters global_monster;
 } Bot;
 
-enum Events {HEALING, SAVING, HOURLY};
+enum Events  {HEALING, SAVING, HOURLY};
 enum Weather {SUNNY, RAINING, SNOWING};
 
 //Prototypes
@@ -54,4 +69,7 @@ void set_timer (int, Bot *, time_t);
 void check_timers (Bot *);
 void init_timers (Bot *);
 void call_monster (Bot *, char [], int);
+void print_location (Bot *, int);
+Map  set_map (int);
+
 #endif

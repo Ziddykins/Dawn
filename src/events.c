@@ -193,7 +193,6 @@ void call_monster (Bot *dawn, char user[64], int global) {
     char out[MAX_MESSAGE_BUFFER];
     char pstring[64];
     int i;
-    int pindex = get_pindex(dawn, user);
     
     //If a global monster already exists, reset its health and call a random one
     //into the room and assign global_monster to the one chosen
@@ -209,6 +208,7 @@ void call_monster (Bot *dawn, char user[64], int global) {
         }
         strcpy(pstring, ":");
     } else {
+        int pindex = get_pindex(dawn, user);
         if (dawn->players[pindex].personal_monster.active) {
             dawn->players[pindex].personal_monster.hp = dawn->players[pindex].personal_monster.mhp;
         }
