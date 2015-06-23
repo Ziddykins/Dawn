@@ -11,7 +11,7 @@
 
 char regex_group[15][2048];
 
-int check_if_matches_regex (char *buffer, char *regular_expression) {
+int check_if_matches_regex (char *buffer, const char *regular_expression) {
     pcre *regex_compiled;
     pcre_extra *pcre_optimized;
     int pcre_return;

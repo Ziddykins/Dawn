@@ -13,7 +13,7 @@
 char buffer[MAX_RECV_BUFFER + 1];
 int con_socket;
 
-int init_connect_server (char *ip_addr, char *port) {
+int init_connect_server (const char *ip_addr, const char *port) {
     struct addrinfo destination, *res;
     memset(&destination, 0, sizeof destination);
     destination.ai_family = AF_INET;
@@ -27,8 +27,8 @@ int init_connect_server (char *ip_addr, char *port) {
     return errno;
 }
 
-void close_socket (int con_socket) {
-    close(con_socket);
+void close_socket (int socket) {
+    close(socket);
 }
 
 void send_socket (char out_buf[MAX_MESSAGE_BUFFER]) {

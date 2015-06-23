@@ -4,34 +4,20 @@
 #include "limits.h"
 #include "monsters.h"
 #include "map.h"
+#include "inventory.h"
+#include "player.h"
 
-struct Map;
+//Prototypes
+void set_timer (int, struct Bot *, time_t);
+void check_timers (struct Bot *);
+void init_timers (struct Bot *);
+void call_monster (struct Bot *, char [], int);
+void print_location (struct Bot *, int);
+struct Map set_map (int);
+//
 
 struct Timers {
     time_t time_finished;
-};
-
-struct Inventory {
-   char name[100];
-   unsigned int attr_health, attr_defense, attr_intelligence, attr_strength;
-   unsigned int attr_mdef, req_level, weight;
-   unsigned int socket_one, socket_two, socket_three;
-   unsigned int type, rusted, equipped, equippable;
-   unsigned int attr_mana, rarity;
-};
-
-struct Player {
-    struct Inventory inventory[MAX_INVENTORY_SLOTS];
-    struct Monsters personal_monster;
-    struct Map current_map;
-    char username[64], password[64];
-    char first_class[64], second_class[64], title[64];
-    long stone, steel, wood, ore, bronze, diamond, mail, leather, health;
-    long kills, deaths, gold, experience;
-    short addiction, x_pos, y_pos, fullness;
-    unsigned int alive, available, level, contribution, max_health, max_mana;
-    unsigned int available_slots, available_capacity;
-    unsigned int mana, strength, intelligence, defense, m_def, alignment;
 };
 
 struct Bot {
@@ -53,12 +39,5 @@ struct Bot {
 enum Events  {HEALING, SAVING, HOURLY};
 enum Weather {SUNNY, RAINING, SNOWING};
 
-//Prototypes
-void set_timer (int, struct Bot *, time_t);
-void check_timers (struct Bot *);
-void init_timers (struct Bot *);
-void call_monster (struct Bot *, char [], int);
-void print_location (struct Bot *, int);
-struct Map set_map (int);
 
 #endif

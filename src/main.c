@@ -24,11 +24,11 @@ int main (void) {
 
     int match;
     ssize_t len;
-    char dalnet[]  = "67.198.195.194";
-    char port[]    = "6667";
+    const char dalnet[]  = "67.198.195.194";
+    const char port[]    = "6667";
 
     //Keep a NULL at the end
-    char *rooms[]  = { "#stacked", NULL }, **n;
+    const char *rooms[]  = { "#stacked", NULL }, **n;
     n = rooms;
     
     //The bot structure it self

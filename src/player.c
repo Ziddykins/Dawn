@@ -1,17 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "player.h"
 #include "status.h"
+#include "player.h"
 #include "network.h"
 #include "stats.h"
 #include "colors.h"
+#include "inventory.h"
 
 //Prototypes
 void save_players (struct Bot *, size_t);
-long int get_nextlvl_exp (struct Bot *, char []);
+long int get_nextlvl_exp (struct Bot *, const char []);
 
-int get_pindex (struct Bot *dawn, char username[64]) {
+int get_pindex (struct Bot *dawn, const char username[64]) {
     int i;
     for (i=0; i<dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, username) == 0)
@@ -21,7 +22,7 @@ int get_pindex (struct Bot *dawn, char username[64]) {
 }
 
 
-void init_new_character (char username[64], char password[64], struct Bot *dawn, struct Message *message) {
+void init_new_character (const char username[64], const char password[64], struct Bot *dawn, struct Message *message) {
     //Check if user exists
     char out[MAX_MESSAGE_BUFFER];
 
@@ -118,8 +119,8 @@ void load_players (struct Bot *dawn, size_t size) {
     }
 }
 
-//Lol this entire thing ¯v
-const char *progress_bar (struct Bot *dawn, char username[64]) {
+//Lol this entire thing
+const char *progress_bar (struct Bot *dawn, const char username[64]) {
     static char bar[48];
     int i = get_pindex(dawn, username);
     float temp_cyan = ((dawn->players[i].experience / (float)get_nextlvl_exp(dawn, username)) * 100) / 10;
@@ -129,7 +130,7 @@ const char *progress_bar (struct Bot *dawn, char username[64]) {
     return bar;
 }
 
-long int get_nextlvl_exp (struct Bot *dawn, char username[64]) {
+long int get_nextlvl_exp (struct Bot *dawn, const char username[64]) {
     int curr_level = dawn->players[get_pindex(dawn, username)].level;
     if (curr_level > 10) {
         return 500 * curr_level * curr_level * curr_level - 500 * curr_level;

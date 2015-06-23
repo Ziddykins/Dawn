@@ -7,6 +7,7 @@
 #include "limits.h"
 #include "colors.h"
 #include "parse.h"
+#include "inventory.h"
 
 #define COMMON    65.00f //65%
 #define UNCOMMON  85.00f //20%
@@ -19,10 +20,10 @@
 
 void generate_drop (struct Bot *dawn, struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
-    char *rarity[]  = {NULL, "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
-    char *weapons[] = {"Sword", "Mace", "Scimitar", "Axe", "Club", "Staff", "Wand"};
-    char *shields[] = {"Tower Shield", "Round Shield", "Small Shield", "Large Shield", "Medium Shield"};
-    char *armor[]   = {"Leather Armor", "Breastplate Armor", "Fullplate Armor", "Chainmail Armor", "Cloth Armor"};
+    const char *rarity[]  = {NULL, "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
+    const char *weapons[] = {"Sword", "Mace", "Scimitar", "Axe", "Club", "Staff", "Wand"};
+    const char *shields[] = {"Tower Shield", "Round Shield", "Small Shield", "Large Shield", "Medium Shield"};
+    const char *armor[]   = {"Leather Armor", "Breastplate Armor", "Fullplate Armor", "Chainmail Armor", "Cloth Armor"};
     char item_name[200];
     item_name[0] = '\0';
     
@@ -31,6 +32,7 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
     int p_index         = get_pindex(dawn, message->sender_nick);
     int drop_level      = dawn->global_monster.drop_level;
     unsigned int str, def, intel, mdef;
+    str = def = intel = mdef = 0;
 
     if (dawn->players[p_index].available_slots == 0) {
         sprintf(out, "PRIVMSG %s :%s has found an item, but has no more room in his inventory!\r\n",

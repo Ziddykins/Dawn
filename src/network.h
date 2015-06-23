@@ -11,7 +11,7 @@ struct Message {
 extern char buffer[MAX_RECV_BUFFER + 1];
 extern int con_socket;
 
-int init_connect_server (char *, char *);
+int init_connect_server (const char *, const char *);
 void close_socket (int);
 void send_socket (char *);
 void send_login (char *, char *, char *, char *);
