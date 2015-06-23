@@ -11,7 +11,7 @@
 
 char regex_group[15][2048];
 
-int check_if_matches_regex (char *buffer, const char *regular_expression) {
+int check_if_matches_regex (char *buf, const char *regular_expression) {
     pcre *regex_compiled;
     pcre_extra *pcre_optimized;
     int pcre_return;
@@ -36,15 +36,15 @@ int check_if_matches_regex (char *buffer, const char *regular_expression) {
         exit(1);
     }
 
-    pcre_return = pcre_exec(regex_compiled, pcre_optimized, buffer,
-                            strlen(buffer), 0, PCRE_NOTEOL, substring_vec, 30);
+    pcre_return = pcre_exec(regex_compiled, pcre_optimized, buf,
+                            strlen(buf), 0, PCRE_NOTEOL, substring_vec, 30);
     pcre_free(regex_compiled);
     pcre_free(pcre_optimized);
 
     if (pcre_return > 0) {
         int j;
         for (j=0; j<pcre_return; j++) {
-            pcre_get_substring(buffer, substring_vec, pcre_return, j, &(psubStrMatchStr));
+            pcre_get_substring(buf, substring_vec, pcre_return, j, &(psubStrMatchStr));
             strcpy(regex_group[j], psubStrMatchStr);
             pcre_free_substring(psubStrMatchStr);
         }
@@ -86,7 +86,6 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
     //for array bounds.
     if (check_if_matches_regex(message->message, "^;(.*)")) {
         if (get_pindex(dawn, message->sender_nick) == -1) {
-            char out[MAX_MESSAGE_BUFFER];
             sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", message->receiver);
             send_socket(out);
             return;
@@ -109,7 +108,7 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
         int slot = atoi(regex_group[1]);
         equip_inventory(dawn, message, slot, 1);
     } else if (strcmp(message->message, ";gmelee") == 0) {
-        player_attacks(dawn, message, 1, 0);
+        player_attacks(dawn, message, 1);
     } else if (check_if_matches_regex(message->message, ";ghunt")) {
         if (!dawn->global_monster.active) {
             call_monster(dawn, message->sender_nick, 1);
@@ -159,9 +158,24 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
         }
     } else if (strcmp(message->message, ";location") == 0) {
         print_location(dawn, get_pindex(dawn, message->sender_nick));
+    } else if (strcmp(message->message, ";slay") == 0) {
+        slay_monster(dawn, message->sender_nick, 0, 0);
+    } else if (strcmp(message->message, ";gslay") == 0) {
+        sprintf(out, "PRIVMSG %s :The %s will cost %d more gold to slay. Contribute to hiring a warrior "
+                "with ;gslay <amount>\r\n", message->receiver, dawn->global_monster.name,
+                dawn->global_monster.slay_cost);
+        send_socket(out);
+    } else if (check_if_matches_regex(message->message, ";gslay (\\d+)")) {
+        slay_monster(dawn, message->sender_nick, 1, atoi(regex_group[1]));
+    } else if (strcmp(message->message, ";check") == 0) {
+        print_monster(dawn, message->sender_nick, 0);
+    } else if (strcmp(message->message, ";gcheck") == 0) {
+        print_monster(dawn, message->sender_nick, 1);
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
-                " ;info <slot>, ;sheet, ;sheet <user>\r\n", message->receiver);
+                " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"
+                " ;gcheck\r\n",
+                message->receiver);
         send_socket(out);
     }
 }

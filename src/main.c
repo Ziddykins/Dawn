@@ -44,6 +44,7 @@ int main (void) {
             load_players(&dawn, sizeof(dawn));
         }
         fclose(file);
+        dawn.global_monster.active = 0;
     } else {
         FILE *file = fopen("players.db", "w+");
         fclose(file);
@@ -56,7 +57,7 @@ int main (void) {
         char line[1024];
         char name[100];
         int count = 0;
-        unsigned int hp, str, def, intel, mdef, gold, exp, mhp, drop_level;
+        int hp, str, def, intel, mdef, gold, exp, mhp, drop_level;
         if (file != NULL) {
             while (fgets(line, sizeof(line), file)) {
                 //TODO: Add ranges to raw files
@@ -74,7 +75,9 @@ int main (void) {
                 dawn.monsters[count].gold   = gold;
                 dawn.monsters[count].exp    = exp;
                 dawn.monsters[count].mhp    = mhp;
+
                 dawn.monsters[count].drop_level = drop_level;
+                dawn.monsters[count].slay_cost  = gold;
                 dawn.monsters[count].active = 0;
                 count++;
             }

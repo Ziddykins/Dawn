@@ -7,11 +7,13 @@
 #include "network.h"
 #include "colors.h"
 #include "combat.h"
+#include "events.h"
+#include "monsters.h"
 
 //Prototype
 void check_famine (struct Bot *, int);
 
-void random_shrine (struct Bot *dawn, char username[64]) {
+static void random_shrine (struct Bot *dawn, char username[64]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_SHRINE_TYPE;
@@ -51,7 +53,7 @@ void random_shrine (struct Bot *dawn, char username[64]) {
     }
 }
 
-void random_reward (struct Bot *dawn, char username[64]) {
+static void random_reward (struct Bot *dawn, char username[64]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_REWARD_TYPE;
@@ -84,7 +86,7 @@ void random_reward (struct Bot *dawn, char username[64]) {
     }
 }
 
-void random_punishment (struct Bot *dawn, char username[64]) {
+static void random_punishment (struct Bot *dawn, char username[64]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_PUNISHMENT_TYPE;
@@ -189,42 +191,6 @@ void update_weather (struct Bot *dawn) {
             dawn->weather = SNOWING;
             break;
     }
-}
-
-void call_monster (struct Bot *dawn, char user[64], int global) {
-    char out[MAX_MESSAGE_BUFFER];
-    char pstring[64];
-    int i;
-    
-    //If a global monster already exists, reset its health and call a random one
-    //into the room and assign global_monster to the one chosen
-    if (global) {
-        if (dawn->global_monster.active) {
-            dawn->global_monster.hp = dawn->global_monster.mhp;
-        }
-        dawn->global_monster = dawn->monsters[rand()%MAX_MONSTERS];
-        dawn->global_monster.active = 1;
-        //Reset damage contribution for users
-        for (i=0; i<dawn->player_count; i++) {
-            dawn->players[i].contribution = 0;
-        }
-        strcpy(pstring, ":");
-    } else {
-        int pindex = get_pindex(dawn, user);
-        if (dawn->players[pindex].personal_monster.active) {
-            dawn->players[pindex].personal_monster.hp = dawn->players[pindex].personal_monster.mhp;
-        }
-        dawn->players[pindex].personal_monster = dawn->monsters[rand()%MAX_MONSTERS];
-        dawn->players[pindex].personal_monster.active = 1;
-        sprintf(pstring, " and attacks %s:", user);
-    }
-
-    sprintf(out, "PRIVMSG %s :Monster spawned in room%s [%s] [%d/%d %sHP%s] - [%d STR] - [%d DEF] - [%d INT] -"
-                 " [%d MDEF]\r\n", 
-                 dawn->active_room, pstring, dawn->global_monster.name, dawn->global_monster.hp,
-                 dawn->global_monster.mhp, red, normal, dawn->global_monster.str, dawn->global_monster.def,
-                 dawn->global_monster.intel, dawn->global_monster.mdef);
-    send_socket(out);
 }
 
 void check_famine (struct Bot *dawn, int whom) {

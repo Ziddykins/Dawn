@@ -4,10 +4,11 @@
 #include "limits.h"
 #include "network.h"
 #include "player.h"
+#include "stats.h"
 
-void get_stat (struct Bot *b, struct Message *m, unsigned int stats[6]) {
+void get_stat (struct Bot *b, struct Message *m, int stats[6]) {
     int i = get_pindex(b, m->sender_nick);
-    unsigned int j;
+    int j;
     for (j=0; j<(MAX_INVENTORY_SLOTS - b->players[i].available_slots); j++) {
         if (b->players[i].inventory[j].equipped) {
             stats[0] += b->players[i].inventory[j].attr_health;

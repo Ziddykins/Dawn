@@ -7,19 +7,20 @@
 #include "colors.h"
 #include "player.h"
 #include "items.h"
+#include "combat.h"
 
 void monster_attacks (struct Bot *, struct Message *, int, int);
 
-void calc_contribution (struct Bot *dawn, int i, int amount, int monster_mhp, int monster_hp) {
+static void calc_contribution (struct Bot *dawn, int i, int amount, int monster_mhp, int monster_hp) {
     if (amount >= monster_mhp) {
         dawn->players[i].contribution = monster_mhp;
     } else {
-        if ((int)dawn->players[i].contribution + amount > monster_hp) {
+        if (dawn->players[i].contribution + amount > monster_hp) {
             dawn->players[i].contribution += monster_hp;
         } else {
             dawn->players[i].contribution += amount;
         }
-        if ((int)dawn->players[i].contribution > monster_mhp) dawn->players[i].contribution = monster_mhp;
+        if (dawn->players[i].contribution > monster_mhp) dawn->players[i].contribution = monster_mhp;
     }
 }
  
@@ -112,13 +113,8 @@ void player_attacks (struct Bot *dawn, struct Message *message, int global) {
                 monster_defense = 0;
             }
             if (player_attack - monster_defense > 0) {
-                calc_contribution(dawn, i, 
-                            (player_attack - monster_defense), 
-                            dawn->global_monster.mhp,
-                            dawn->global_monster.hp);
-
+                calc_contribution(dawn, i,(player_attack - monster_defense), dawn->global_monster.mhp, dawn->global_monster.hp);
                 dawn->global_monster.hp -= (player_attack - monster_defense);
-
                 if (critical) {
                     sprintf(out, "PRIVMSG %s :%s attacks the %s for %d %sCRITICAL%s damage! "
                             "Remaining (%d)\r\n",
@@ -129,7 +125,6 @@ void player_attacks (struct Bot *dawn, struct Message *message, int global) {
                             message->receiver, message->sender_nick, dawn->global_monster.name,
                             player_attack - monster_defense, dawn->global_monster.hp);
                 }
-
                 send_socket(out);
                 if (check_alive(dawn, message)) {
                     monster_attacks(dawn, message, player_defense, i);

@@ -120,10 +120,11 @@ void load_players (struct Bot *dawn, size_t size) {
 }
 
 //Lol this entire thing
-const char *progress_bar (struct Bot *dawn, const char username[64]) {
+static const char *progress_bar (struct Bot *dawn, const char username[64]) {
     static char bar[48];
     int i = get_pindex(dawn, username);
-    float temp_cyan = ((dawn->players[i].experience / (float)get_nextlvl_exp(dawn, username)) * 100) / 10;
+    long nextlvl_exp = get_nextlvl_exp(dawn, username);
+    float temp_cyan = ((dawn->players[i].experience / (float)nextlvl_exp) * 100) / 10;
     int blue_count  = 9  - (int)temp_cyan;
     int cyan_count  = 10 - blue_count;
     sprintf(bar, "%s,10%0*d%s,02%0*d%s", cyan, cyan_count, 0, dblue, blue_count, 0, normal);
@@ -137,8 +138,6 @@ long int get_nextlvl_exp (struct Bot *dawn, const char username[64]) {
     } else {
         return 100 * curr_level * curr_level * curr_level - 100 * curr_level;
     }
-    //To quiet warnings. We should never make it here.
-    return -1;
 }
 
 void print_sheet (struct Bot *dawn, struct Message *message) {

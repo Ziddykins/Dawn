@@ -8,6 +8,7 @@
 #include "colors.h"
 #include "parse.h"
 #include "inventory.h"
+#include "items.h"
 
 #define COMMON    65.00f //65%
 #define UNCOMMON  85.00f //20%
@@ -27,11 +28,11 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
     char item_name[200];
     item_name[0] = '\0';
     
-    float rarity_chance = (float)rand()/(float)(RAND_MAX/100.0f);
+    float rarity_chance = rand()/(float)(RAND_MAX/100.0f);
     int type_chance     = rand()%MAX_ITEM_TYPE;
     int p_index         = get_pindex(dawn, message->sender_nick);
     int drop_level      = dawn->global_monster.drop_level;
-    unsigned int str, def, intel, mdef;
+    int str, def, intel, mdef;
     str = def = intel = mdef = 0;
 
     if (dawn->players[p_index].available_slots == 0) {

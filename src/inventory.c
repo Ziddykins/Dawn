@@ -9,7 +9,7 @@
 
 void print_inventory (struct Bot *dawn, struct Message *message) {
     int i = get_pindex(dawn, message->sender_nick);
-    unsigned int j;
+    int j;
     char out[MAX_MESSAGE_BUFFER];
     char temp[100];
 
@@ -32,7 +32,7 @@ void print_inventory (struct Bot *dawn, struct Message *message) {
     send_socket(out);
 }
 
-void equip_inventory (struct Bot *dawn, struct Message *message, unsigned int slot, int unequip) {
+void equip_inventory (struct Bot *dawn, struct Message *message, int slot, int unequip) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
     
