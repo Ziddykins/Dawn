@@ -10,13 +10,22 @@ void call_monster (struct Bot *dawn, const char username[64], int global) {
     int i, pindex;
     i = pindex = 0;
     
-    if (global && !dawn->global_monster.active) {
+    if (global) {
+        if (dawn->global_monster.active) {
+            sprintf(out, "PRIVMSG %s :The %s got bored and left town. Unfortunately his friend wandered in...\r\n",
+                    dawn->active_room, dawn->global_monster.name);
+            send_socket(out);
+            dawn->global_monster.slay_cost = dawn->global_monster.gold;
+            dawn->global_monster.hp = dawn->global_monster.mhp;
+        }
+
         dawn->global_monster = dawn->monsters[rand()%MAX_MONSTERS];
         dawn->global_monster.active = 1;
-        //Reset damage contribution for users
+
         for (i=0; i<dawn->player_count; i++) {
             dawn->players[i].contribution = 0;
         }
+
         strcpy(pstring, ":");
     } else {
         pindex = get_pindex(dawn, username);
@@ -59,22 +68,23 @@ void slay_monster (struct Bot *dawn, const char username[64], int global, int am
         send_socket(out);
 
         if (dawn->global_monster.slay_cost <= 0) {
-            sprintf(out, "PRIVMSG %s :The town has raised enough money to rid their town of the horrid monster "
+            sprintf(out, "PRIVMSG %s :The people have raised enough money to rid their town of the horrid monster "
                     "and hire a warrior to come dispose of the entity. In no time, a warrior rides into town "
                     "and slices the monster in half with one precise strike. Well that was easy...\r\n", dawn->active_room);
             dawn->global_monster.active = 0;
             dawn->global_monster.slay_cost = dawn->global_monster.gold;
+            dawn->global_monster.hp = dawn->global_monster.mhp;
             send_socket(out);
         }
     } else {
         int pindex = get_pindex(dawn, username);
         if (!dawn->players[pindex].personal_monster.active) return;
-        struct Monsters empty;
         if (dawn->players[pindex].gold >= 150) {
             dawn->players[pindex].gold -= 150;
             sprintf(out, "PRIVMSG %s :%s has paid a true warrior to dispose of the monster which "
                     "they couldn't handle. [Gold -150]\r\n", dawn->active_room, username);
-            dawn->players[pindex].personal_monster = empty;
+            dawn->players[pindex].personal_monster.hp = dawn->players[pindex].personal_monster.mhp;
+            dawn->players[pindex].personal_monster.active = 0;
         } else {
             sprintf(out, "PRIVMSG %s :%s, you don't have enough gold to pay a true warrior to dispose "
                     "of this monster [cost: 150 gold]\r\n", dawn->active_room, username);

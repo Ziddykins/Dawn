@@ -61,7 +61,7 @@ int main (void) {
         if (file != NULL) {
             while (fgets(line, sizeof(line), file)) {
                 //TODO: Add ranges to raw files
-                if (sscanf(line, "%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u",
+                if (sscanf(line, "%[^:]:%d:%d:%d:%d:%d:%d:%d:%d:%d",
                         name, &hp, &str, &def, &intel, &mdef, &gold, &exp, &mhp, &drop_level) != 10) {
                     printf("Malformed monster file at line %d\n", count);
                     exit(1);
@@ -97,6 +97,10 @@ int main (void) {
 
     dawn.login_sent = 0;
     dawn.in_rooms   = 0;
+
+    if (dawn.player_count == 0) {
+        init_new_character(dawn.nickname, "temp", &dawn);
+    }
 
     init_timers(&dawn);
 

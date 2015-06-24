@@ -151,7 +151,6 @@ void hourly_events (struct Bot *dawn) {
             random_shrine(dawn, dawn->players[player].username);
             break;
         case 3: {
-            //Passing -1 calls a random monster
             call_monster(dawn, NULL, 1);
             break;
         }

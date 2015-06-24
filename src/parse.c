@@ -78,7 +78,7 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
         //TODO: Add a proper login system.
         //Thought: Add hostmask. If hostmask matches nick, we're good
         //If not : Give ability to add hostmask if password matches
-        init_new_character(message->sender_nick, "temp", dawn, message);
+        init_new_character(message->sender_nick, "temp", dawn);
     }
     //To avoid fiery death, check if user is sending a command,
     //and if so, check to see if the user exists. get_pindex() will

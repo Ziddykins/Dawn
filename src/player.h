@@ -7,7 +7,7 @@
 void save_players (struct Bot *, size_t);
 void load_players (struct Bot *, size_t);
 void print_sheet (struct Bot *, struct Message *);
-void init_new_character (const char [], const char [], struct Bot *, struct Message *);
+void init_new_character (const char [], const char [], struct Bot *);
 void check_levelup (struct Bot *, struct Message *);
 long get_nextlvl_exp (struct Bot *, const char []);
 int  get_pindex (struct Bot *, const char []);

@@ -13,8 +13,7 @@ void save_players (struct Bot *, size_t);
 long int get_nextlvl_exp (struct Bot *, const char []);
 
 int get_pindex (struct Bot *dawn, const char username[64]) {
-    int i;
-    for (i=0; i<dawn->player_count; i++) {
+    for (int i=0; i<dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, username) == 0)
             return i;
     }
@@ -22,12 +21,12 @@ int get_pindex (struct Bot *dawn, const char username[64]) {
 }
 
 
-void init_new_character (const char username[64], const char password[64], struct Bot *dawn, struct Message *message) {
+void init_new_character (const char username[64], const char password[64], struct Bot *dawn) {
     //Check if user exists
     char out[MAX_MESSAGE_BUFFER];
 
     if (get_pindex(dawn, username) != -1) {
-        sprintf(out, "PRIVMSG %s :You already have an account!\r\n", message->receiver);
+        sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
         send_socket(out);
         return;
     }
@@ -94,7 +93,7 @@ void init_new_character (const char username[64], const char password[64], struc
     
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
-    sprintf(out, "PRIVMSG %s :Account created for user %s\r\n", message->receiver, username);
+    sprintf(out, "PRIVMSG %s :Account created for user %s\r\n", dawn->active_room, username);
 
     struct Bot temp;
     save_players (dawn, sizeof(temp));
