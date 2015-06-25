@@ -1,10 +1,10 @@
 #include <string.h>
 #include <stdio.h>
-#include "status.h"
-#include "limits.h"
-#include "network.h"
-#include "player.h"
-#include "stats.h"
+#include "include/status.h"
+#include "include/limits.h"
+#include "include/network.h"
+#include "include/player.h"
+#include "include/stats.h"
 
 void get_stat (struct Bot *b, struct Message *m, int stats[6]) {
     int i = get_pindex(b, m->sender_nick);

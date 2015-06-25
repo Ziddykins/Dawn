@@ -2,6 +2,7 @@
 #define PLAYER_H_INCLUDED
 #include "status.h"
 #include "network.h"
+#include "map.h"
 
 //Prototypes
 void save_players (struct Bot *, size_t);
@@ -19,6 +20,7 @@ struct Player {
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
     struct Monsters personal_monster;
     struct Map current_map;
+    struct TravelTimer travel_timer;
     long long experience;
     long stone, steel, wood, ore;
     long bronze, diamond, mail, leather;

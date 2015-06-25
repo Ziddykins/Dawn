@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <pcre.h>
 #include <string.h>
-#include "network.h"
-#include "parse.h"
-#include "status.h"
-#include "player.h"
-#include "inventory.h"
-#include "combat.h"
-#include "items.h"
+#include "include/network.h"
+#include "include/parse.h"
+#include "include/status.h"
+#include "include/player.h"
+#include "include/inventory.h"
+#include "include/combat.h"
+#include "include/items.h"
 
 char regex_group[15][2048];
 
@@ -184,6 +184,8 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
         send_socket(out);
     } else if (check_if_matches_regex(message->message, ";assign (\\w+) (\\d+)")) {
         assign_attr_points(dawn, message, regex_group[1], atoi(regex_group[2]));
+    } else if (check_if_matches_regex(message->message, ";travel (\\d+),(\\d+)")) {
+        move_player(dawn, message, atoi(regex_group[1]), atoi(regex_group[2]));
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"

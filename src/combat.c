@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "status.h"
-#include "network.h"
-#include "stats.h"
-#include "colors.h"
-#include "player.h"
-#include "items.h"
-#include "combat.h"
+#include "include/status.h"
+#include "include/network.h"
+#include "include/stats.h"
+#include "include/colors.h"
+#include "include/player.h"
+#include "include/items.h"
+#include "include/combat.h"
 
 void monster_attacks (struct Bot *, struct Message *, int, int);
 

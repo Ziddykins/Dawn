@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "status.h"
-#include "limits.h"
-#include "player.h"
-#include "network.h"
-#include "colors.h"
-#include "combat.h"
-#include "events.h"
-#include "monsters.h"
+#include "include/status.h"
+#include "include/limits.h"
+#include "include/player.h"
+#include "include/network.h"
+#include "include/colors.h"
+#include "include/combat.h"
+#include "include/events.h"
+#include "include/monsters.h"
 
 //Prototype
 void check_famine (struct Bot *, int);

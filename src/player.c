@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "status.h"
-#include "player.h"
-#include "network.h"
-#include "stats.h"
-#include "colors.h"
-#include "inventory.h"
+#include "include/status.h"
+#include "include/player.h"
+#include "include/network.h"
+#include "include/stats.h"
+#include "include/colors.h"
+#include "include/inventory.h"
 
 //Prototypes
 void save_players (struct Bot *, size_t);

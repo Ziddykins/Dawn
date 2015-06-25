@@ -5,11 +5,11 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <time.h>
-#include "status.h"
-#include "player.h"
-#include "network.h"
-#include "limits.h"
-#include "parse.h"
+#include "include/status.h"
+#include "include/player.h"
+#include "include/network.h"
+#include "include/limits.h"
+#include "include/parse.h"
 
 int main (void) {
     FILE *urandom = fopen("/dev/urandom", "r");

@@ -7,8 +7,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <netdb.h>
-#include "network.h"
-#include "limits.h"
+#include "include/network.h"
+#include "include/limits.h"
 
 char buffer[MAX_RECV_BUFFER + 1];
 int con_socket;

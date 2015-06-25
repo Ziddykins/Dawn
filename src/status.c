@@ -1,12 +1,12 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "status.h"
-#include "limits.h"
-#include "network.h"
-#include "player.h"
-#include "colors.h"
-#include "events.h"
+#include "include/status.h"
+#include "include/limits.h"
+#include "include/network.h"
+#include "include/player.h"
+#include "include/colors.h"
+#include "include/events.h"
 
 void set_timer (int timer, struct Bot *dawn, time_t amount) {
     time_t epoch = time(NULL);
@@ -47,6 +47,18 @@ void check_timers (struct Bot *dawn) {
                 default:
                     continue;
             }
+        }
+    }
+
+    for (i=0; i<dawn->player_count; i++) {
+        if (dawn->players[i].travel_timer.expires < epoch && dawn->players[i].travel_timer.active) {
+            char out[MAX_MESSAGE_BUFFER];
+            dawn->players[i].current_map.cur_x = dawn->players[i].travel_timer.x;
+            dawn->players[i].current_map.cur_y = dawn->players[i].travel_timer.y;
+            sprintf(out, "PRIVMSG %s :%s has arrived at %d,%d\r\n", dawn->active_room, dawn->players[i].username,
+                    dawn->players[i].current_map.cur_x, dawn->players[i].current_map.cur_y);
+            send_socket(out);
+            dawn->players[i].travel_timer.active = 0;
         }
     }
 }

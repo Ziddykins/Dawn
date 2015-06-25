@@ -1,11 +1,11 @@
 #include <string.h>
 #include <stdio.h>
-#include "status.h"
-#include "player.h"
-#include "network.h"
-#include "parse.h"
-#include "colors.h"
-#include "limits.h"
+#include "include/status.h"
+#include "include/player.h"
+#include "include/network.h"
+#include "include/parse.h"
+#include "include/colors.h"
+#include "include/limits.h"
 
 void print_inventory (struct Bot *dawn, struct Message *message) {
     int i = get_pindex(dawn, message->sender_nick);

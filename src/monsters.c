@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "status.h"
-#include "colors.h"
+#include "include/status.h"
+#include "include/colors.h"
 
 void call_monster (struct Bot *dawn, const char username[64], int global) {
     char out[MAX_MESSAGE_BUFFER];

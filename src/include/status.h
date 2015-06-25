@@ -13,7 +13,6 @@ void check_timers (struct Bot *);
 void init_timers (struct Bot *);
 void print_location (struct Bot *, int);
 struct Map set_map (int);
-//
 
 struct Timers {
     time_t time_finished;

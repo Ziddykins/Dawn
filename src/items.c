@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "status.h"
-#include "network.h"
-#include "player.h"
-#include "limits.h"
-#include "colors.h"
-#include "parse.h"
-#include "inventory.h"
-#include "items.h"
+#include "include/status.h"
+#include "include/network.h"
+#include "include/player.h"
+#include "include/limits.h"
+#include "include/colors.h"
+#include "include/parse.h"
+#include "include/inventory.h"
+#include "include/items.h"
 
 #define COMMON    65.00f //65%
 #define UNCOMMON  85.00f //20%
