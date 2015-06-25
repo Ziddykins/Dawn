@@ -15,6 +15,7 @@
 #define MAX_SHIELD_TYPE     5
 #define MAX_ARMOR_TYPE      5
 #define MAX_SLAY_GOLD       10000000
+#define MAX_BUILDINGS       5
 //Seconds
 #define HEALING_INTERVAL    1800
 #define SAVING_INTERVAL     900

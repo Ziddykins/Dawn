@@ -186,6 +186,8 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
         assign_attr_points(dawn, message, regex_group[1], atoi(regex_group[2]));
     } else if (check_if_matches_regex(message->message, ";travel (\\d+),(\\d+)")) {
         move_player(dawn, message, atoi(regex_group[1]), atoi(regex_group[2]));
+    } else if (check_if_matches_regex(message->message, ";locate (\\w+)")) {
+        find_building(dawn, message, regex_group[1]);
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"

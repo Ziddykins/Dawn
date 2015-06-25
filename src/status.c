@@ -7,6 +7,7 @@
 #include "include/player.h"
 #include "include/colors.h"
 #include "include/events.h"
+#include "include/map.h"
 
 void set_timer (int timer, struct Bot *dawn, time_t amount) {
     time_t epoch = time(NULL);
@@ -59,6 +60,7 @@ void check_timers (struct Bot *dawn) {
                     dawn->players[i].current_map.cur_x, dawn->players[i].current_map.cur_y);
             send_socket(out);
             dawn->players[i].travel_timer.active = 0;
+            check_special_location(dawn, i);
         }
     }
 }

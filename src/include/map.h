@@ -2,28 +2,30 @@
 #define MAP_H_INCLUDED
 #include "status.h"
 #include "network.h"
+#include "limits.h"
 
 //Prototypes
 struct Message;
 void move_player (struct Bot *, struct Message *, int, int);
+void find_building (struct Bot *, struct Message *, char []);
+void check_special_location (struct Bot *, int);
 
-struct Building {
-    unsigned int x, y;
+struct Buildings {
+    char name[64];
+    int x, y;
 };
 
 struct TravelTimer {
-    unsigned int x, y;
+    int x, y, active;
     time_t expires;
-    int active;
 };
 
 struct Map {
     char name[100];
-    unsigned int max_x, max_y;
-    unsigned int cur_x, cur_y;
-    unsigned int exitx, exity;
-    unsigned int min_level;
-    struct Building shop, stable, shrine, gym;
-    struct Building cshop, wepshop, armshop, bank;
+    int max_x, max_y;
+    int cur_x, cur_y;
+    int exitx, exity;
+    int min_level;
+    struct Buildings buildings[MAX_BUILDINGS];
 };
 #endif

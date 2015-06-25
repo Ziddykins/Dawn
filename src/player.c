@@ -7,6 +7,7 @@
 #include "include/stats.h"
 #include "include/colors.h"
 #include "include/inventory.h"
+#include "include/limits.h"
 
 //Prototypes
 void save_players (struct Bot *, size_t);
@@ -20,6 +21,15 @@ int get_pindex (struct Bot *dawn, const char username[64]) {
     return -1;
 }
 
+int get_bindex (struct Bot *dawn, const char username[64], const char location[64]) {
+    int pindex = get_pindex(dawn, username);
+    for (int i=0; i<MAX_BUILDINGS; i++) {
+        if (strcmp(location, dawn->players[pindex].current_map.buildings[i].name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void init_new_character (const char username[64], const char password[64], struct Bot *dawn) {
     //Check if user exists

@@ -9,19 +9,26 @@
 
 struct Map set_map (int which) {
     struct Map return_map;
+    enum BUILDINGS {SHRINE, SHOP};
     switch (which) {
         case 0:
         {
             strcpy(return_map.name, "The Sanctuary");
             strcpy(return_map.name, nultrm(return_map.name));
-            return_map.exitx    = 0;
-            return_map.exity    = 0;
-            return_map.shrine.x = 7;
-            return_map.shrine.y = 4;
-            return_map.shop.x   = 11;
-            return_map.shop.y   = 2;
-            return_map.max_x    = 9;
-            return_map.max_y    = 9;
+            strcpy(return_map.buildings[SHRINE].name, "shrine");
+            strcpy(return_map.buildings[SHOP].name, "shop");
+            
+            return_map.exitx = 0;
+            return_map.exity = 0;
+            return_map.max_x = 9;
+            return_map.max_y = 9;
+
+            return_map.buildings[SHRINE].x = 7;
+            return_map.buildings[SHRINE].y = 4;
+            
+            return_map.buildings[SHOP].x = 11;
+            return_map.buildings[SHOP].y = 2;
+
         }
     }
     return return_map;
@@ -64,4 +71,34 @@ void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
     sprintf(out, "PRIVMSG %s :%s, you are traveling from (%d,%d) to (%d,%d). This will take %zu seconds.\r\n",
             message->receiver, message->sender_nick, cx, cy, x, y, travel_time);
     send_socket(out);
+}
+
+void find_building (struct Bot *dawn, struct Message *message, char location[48]) {
+    char out[MAX_MESSAGE_BUFFER];
+    int pindex = get_pindex(dawn, message->sender_nick);
+    int bindex = get_bindex(dawn, message->sender_nick, location);
+
+    if (bindex != -1) {
+        sprintf(out, "PRIVMSG %s :The %s in %s is located at %d,%d\r\n", message->receiver, location,
+                dawn->players[pindex].current_map.name, dawn->players[pindex].current_map.buildings[bindex].x,
+                dawn->players[pindex].current_map.buildings[bindex].y);
+    } else {
+        sprintf(out, "PRIVMSG %s :Unknown location '%s'\r\n", message->receiver, location);
+    }
+    send_socket(out);
+}
+
+void check_special_location (struct Bot *dawn, int pindex) {
+    char out[MAX_MESSAGE_BUFFER];
+    int cur_x = dawn->players[pindex].current_map.cur_x;
+    int cur_y = dawn->players[pindex].current_map.cur_y;
+
+    for (int i=0; i<MAX_BUILDINGS; i++) {
+        if (dawn->players[pindex].current_map.buildings[i].x == cur_x &&
+                dawn->players[pindex].current_map.buildings[i].y == cur_y) {
+            sprintf(out, "PRIVMSG %s :%s stands in front of the %s\r\n",
+                    dawn->active_room, dawn->players[pindex].username, dawn->players[pindex].current_map.buildings[i].name);
+            send_socket(out);
+        }
+    }
 }
