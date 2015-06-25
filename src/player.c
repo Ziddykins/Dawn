@@ -10,7 +10,7 @@
 
 //Prototypes
 void save_players (struct Bot *, size_t);
-long int get_nextlvl_exp (struct Bot *, const char []);
+long long get_nextlvl_exp (struct Bot *, const char []);
 
 int get_pindex (struct Bot *dawn, const char username[64]) {
     for (int i=0; i<dawn->player_count; i++) {
@@ -122,15 +122,16 @@ void load_players (struct Bot *dawn, size_t size) {
 static const char *progress_bar (struct Bot *dawn, const char username[64]) {
     static char bar[48];
     int i = get_pindex(dawn, username);
-    long nextlvl_exp = get_nextlvl_exp(dawn, username);
-    float temp_cyan = ((dawn->players[i].experience / (float)nextlvl_exp) * 100) / 10;
+    long long nextlvl_exp = get_nextlvl_exp(dawn, username);
+    nextlvl_exp = nextlvl_exp ? nextlvl_exp : 5;
+    long double temp_cyan = ((dawn->players[i].experience / (long double)nextlvl_exp) * 100) / 10;
     int blue_count  = 9  - (int)temp_cyan;
     int cyan_count  = 10 - blue_count;
     sprintf(bar, "%s,10%0*d%s,02%0*d%s", cyan, cyan_count, 0, dblue, blue_count, 0, normal);
     return bar;
 }
 
-long int get_nextlvl_exp (struct Bot *dawn, const char username[64]) {
+long long get_nextlvl_exp (struct Bot *dawn, const char username[64]) {
     int curr_level = dawn->players[get_pindex(dawn, username)].level;
     if (curr_level > 10) {
         return 500 * curr_level * curr_level * curr_level - 500 * curr_level;
@@ -149,7 +150,7 @@ void print_sheet (struct Bot *dawn, struct Message *message) {
 
     sprintf(out, 
             "PRIVMSG %s :[%s (%d)] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
-            " - Def: %d (%ldK/%ldD) [EXP: %ld/%ld %s - Gold: %s%ld%s] [Fullness: %d%%]\r\n", message->receiver, message->sender_nick, 
+            " - Def: %d (%ldK/%ldD) [EXP: %lld/%lld %s - Gold: %s%ld%s] [Fullness: %hd%%]\r\n", message->receiver, message->sender_nick, 
             dawn->players[i].level, dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1], 
             stats[2], stats[3], stats[4], stats[5], dawn->players[i].kills, dawn->players[i].deaths, 
             dawn->players[i].experience, get_nextlvl_exp(dawn, dawn->players[i].username),
@@ -163,22 +164,48 @@ void print_sheet (struct Bot *dawn, struct Message *message) {
 void check_levelup (struct Bot *dawn, struct Message *message) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
-    long int next_level_exp = get_nextlvl_exp(dawn, message->sender_nick);
-    long int curr_level_exp = dawn->players[i].experience;
+    long long next_level_exp = get_nextlvl_exp(dawn, message->sender_nick);
+    long long curr_level_exp = dawn->players[i].experience;
     int curr_level = dawn->players[i].level;
 
     if (curr_level_exp >= next_level_exp) {
-        sprintf(out, "PRIVMSG %s :%s has achieved level %d. Base stats increased +5, HP and MP"
-                " increased +20!\r\n", message->receiver, message->sender_nick, curr_level + 1);
-        send_socket(out);
         dawn->players[i].level++;
-        dawn->players[i].strength     += 5;
-        dawn->players[i].intelligence += 5;
-        dawn->players[i].defense      += 5;
-        dawn->players[i].m_def        += 5;
-        dawn->players[i].max_health   += 20;
-        dawn->players[i].max_mana     += 20;
-        dawn->players[i].health        = dawn->players[i].max_health;
-        dawn->players[i].mana          = dawn->players[i].max_mana;
+        dawn->players[i].max_health += 25;
+        dawn->players[i].max_mana   += 25;
+        dawn->players[i].attr_pts   += 20;
+        dawn->players[i].health      = dawn->players[i].max_health;
+        dawn->players[i].mana        = dawn->players[i].max_mana;
+        if (get_nextlvl_exp(dawn, message->sender_nick) > curr_level_exp) {
+            sprintf(out, "PRIVMSG %s :%s has achieved level %d. 20 attribute points ready for assignment, HP and MP"
+                    " increased +25! Increase your attributes using the ;assign command!\r\n",
+                    message->receiver, message->sender_nick, curr_level + 1);
+            send_socket(out);
+        }
+
     }
+}
+
+void assign_attr_points (struct Bot *dawn, struct Message *message, char which[5], int amount) {
+    int pindex   = get_pindex(dawn, message->sender_nick);
+    int attr_pts = dawn->players[pindex].attr_pts;
+    char out[MAX_MESSAGE_BUFFER];
+
+    if (strcmp(which, "str") == 0 && attr_pts >= amount) {
+        dawn->players[pindex].strength += amount;
+    } else if (strcmp(which, "def") == 0 && attr_pts >= amount) {
+        dawn->players[pindex].defense += amount;
+    } else if (strcmp(which, "int") == 0 && attr_pts >= amount) {
+        dawn->players[pindex].intelligence += amount;
+    } else if (strcmp(which, "mdef") == 0 && attr_pts >= amount) {
+        dawn->players[pindex].m_def += amount;
+    } else {
+        sprintf(out, "PRIVMSG %s :%s, you have chosen an invalid attribute to increase or do not have the amount "
+                "of attribute points required: (%d points available)\r\n", message->receiver, message->sender_nick, attr_pts);
+        send_socket(out);
+        return;
+    }
+    dawn->players[pindex].attr_pts -= amount;
+    sprintf(out, "PRIVMSG %s :%s has increased %s by %d, you have %d attribute points available\r\n", message->receiver,
+            message->sender_nick, which, amount, attr_pts - amount);
+    send_socket(out);
 }

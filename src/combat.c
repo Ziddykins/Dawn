@@ -11,32 +11,32 @@
 
 void monster_attacks (struct Bot *, struct Message *, int, int);
 
-static void calc_contribution (struct Bot *dawn, int i, int amount, int monster_mhp, int monster_hp) {
+static void calc_contribution (struct Bot *dawn, int pindex, int amount, int monster_mhp, int monster_hp) {
     if (amount >= monster_mhp) {
-        dawn->players[i].contribution = monster_mhp;
+        dawn->players[pindex].contribution = monster_mhp;
     } else {
-        if (dawn->players[i].contribution + amount > monster_hp) {
-            dawn->players[i].contribution += monster_hp;
+        if (dawn->players[pindex].contribution + amount > monster_hp) {
+            dawn->players[pindex].contribution += monster_hp;
         } else {
-            dawn->players[i].contribution += amount;
+            dawn->players[pindex].contribution += amount;
         }
-        if (dawn->players[i].contribution > monster_mhp) dawn->players[i].contribution = monster_mhp;
+        if (dawn->players[pindex].contribution > monster_mhp) dawn->players[pindex].contribution = monster_mhp;
     }
 }
  
 int check_alive (struct Bot *dawn, struct Message *message) {
-    int i = get_pindex(dawn, message->sender_nick);
+    int pindex = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
 
-    if (dawn->players[i].health <= 0 || dawn->players[i].fullness <= 0) {
-        if (dawn->players[i].alive) {
+    if (dawn->players[pindex].health <= 0 || dawn->players[pindex].fullness <= 0) {
+        if (dawn->players[pindex].alive) {
             char reason[32];
-            strcpy(reason, dawn->players[i].health <= 0 ? "been killed" : "died from starvation");
+            strcpy(reason, dawn->players[pindex].health <= 0 ? "been killed" : "died from starvation");
             sprintf(out, "PRIVMSG %s :%s has %s!\r\n", 
                     message->receiver, message->sender_nick, reason);
             send_socket(out);
-            dawn->players[i].deaths++;
-            dawn->players[i].alive = 0;
+            dawn->players[pindex].deaths++;
+            dawn->players[pindex].alive = 0;
             return 0;
         }
     }
@@ -44,24 +44,22 @@ int check_alive (struct Bot *dawn, struct Message *message) {
     if (dawn->global_monster.hp <= 0 && dawn->global_monster.active) {
         sprintf(out, "PRIVMSG %s :The %s has been killed!\r\n", message->receiver, dawn->global_monster.name);
         send_socket(out);
-        int j;
-        for (j=0; j<dawn->player_count; j++) {
-            if (dawn->players[j].contribution > 0) {
+        for (int i=0; i<dawn->player_count; i++) {
+            if (dawn->players[i].contribution > 0) {
                 int drop_chance = rand()%100;
-                float percent  = ((float)dawn->players[j].contribution / (float)dawn->global_monster.mhp);
+                float percent  = ((float)dawn->players[i].contribution / (float)dawn->global_monster.mhp);
                 float expgain  = percent * dawn->global_monster.exp;
                 float goldgain = percent * dawn->global_monster.gold;
                 //Need to change the sender_nick so the proper drops are awarded as well as level checking
-                strcpy(message->sender_nick, dawn->players[j].username);
-                dawn->players[j].experience += (int)expgain;
-                dawn->players[j].gold += (int)goldgain;
+                strcpy(message->sender_nick, dawn->players[i].username);
+                dawn->players[i].experience += (int)expgain;
+                dawn->players[i].gold += (int)goldgain;
                 sprintf(out, "PRIVMSG %s :%s has helped defeat the foe and receives %d experience and %d gold"
-                        " for their efforts!\r\n", message->receiver, dawn->players[j].username, (int)expgain, (int)goldgain);
+                        " for their efforts!\r\n", message->receiver, dawn->players[i].username, (int)expgain, (int)goldgain);
                 dawn->global_monster.active = 0;
                 send_socket(out);
-                dawn->players[j].kills++;
+                dawn->players[i].kills++;
                 check_levelup(dawn, message);
-                out[0] = '\0';
                 if (drop_chance < 85) {
                     generate_drop(dawn, message);
                 }
@@ -73,15 +71,15 @@ int check_alive (struct Bot *dawn, struct Message *message) {
 }
 
 void player_attacks (struct Bot *dawn, struct Message *message, int global) {
-    int i = get_pindex(dawn, message->sender_nick);
+    int pindex = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
     int player_attack, monster_defense, player_defense, critical;
-    int ustats[6] = { dawn->players[i].max_health, dawn->players[i].max_mana,
-                      dawn->players[i].strength, dawn->players[i].intelligence,
-                      dawn->players[i].m_def, dawn->players[i].defense };
+    int ustats[6] = { dawn->players[pindex].max_health, dawn->players[pindex].max_mana,
+                      dawn->players[pindex].strength, dawn->players[pindex].intelligence,
+                      dawn->players[pindex].m_def, dawn->players[pindex].defense };
 
     get_stat(dawn, message, ustats);
-    player_defense = rand() % dawn->players[i].defense;
+    player_defense = rand() % dawn->players[pindex].defense;
 
     //15% chance to critical hit (double) attack
     if ((rand() % 100) < 15) {
@@ -92,7 +90,7 @@ void player_attacks (struct Bot *dawn, struct Message *message, int global) {
         player_attack = rand() % ustats[2];
     }
 
-    if (!dawn->players[i].alive) {
+    if (!dawn->players[pindex].alive) {
         sprintf(out, "PRIVMSG %s :%s, you are dead and can't make an attack; revive at a shrine"
                      ", use a potion, or have someone revive you!\r\n", message->receiver, message->sender_nick);
         send_socket(out);
@@ -104,7 +102,7 @@ void player_attacks (struct Bot *dawn, struct Message *message, int global) {
             sprintf(out, "PRIVMSG %s :%s trips over his shoelace and misses\r\n", message->receiver,
                          message->sender_nick);
             send_socket(out);
-            monster_attacks(dawn, message, player_defense, i); 
+            monster_attacks(dawn, message, player_defense, pindex);
         } else {
             //Avoid floating point exceptions
             if (!dawn->global_monster.def == 0) {
@@ -113,7 +111,7 @@ void player_attacks (struct Bot *dawn, struct Message *message, int global) {
                 monster_defense = 0;
             }
             if (player_attack - monster_defense > 0) {
-                calc_contribution(dawn, i,(player_attack - monster_defense), dawn->global_monster.mhp, dawn->global_monster.hp);
+                calc_contribution(dawn, pindex, (player_attack - monster_defense), dawn->global_monster.mhp, dawn->global_monster.hp);
                 dawn->global_monster.hp -= (player_attack - monster_defense);
                 if (critical) {
                     sprintf(out, "PRIVMSG %s :%s attacks the %s for %d %sCRITICAL%s damage! "
@@ -127,27 +125,27 @@ void player_attacks (struct Bot *dawn, struct Message *message, int global) {
                 }
                 send_socket(out);
                 if (check_alive(dawn, message)) {
-                    monster_attacks(dawn, message, player_defense, i);
+                    monster_attacks(dawn, message, player_defense, pindex);
                 }
             } else {
                 sprintf(out, "PRIVMSG %s :The %s has blocked %s's attack!\r\n", message->receiver,
                         dawn->global_monster.name, message->sender_nick);
-                monster_attacks(dawn, message, player_defense, i);
+                monster_attacks(dawn, message, player_defense, pindex);
                 send_socket(out);
             }
         }
     }
 }
 
-void monster_attacks (struct Bot *dawn, struct Message *message, int player_defense, int i) {
+void monster_attacks (struct Bot *dawn, struct Message *message, int player_defense, int pindex) {
     int monster_attack = rand() % dawn->global_monster.str;
     char out[MAX_MESSAGE_BUFFER];
 
-    if (monster_attack > 0 && (monster_attack - player_defense) > 0 && dawn->players[i].alive) {
-        dawn->players[i].health -= monster_attack;
+    if (monster_attack > 0 && (monster_attack - player_defense) > 0 && dawn->players[pindex].alive) {
+        dawn->players[pindex].health -= monster_attack;
         sprintf(out, "PRIVMSG %s :The %s attacks %s viciously for %d damage! (Remaining: %ld)\r\n",
                 message->receiver, dawn->global_monster.name, message->sender_nick,
-                monster_attack, dawn->players[i].health);
+                monster_attack, dawn->players[pindex].health);
         send_socket(out);
         check_alive(dawn, message);
     } else {

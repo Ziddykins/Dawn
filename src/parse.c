@@ -171,10 +171,23 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
         print_monster(dawn, message->sender_nick, 0);
     } else if (strcmp(message->message, ";gcheck") == 0) {
         print_monster(dawn, message->sender_nick, 1);
+    } else if (strcmp(message->message, ";assign") == 0) {
+        int pindex = get_pindex(dawn, message->sender_nick);
+        sprintf(out, "PRIVMSG %s :To assign your attribute points, use \";assign <type> <amount>\"; type can be "
+                "str, def, int or mdef. You have %d attribute points left which you can assign\r\n",
+                message->receiver, dawn->players[pindex].attr_pts);
+        send_socket(out);
+    } else if (strcmp(message->message, ";ap") == 0) {
+        int pindex = get_pindex(dawn, message->sender_nick);
+        sprintf(out, "PRIVMSG %s :%s, you have %d attribute points which you can assign\r\n", 
+                message->receiver, message->sender_nick, dawn->players[pindex].attr_pts);
+        send_socket(out);
+    } else if (check_if_matches_regex(message->message, ";assign (\\w+) (\\d+)")) {
+        assign_attr_points(dawn, message, regex_group[1], atoi(regex_group[2]));
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"
-                " ;gcheck\r\n",
+                " ;gcheck, ;ap, ;assign\r\n",
                 message->receiver);
         send_socket(out);
     }

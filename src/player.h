@@ -9,22 +9,24 @@ void load_players (struct Bot *, size_t);
 void print_sheet (struct Bot *, struct Message *);
 void init_new_character (const char [], const char [], struct Bot *);
 void check_levelup (struct Bot *, struct Message *);
-long get_nextlvl_exp (struct Bot *, const char []);
+void assign_attr_points (struct Bot *, struct Message *, char [], int);
+long long get_nextlvl_exp (struct Bot *, const char []);
 int  get_pindex (struct Bot *, const char []);
 
 struct Player {
+    char username[64], password[64];
+    char first_class[64], second_class[64], title[64];
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
     struct Monsters personal_monster;
     struct Map current_map;
+    long long experience;
     long stone, steel, wood, ore;
     long bronze, diamond, mail, leather;
-    long kills, deaths, gold, experience, health;
+    long kills, deaths, gold, health;
     int alive, available, level, contribution, max_health, max_mana;
     int available_slots, available_capacity, mana, strength;
-    int intelligence, defense, m_def, alignment;
+    int intelligence, defense, m_def, alignment, attr_pts;
     short addiction, x_pos, y_pos, fullness;
-    char username[64], password[64];
-    char first_class[64], second_class[64], title[64];
-    };
+};
 
 #endif
