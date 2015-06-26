@@ -96,6 +96,7 @@ void check_special_location (struct Bot *dawn, int pindex) {
     for (int i=0; i<MAX_BUILDINGS; i++) {
         if (dawn->players[pindex].current_map.buildings[i].x == cur_x &&
                 dawn->players[pindex].current_map.buildings[i].y == cur_y) {
+            if (cur_x == 0 && cur_y == 0) continue;
             sprintf(out, "PRIVMSG %s :%s stands in front of the %s\r\n",
                     dawn->active_room, dawn->players[pindex].username, dawn->players[pindex].current_map.buildings[i].name);
             send_socket(out);

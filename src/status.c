@@ -22,7 +22,8 @@ void check_timers (struct Bot *dawn) {
         if (dawn->timer[i].time_finished - epoch <= 0) {
             printf("Timer %d expired\n", i);
             switch (i) {
-                case HEALING: {
+                case HEALING:
+                {
                     int j;
                     for (j=0; j<dawn->player_count; j++) {
                         if ((dawn->players[i].health + 5) <= dawn->players[i].max_health) {
@@ -34,7 +35,8 @@ void check_timers (struct Bot *dawn) {
                     set_timer(HEALING, dawn, HEALING_INTERVAL);
                     break;
                 }
-                case SAVING: {
+                case SAVING:
+                {
                     struct Bot temp;
                     size_t size = sizeof(temp);
                     save_players(dawn, size);

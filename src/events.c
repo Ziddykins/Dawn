@@ -26,7 +26,8 @@ static void random_shrine (struct Bot *dawn, char username[64]) {
                     dawn->active_room, username, username);
             send_socket(out);
             break;
-        case 1: {
+        case 1:
+        {
             int health_gain = 15;
             dawn->players[index].health += health_gain;
             if (dawn->players[index].health >= dawn->players[index].max_health) {
@@ -37,7 +38,8 @@ static void random_shrine (struct Bot *dawn, char username[64]) {
             send_socket(out);
             break;
         }
-        case 2: {
+        case 2:
+        {
             int experience_gain = rand() % (dawn->players[index].level * 10) + 1;
             struct Message temp;
             strcpy(temp.sender_nick, username);
@@ -59,7 +61,8 @@ static void random_reward (struct Bot *dawn, char username[64]) {
     int which = rand() % MAX_REWARD_TYPE;
 
     switch (which) {
-        case 0: {
+        case 0:
+        {
             int gold_gain = rand() % (dawn->players[index].level * 75) + 1;
             dawn->players[index].gold += gold_gain;
             sprintf(out, "PRIVMSG %s :While %s was walking, they found a pouch on the ground. Upon further inspection,"
@@ -67,7 +70,8 @@ static void random_reward (struct Bot *dawn, char username[64]) {
             send_socket(out);
             break;
         }
-        case 1: {
+        case 1:
+        {
             int gold_gain = rand() % (dawn->players[index].level * 125) + 1;
             dawn->players[index].gold += gold_gain;
             sprintf(out, "PRIVMSG %s :%s has tripped! As they bring their head up, a large sack is spotted behind"
@@ -92,7 +96,8 @@ static void random_punishment (struct Bot *dawn, char username[64]) {
     int which = rand() % MAX_PUNISHMENT_TYPE;
 
     switch (which) {
-        case 0: {
+        case 0:
+        {
             int damage_taken = rand() % 25 + 1;
             struct Message temp;
             strcpy(temp.sender_nick, username);
@@ -104,7 +109,8 @@ static void random_punishment (struct Bot *dawn, char username[64]) {
             check_alive(dawn, &temp);
             break;
         }
-        case 1: {
+        case 1:
+        {
             int damage_taken = rand() % 45 + 1;
             struct Message temp;
             strcpy(temp.sender_nick, username);

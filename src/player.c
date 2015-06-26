@@ -219,3 +219,26 @@ void assign_attr_points (struct Bot *dawn, struct Message *message, char which[5
             message->sender_nick, which, amount, attr_pts - amount);
     send_socket(out);
 }
+
+void revive (struct Bot *dawn, struct Message *message) {
+    char out[MAX_MESSAGE_BUFFER];
+    int pindex = get_pindex(dawn, message->sender_nick);
+    int bindex = get_bindex(dawn, message->sender_nick, "shrine");
+    int cur_x  = dawn->players[pindex].current_map.cur_x;
+    int cur_y  = dawn->players[pindex].current_map.cur_y;
+
+    if (dawn->players[pindex].current_map.buildings[bindex].x == cur_x
+            && dawn->players[pindex].current_map.buildings[bindex].y == cur_y) {
+        if (!dawn->players[pindex].alive) {
+            dawn->players[pindex].health = dawn->players[pindex].max_health;
+            dawn->players[pindex].mana = dawn->players[pindex].max_mana;
+            dawn->players[pindex].alive = 1;
+            sprintf(out, "PRIVMSG %s :%s, you have been revived!\r\n", message->receiver, message->sender_nick);
+        } else {
+            sprintf(out, "PRIVMSG %s :%s, you are not dead\r\n", message->receiver, message->sender_nick);
+        }
+    } else {
+        sprintf(out, "PRIVMSG %s :%s, you must be at a shrine to revive!\r\n", message->receiver, message->sender_nick);
+    }
+    send_socket(out);
+}

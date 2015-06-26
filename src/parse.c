@@ -118,10 +118,8 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
         if (!dawn->players[i].personal_monster.active) {
             call_monster(dawn, message->sender_nick, 0);
         }
-    } else if (strcmp(message->message, ";rev ples") == 0) {
-        int i = get_pindex(dawn, message->sender_nick);
-        dawn->players[i].health = dawn->players[i].max_health;
-        dawn->players[i].alive  = 1;
+    } else if (strcmp(message->message, ";revive") == 0) {
+        revive(dawn, message);
     } else if (check_if_matches_regex(message->message, ";drop (\\d+)")) {
         int slot = atoi(regex_group[1]);
         drop_item(dawn, message, slot);
@@ -191,7 +189,7 @@ void parse_room_message (struct Message *message, struct Bot *dawn) {
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"
-                " ;gcheck, ;ap, ;assign\r\n",
+                " ;gcheck, ;ap, ;assign, ;revive, ;locate <building>, ;location, ;travel <x,y>\r\n",
                 message->receiver);
         send_socket(out);
     }

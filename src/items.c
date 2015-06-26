@@ -79,7 +79,8 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
     strcat(item_name, rarity[item_dropped.rarity]);
 
     switch (type_chance) {
-        case 0: {
+        case 0:
+        {
             char weapon_type[48];
             str   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
@@ -89,7 +90,8 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
             strcat(item_name, weapon_type);
             break;
         }
-        case 1: {
+        case 1:
+        {
             char shield_type[48];
             def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % def;
@@ -99,7 +101,8 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
             strcat(item_name, shield_type);
             break;
         }
-        case 2: {
+        case 2: 
+        {
             char armor_type[48];
             def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % def;
