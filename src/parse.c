@@ -9,7 +9,18 @@
 #include "include/combat.h"
 #include "include/items.h"
 
+//All groupers from the regular expression
+//string will be stored here globally.
 char regex_group[15][2048];
+
+char *to_lower (char str[64]) {
+    for (size_t i=0; i<strlen(str); i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            str[i] += 32;
+        }
+    }
+    return str;
+}
 
 int check_if_matches_regex (char *buf, const char *regular_expression) {
     pcre *regex_compiled;
@@ -65,28 +76,57 @@ void handle_login (char *nick, char *pass, char *real, char *ident) {
     printf("%s\n", pass); //TODO:quieting down warnings for now but this will be nickserv
 }
 
-void parse_private_message (struct Message *message) {
-    printf("<%s(%s)%s> %s\n",
-            message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);
+void parse_private_message (struct Bot *dawn, struct Message *message) {
+    char out[MAX_MESSAGE_BUFFER];
+    int pindex = get_pindex(dawn, message->sender_nick);
+
+    if (pindex == -1) {
+        sprintf(out, "PRIVMSG %s :You do not have an account\r\n", message->sender_nick);
+        send_socket(out);
+        return;
+    }
+
+    if (check_if_matches_regex(message->message, ";set password (\\w+)")) {
+        if (strcmp(message->sender_hostmask, dawn->players[pindex].hostmask) == 0) {
+            strcpy(dawn->players[pindex].password, regex_group[1]);
+            sprintf(out, "PRIVMSG %s :Your password has been set\r\n", message->sender_nick);
+        }
+        send_socket(out);
+    } else if (check_if_matches_regex(message->message, ";login (\\w+)")) {
+        if (strcmp(dawn->players[pindex].hostmask, message->sender_hostmask) != 0) {
+            if (strcmp(regex_group[1], dawn->players[pindex].password) == 0) {
+                strcpy(dawn->players[pindex].hostmask, message->sender_hostmask);
+                sprintf(out, "PRIVMSG %s :%s has been verified\r\n", dawn->active_room, message->sender_nick);
+                send_socket(out);
+                sprintf(out, "PRIVMSG %s :Password correct\r\n", message->sender_nick);
+            } else {
+                sprintf(out, "PRIVMSG %s :Incorrect password\r\n", message->sender_nick);
+            }
+        } else {
+            sprintf(out, "PRIVMSG %s :I already recognize you, no need to log in\r\n", message->sender_nick);
+        }
+        send_socket(out);
+    }
 }
 
-void parse_room_message (struct Message *message, struct Bot *dawn) {
+void parse_room_message (struct Bot *dawn, struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
-/*    printf("%s <%s(%s)%s> %s\n", message->receiver, 
-            message->sender_nick, message->sender_ident, message->sender_hostmask, message->message);*/
     if (strcmp(message->message, ";new") == 0) {
-        //TODO: Add a proper login system.
-        //Thought: Add hostmask. If hostmask matches nick, we're good
-        //If not : Give ability to add hostmask if password matches
-        init_new_character(message->sender_nick, "temp", dawn);
+        init_new_character(dawn, message);
     }
-    //To avoid fiery death, check if user is sending a command,
-    //and if so, check to see if the user exists. get_pindex() will
-    //return -1 if the user isn't found, which, doesn't work well
-    //for array bounds.
+
+    //Check if a user has an account and is logged in from the correct host
     if (check_if_matches_regex(message->message, "^;(.*)")) {
-        if (get_pindex(dawn, message->sender_nick) == -1) {
+        int pindex = get_pindex(dawn, message->sender_nick);
+        if (pindex == -1) {
             sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", message->receiver);
+            send_socket(out);
+            return;
+        }
+        if (strcmp(dawn->players[pindex].hostmask, message->sender_hostmask) != 0) {
+            sprintf(out, "PRIVMSG %s :%s, I seem to recall you connecting from a different host. Please login "
+                    "by sending me a private message containing: ;login <your_password>\r\n", 
+                    message->receiver, message->sender_nick);
             send_socket(out);
             return;
         }

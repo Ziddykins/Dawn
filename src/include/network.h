@@ -15,7 +15,7 @@ int init_connect_server (const char *, const char *);
 void close_socket (int);
 void send_socket (char *);
 void send_login (char *, char *, char *, char *);
-void parse_room_message (struct Message *, struct Bot *);
-void parse_private_message (struct Message *);
+void parse_room_message (struct Bot *, struct Message *);
+void parse_private_message (struct Bot *, struct Message *);
 
 #endif

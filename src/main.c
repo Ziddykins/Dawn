@@ -98,10 +98,6 @@ int main (void) {
     dawn.login_sent = 0;
     dawn.in_rooms   = 0;
 
-    if (dawn.player_count == 0) {
-        init_new_character(dawn.nickname, "temp", &dawn);
-    }
-
     init_timers(&dawn);
 
     if (init_connect_server(dalnet, port) == 0) { 
@@ -177,7 +173,7 @@ int main (void) {
                 }
                 //Parting and joining
                 if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)")) {
-                    int index = get_pindex(&dawn, regex_group[1]);
+                    int index = get_pindex(&dawn, to_lower(regex_group[1]));
                     if (index != -1) {
                         if (strcmp(regex_group[4], "PART") == 0) {
                             dawn.players[index].available = 0;
@@ -187,23 +183,28 @@ int main (void) {
                             dawn.players[index].available = 0;
                         }
                     }
+                    if (dawn.player_count == 0) {
+                        struct Message temp;
+                        strcpy(temp.sender_nick, dawn.nickname);
+                        strcpy(temp.sender_hostmask, nultrm(regex_group[3]));
+                        init_new_character(&dawn, &temp);
+                    }
                 }
                 //Regular messages and notices
                 if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n")) {
-                    strncpy(message.sender_nick,     regex_group[1], 64);
+                    strncpy(message.sender_nick,     to_lower(regex_group[1]), 64);
                     strncpy(message.sender_ident,    regex_group[2], 64);
                     strncpy(message.sender_hostmask, regex_group[3], 64);
                     strncpy(message.receiver,        regex_group[5], 64);
                     strncpy(message.message,         regex_group[6], MAX_MESSAGE_BUFFER);
                     if (strcmp(regex_group[4], "PRIVMSG") == 0) {
                         if (message.receiver[0] == '#') {
-                            parse_room_message(&message, &dawn);
+                            parse_room_message(&dawn, &message);
                         } else {
-                            parse_private_message(&message);
+                            parse_private_message(&dawn, &message);
                         }
                     } else if (strcmp(regex_group[4], "NOTICE") == 0) {
-                        printf("notice\n");
-                        //handle notices
+                    //    parse_notice_message(&message);
                     }
                 }
             }

@@ -8,7 +8,7 @@
 void save_players (struct Bot *, size_t);
 void load_players (struct Bot *, size_t);
 void print_sheet (struct Bot *, struct Message *);
-void init_new_character (const char [], const char [], struct Bot *);
+void init_new_character (struct Bot *, struct Message *);
 void check_levelup (struct Bot *, struct Message *);
 void assign_attr_points (struct Bot *, struct Message *, char [], int);
 void revive (struct Bot *, struct Message *);
@@ -17,7 +17,7 @@ int get_pindex (struct Bot *, const char []);
 int get_bindex (struct Bot *, const char [], const char []);
 
 struct Player {
-    char username[64], password[64];
+    char username[64], password[64], hostmask[128];
     char first_class[64], second_class[64], title[64];
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
     struct Monsters personal_monster;

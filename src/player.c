@@ -31,11 +31,11 @@ int get_bindex (struct Bot *dawn, const char username[64], const char location[6
     return -1;
 }
 
-void init_new_character (const char username[64], const char password[64], struct Bot *dawn) {
+void init_new_character (struct Bot *dawn, struct Message *message) {
     //Check if user exists
     char out[MAX_MESSAGE_BUFFER];
 
-    if (get_pindex(dawn, username) != -1) {
+    if (get_pindex(dawn, message->sender_nick) != -1) {
         sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
         send_socket(out);
         return;
@@ -47,8 +47,9 @@ void init_new_character (const char username[64], const char password[64], struc
     np.current_map.cur_x = 0;
     np.current_map.cur_y = 1;
 
-    strcpy(np.username, username);
-    strcpy(np.password, password);
+    strcpy(np.username, message->sender_nick);
+    strcpy(np.password, "temp");
+    strcpy(np.hostmask, message->sender_hostmask);
     strcpy(np.first_class, "None");
     strcpy(np.second_class, "None");
     strcpy(np.title, "Newbie");
@@ -103,7 +104,10 @@ void init_new_character (const char username[64], const char password[64], struc
     
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
-    sprintf(out, "PRIVMSG %s :Account created for user %s\r\n", dawn->active_room, username);
+
+    sprintf(out, "PRIVMSG %s :Account created for user %s@%s, please set your password by sending me "
+            "a private message containing: ;set password <your_password>\r\n", dawn->active_room,
+            message->sender_nick, message->sender_hostmask);
 
     struct Bot temp;
     save_players (dawn, sizeof(temp));
