@@ -13,6 +13,7 @@
 #define MAX_ITEM_TYPE       3
 #define MAX_WEAPON_TYPE     7
 #define MAX_SHIELD_TYPE     5
+#define MAX_MATERIAL_TYPE   8
 #define MAX_ARMOR_TYPE      5
 #define MAX_SLAY_GOLD       10000000
 #define MAX_BUILDINGS       5

@@ -72,8 +72,58 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
         strcat(item_name, red);
         item_dropped.rarity = 8;
     } else {
-        //will be potions and stuff i guess
-        item_dropped.rarity = 1;
+        enum material {WOOD, LEATHER, STONE, ORE, BRONZE, MAIL, STEEL, DIAMOND};
+        int type, amount;
+        char plural[7], mat_name[10];
+
+        if (drop_level < 4)       type = rand() % 2;
+        else if (drop_level < 6)  type = rand() % 3;
+        else if (drop_level < 8)  type = rand() % 4;
+        else if (drop_level < 10) type = rand() % 6;
+        else if (drop_level < 11) type = rand() % 7;
+        else                      type = rand() % MAX_MATERIAL_TYPE;
+        
+        amount = 1 + rand() % 4;
+        amount > 1 ? strcpy(plural, "scraps") : strcpy(plural, "scrap");
+
+        switch (type) {
+            case WOOD:    
+                strcpy(mat_name, "wood"); 
+                dawn->players[p_index].wood += amount;
+                break;
+            case LEATHER:
+                strcpy(mat_name, "leather"); 
+                dawn->players[p_index].leather += amount;
+                break;
+            case STONE:
+                strcpy(mat_name, "stone");
+                dawn->players[p_index].stone += amount;
+                break;
+            case ORE:
+                strcpy(mat_name, "ore");
+                dawn->players[p_index].ore += amount;
+                break;
+            case BRONZE:
+                strcpy(mat_name, "bronze");
+                dawn->players[p_index].bronze += amount;
+                break;
+            case MAIL: 
+                strcpy(mat_name, "mail");
+                dawn->players[p_index].mail += amount;
+                break;
+            case STEEL: 
+                strcpy(mat_name, "steel");
+                dawn->players[p_index].steel += amount;
+                break;
+            case DIAMOND: 
+                strcpy(mat_name, "diamond");
+                dawn->players[p_index].diamond += amount;
+                break;
+        }
+        sprintf(out, "PRIVMSG %s :%s finds %d %s %s\r\n",
+                message->receiver, message->sender_nick, amount, mat_name, plural);
+        send_socket(out);
+        return;
     }
 
     strcat(item_name, rarity[item_dropped.rarity]);

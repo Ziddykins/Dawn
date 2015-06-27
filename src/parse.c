@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <pcre.h>
 #include <string.h>
+#include <stdlib.h>
 #include "include/network.h"
 #include "include/parse.h"
 #include "include/status.h"
@@ -170,8 +171,10 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
         //Just temp so I can level people back up who don't want to start over
         if (strcmp(message->sender_nick, "ziddy") == 0) {
             char username[64];
-            int amount = atoi(regex_group[2]);
+            char *eptr;
             int index;
+            unsigned long long amount = strtoll(regex_group[2], &eptr, 10);
+
             strcpy(username, regex_group[1]);
             index = get_pindex(dawn, username);
             dawn->players[index].experience += amount;
@@ -226,6 +229,15 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
         move_player(dawn, message, atoi(regex_group[1]), atoi(regex_group[2]));
     } else if (check_if_matches_regex(message->message, ";locate (\\w+)")) {
         find_building(dawn, message, regex_group[1]);
+    } else if (strcmp(message->message, ";materials") == 0) {
+        int pindex = get_pindex(dawn, message->sender_nick);
+        sprintf(out, "PRIVMSG %s :%s, [Materials: - Wood: %ld - Leather %ld - Stone: %ld - Ore: %ld - "
+               " Bronze: %ld - Mail: %ld - Steel: %ld - Diamond: %ld]\r\n", 
+               message->receiver, message->sender_nick, dawn->players[pindex].wood,
+               dawn->players[pindex].leather, dawn->players[pindex].stone, dawn->players[pindex].ore,
+               dawn->players[pindex].bronze, dawn->players[pindex].mail, dawn->players[pindex].steel,
+               dawn->players[pindex].diamond);
+        send_socket(out);
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"

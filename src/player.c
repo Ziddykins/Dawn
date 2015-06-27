@@ -11,7 +11,7 @@
 
 //Prototypes
 void save_players (struct Bot *, size_t);
-long long get_nextlvl_exp (struct Bot *, const char []);
+unsigned long long get_nextlvl_exp (struct Bot *, const char []);
 
 int get_pindex (struct Bot *dawn, const char username[64]) {
     for (int i=0; i<dawn->player_count; i++) {
@@ -136,7 +136,7 @@ void load_players (struct Bot *dawn, size_t size) {
 static const char *progress_bar (struct Bot *dawn, const char username[64]) {
     static char bar[48];
     int i = get_pindex(dawn, username);
-    long long nextlvl_exp = get_nextlvl_exp(dawn, username);
+    unsigned long long nextlvl_exp = get_nextlvl_exp(dawn, username);
     nextlvl_exp = nextlvl_exp ? nextlvl_exp : 5;
     long double temp_cyan = ((dawn->players[i].experience / (long double)nextlvl_exp) * 100) / 10;
     int blue_count  = 9  - (int)temp_cyan;
@@ -145,12 +145,12 @@ static const char *progress_bar (struct Bot *dawn, const char username[64]) {
     return bar;
 }
 
-long long get_nextlvl_exp (struct Bot *dawn, const char username[64]) {
+unsigned long long get_nextlvl_exp (struct Bot *dawn, const char username[64]) {
     int curr_level = dawn->players[get_pindex(dawn, username)].level;
     if (curr_level > 10) {
-        return 500 * curr_level * curr_level * curr_level - 500 * curr_level;
+        return (500ULL * curr_level * curr_level * curr_level - 500ULL * curr_level);
     } else {
-        return 100 * curr_level * curr_level * curr_level - 100 * curr_level;
+        return (500ULL * curr_level * curr_level * curr_level - 500ULL * curr_level);
     }
 }
 
@@ -163,8 +163,8 @@ void print_sheet (struct Bot *dawn, struct Message *message) {
     get_stat(dawn, message, stats);
 
     sprintf(out, 
-            "PRIVMSG %s :[%s (%d)] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
-            " - Def: %d (%ldK/%ldD) [EXP: %lld/%lld %s - Gold: %s%ld%s] [Fullness: %hd%%]\r\n", message->receiver, message->sender_nick, 
+            "PRIVMSG %s :[%s (Lv: %d)] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
+            " - Def: %d (%ldK/%ldD) [EXP: %llu / %llu %s - Gold: %s%ld%s] [Fullness: %hd%%]\r\n", message->receiver, message->sender_nick, 
             dawn->players[i].level, dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1], 
             stats[2], stats[3], stats[4], stats[5], dawn->players[i].kills, dawn->players[i].deaths, 
             dawn->players[i].experience, get_nextlvl_exp(dawn, dawn->players[i].username),
@@ -178,8 +178,8 @@ void print_sheet (struct Bot *dawn, struct Message *message) {
 void check_levelup (struct Bot *dawn, struct Message *message) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
-    long long next_level_exp = get_nextlvl_exp(dawn, message->sender_nick);
-    long long curr_level_exp = dawn->players[i].experience;
+    unsigned long long next_level_exp = get_nextlvl_exp(dawn, message->sender_nick);
+    unsigned long long curr_level_exp = dawn->players[i].experience;
     int curr_level = dawn->players[i].level;
 
     if (curr_level_exp >= next_level_exp) {
