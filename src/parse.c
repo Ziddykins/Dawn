@@ -103,7 +103,7 @@ void parse_private_message (struct Bot *dawn, struct Message *message) {
 
     if (check_if_matches_regex(message->message, ";set password (\\w+)")) {
         if (strcmp(message->sender_hostmask, dawn->players[pindex].hostmask) == 0) {
-            strcpy(dawn->players[pindex].password, xor_flip(regex_group[1]));
+            strncpy(dawn->players[pindex].password, xor_flip(regex_group[1]), MAX_NICK_LENGTH);
             sprintf(out, "PRIVMSG %s :Your password has been set\r\n", message->sender_nick);
         }
         send_socket(out);
@@ -150,7 +150,7 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
     if (strcmp(message->message, ";sheet") == 0) {
         print_sheet(dawn, message);
     } else if (check_if_matches_regex(message->message, ";sheet (\\w+)")) {
-        strcpy(message->sender_nick, to_lower(regex_group[1]));
+        strncpy(message->sender_nick, to_lower(regex_group[1]), MAX_NICK_LENGTH);
         if (get_pindex(dawn, regex_group[1]) != -1) {
             print_sheet(dawn, message);
         }
