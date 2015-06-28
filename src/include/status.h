@@ -1,14 +1,22 @@
 #ifndef STATUS_H_INCLUDED
 #define STATUS_H_INCLUDED
 #include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
+#include <assert.h>
 #include "limits.h"
 #include "monsters.h"
 #include "map.h"
 #include "inventory.h"
 #include "player.h"
 
+
+
 //Prototypes
-void set_timer (int, struct Bot *, time_t);
+void set_timer (int, time_t);
 void check_timers (struct Bot *);
 void init_timers (struct Bot *);
 void print_location (struct Bot *, int);
@@ -27,8 +35,36 @@ struct Bot {
     struct Monsters global_monster;
 };
 
-enum Events  {HEALING, SAVING, HOURLY};
-enum Weather {SUNNY, RAINING, SNOWING};
+struct event {
+    int event;
+    int data; //playerID
+};
 
+struct eventNode {
+    struct eventNode * next;
+    struct event * elem;
+    time_t event_time;
+};
+
+enum Events  {HEALING, SAVING, HOURLY, SUNNY, RAINING, SNOWING, TRAVEL};
+
+typedef void * EventList;
+
+EventList createEventList(void);
+void deleteEventList(void);
+void addEvent(int event, int playerID, unsigned int offset);
+void selectList(EventList);
+
+void printFromNode(struct eventNode * x);
+void printList(void);
+
+struct event * retrMsg(void);
+void updateAlarm(void);
+time_t timeToNextMsg(void);
+
+size_t listLen(void);
+
+int nextIsDue(void);
+void eventHandler(int sig);
 
 #endif

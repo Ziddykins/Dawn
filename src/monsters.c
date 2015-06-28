@@ -9,7 +9,7 @@ void call_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
     char pstring[64];
     int i, pindex;
     i = pindex = 0;
-    
+
     if (global) {
         if (dawn->global_monster.active) {
             sprintf(out, "PRIVMSG %s :The %s got bored and left town. Unfortunately his friend wandered in...\r\n",
@@ -38,7 +38,7 @@ void call_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
     struct Monsters tmp = global ? dawn->global_monster : dawn->players[pindex].personal_monster;
 
     sprintf(out, "PRIVMSG %s :Monster spawned in room%s [%s] [%d/%d %sHP%s] - [%d STR] - [%d DEF] - [%d INT] -"
-                 " [%d MDEF]\r\n", 
+                 " [%d MDEF]\r\n",
                  dawn->active_room, pstring, tmp.name, tmp.hp, tmp.mhp, red, normal, tmp.str, tmp.def,
                  tmp.intel, tmp.mdef);
     send_socket(out);
@@ -77,7 +77,7 @@ void slay_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
             send_socket(out);
         }
     } else {
-        int pindex = get_pindex(dawn, username);
+        pindex = get_pindex(dawn, username);
         if (!dawn->players[pindex].personal_monster.active) return;
         if (dawn->players[pindex].gold >= 150) {
             dawn->players[pindex].gold -= 150;
