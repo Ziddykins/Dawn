@@ -30,7 +30,7 @@ int main (void) {
     //Keep a NULL at the end
     const char *rooms[]  = { "#stacked", NULL }, **n;
     n = rooms;
-    
+
     //The bot structure it self
     struct Bot dawn;
 
@@ -100,12 +100,11 @@ int main (void) {
 
     init_timers(&dawn);
 
-    if (init_connect_server(dalnet, port) == 0) { 
+    if (init_connect_server(dalnet, port) == 0) {
         printf("[!] Connected to server %s\n", dalnet);
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
             char out[MAX_MESSAGE_BUFFER];
             buffer[len] = '\0';
-            check_timers(&dawn);
 
             //Handle keepalive pings from the server
             if (check_if_matches_regex(buffer, "PING :(.*)")) {

@@ -17,7 +17,6 @@ struct Buildings {
 
 struct TravelTimer {
     int x, y, active;
-    time_t expires;
 };
 
 struct Map {
