@@ -124,8 +124,8 @@ void addEvent(int event, int playerID, unsigned int offset) {
         struct eventNode * scanner = tmp, * prevScanner = prev;
         while(scanner != 0) {
             if(tmp->elem->event == event && tmp->elem->data == playerID)
-                removeEvent(prev);
-            prev = scanner;
+                removeEvent(prevScanner);
+            prevScanner = scanner;
             scanner = scanner->next;
         }
     } else {
