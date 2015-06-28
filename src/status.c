@@ -50,6 +50,10 @@ EventList createEventList() {
         return 0;
     singleton++;
     struct eventList * newlist = calloc(1, sizeof *newlist);
+    if(!newlist) {
+        perror("calloc createEventList");
+        exit(1);
+    }
     return newlist;
 }
 
@@ -143,16 +147,25 @@ void addEvent(int event, int playerID, unsigned int offset) {
 
     if(prev == 0) { //create a new node from scratch
         struct eventNode * prev_root = cmlist->root;
-        cmlist->root = calloc(1, sizeof *cmlist->root);
+        if(!(cmlist->root = calloc(1, sizeof *cmlist->root))) {
+            perror("calloc eventNode");
+            exit(1);
+        }
         cmlist->root->next = prev_root;
         prev = cmlist->root;
     } else { //or insert it where it belongs
         struct eventNode * prevnext = prev->next;
-        prev->next = calloc(1, sizeof *prev);
+        if(!(prev->next = calloc(1, sizeof *prev))) {
+            perror("calloc eventNode");
+            exit(1);
+        }
         prev = prev->next;
         prev->next = prevnext;
     }
-    prev->elem = malloc(sizeof *prev->elem);
+    if(!(prev->elem = malloc(sizeof *prev->elem))) {
+        perror("malloc event");
+        exit(1);
+    }
     prev->elem->event = event;
     prev->elem->data = playerID;
     prev->event_time = newtime;
