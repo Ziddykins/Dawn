@@ -116,17 +116,23 @@ void addEvent(int event, int playerID, unsigned int offset) {
     struct eventNode * tmp = cmlist->root, * prev = 0;
     if(event == TRAVEL) {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
-            if(tmp->elem->event == event && tmp->elem->data == playerID)
+            if(tmp->elem->event == event && tmp->elem->data == playerID) {
+                tmp = prev;
                 removeEvent(prev);
+            }
             prev = tmp;
-            tmp = tmp->next;
+            if(tmp != 0)
+                tmp = tmp->next;
         }
         struct eventNode * scanner = tmp, * prevScanner = prev;
         while(scanner != 0) {
-            if(tmp->elem->event == event && tmp->elem->data == playerID)
+            if(tmp->elem->event == event && tmp->elem->data == playerID) {
                 removeEvent(prevScanner);
+                scanner = prevScanner;
+            }
             prevScanner = scanner;
-            scanner = scanner->next;
+            if(scanner != 0)
+                scanner = scanner->next;
         }
     } else {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
