@@ -169,7 +169,7 @@ size_t listLen() {
     return cmlist->len;
 }
 
-int nextIsNow() {
+int nextIsDue() {
     if(elist == 0)
         return 0;
     struct eventList * cmlist = (struct eventList *)elist;
@@ -229,5 +229,5 @@ void eventHandler(int sig) {
             default:
                 continue;
         }
-    } while(nextIsNow());
+    } while(nextIsDue());
 }
