@@ -37,7 +37,7 @@ struct Bot {
 
 struct event {
     int event;
-    int PID; //playerID
+    int data; //playerID
 };
 
 struct eventNode {

@@ -61,6 +61,7 @@ void deleteEventList() {
     struct eventNode * tmp = celist->root;
     while(tmp != 0) {
         struct eventNode * next = tmp->next;
+        free(tmp->elem);
         free(tmp);
         tmp = next;
     }
@@ -89,6 +90,23 @@ void selectList(EventList x) {
     elist = x;
 }
 
+void removeEvent(struct eventNode * prev) {
+    struct eventList * celist = (struct eventList *)elist;
+    if(elist == 0)
+        return;
+    if(prev == 0) {
+        struct eventNode * next = celist->root->next;
+        free(celist->root->elem);
+        free(celist->root);
+        celist->root = next;
+    } else {
+        struct eventNode * toFree = prev->next;
+        prev->next = prev->next->next;
+        free(toFree->elem);
+        free(toFree);
+    }
+}
+
 void addEvent(int event, int playerID, unsigned int offset) {
     if(elist == 0)
         return;
@@ -96,9 +114,25 @@ void addEvent(int event, int playerID, unsigned int offset) {
 
     time_t newtime = time(0) + offset;
     struct eventNode * tmp = cmlist->root, * prev = 0;
-    while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
-        prev = tmp;
-        tmp = tmp->next;
+    if(event == TRAVEL) {
+        while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
+            if(tmp->elem->event == event && tmp->elem->data == playerID)
+                removeEvent(prev);
+            prev = tmp;
+            tmp = tmp->next;
+        }
+        struct eventNode * scanner = tmp, * prevScanner = prev;
+        while(scanner != 0) {
+            if(tmp->elem->event == event && tmp->elem->data == playerID)
+                removeEvent(prev);
+            prev = scanner;
+            scanner = scanner->next;
+        }
+    } else {
+        while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
+            prev = tmp;
+            tmp = tmp->next;
+        }
     }
 
     if(prev == 0) { //create a new node from scratch
@@ -114,7 +148,7 @@ void addEvent(int event, int playerID, unsigned int offset) {
     }
     prev->elem = malloc(sizeof *prev->elem);
     prev->elem->event = event;
-    prev->elem->PID = playerID;
+    prev->elem->data = playerID;
     prev->event_time = newtime;
 
     cmlist->len++;
@@ -217,15 +251,15 @@ void eventHandler(int sig) {
             }
             case TRAVEL:
             {
-                if(bot->players[e->PID].travel_timer.active) {
+                if(bot->players[e->data].travel_timer.active) {
                     char out[MAX_MESSAGE_BUFFER];
-                    bot->players[e->PID].current_map.cur_x = bot->players[e->PID].travel_timer.x;
-                    bot->players[e->PID].current_map.cur_y = bot->players[e->PID].travel_timer.y;
-                    sprintf(out, "PRIVMSG %s :%s has arrived at %d,%d\r\n", bot->active_room, bot->players[e->PID].username,
-                            bot->players[e->PID].current_map.cur_x, bot->players[e->PID].current_map.cur_y);
+                    bot->players[e->data].current_map.cur_x = bot->players[e->data].travel_timer.x;
+                    bot->players[e->data].current_map.cur_y = bot->players[e->data].travel_timer.y;
+                    sprintf(out, "PRIVMSG %s :%s has arrived at %d,%d\r\n", bot->active_room, bot->players[e->data].username,
+                            bot->players[e->data].current_map.cur_x, bot->players[e->data].current_map.cur_y);
                     send_socket(out);
-                    bot->players[e->PID].travel_timer.active = 0;
-                    check_special_location(bot, e->PID);
+                    bot->players[e->data].travel_timer.active = 0;
+                    check_special_location(bot, e->data);
                 }
                 break;
             }
