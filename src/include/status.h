@@ -67,7 +67,7 @@ time_t timeToNextMsg(void);
 
 size_t listLen(void);
 
-int nextIsNow(void);
+int nextIsDue(void);
 void eventHandler(int sig);
 
 #endif
