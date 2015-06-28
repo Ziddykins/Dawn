@@ -9,6 +9,9 @@
 #include "include/events.h"
 #include "include/map.h"
 
+static EventList elist = 0; //currently selected list (there may only be one at a time)
+static struct Bot * bot;
+
 void set_timer (int timer, time_t amount) {
     addEvent(timer, 0, (unsigned int)amount);
     printf("Timer %d set for %ld in the future\n", timer, amount);

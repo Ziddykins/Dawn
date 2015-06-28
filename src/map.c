@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 #include "include/status.h"
 #include "include/parse.h"
 #include "include/player.h"
@@ -71,7 +72,7 @@ void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
     dawn->players[pindex].travel_timer.y = y;
     dawn->players[pindex].travel_timer.active = 1;
 
-    sprintf(out, "PRIVMSG %s :%s, you are traveling from (%d,%d) to (%d,%d). This will take %zu seconds.\r\n",
+    sprintf(out, "PRIVMSG %s :%s, you are traveling from (%d,%d) to (%d,%d). This will take %u seconds.\r\n",
             message->receiver, message->sender_nick, cx, cy, x, y, (unsigned int)travel_time);
     send_socket(out);
 }
