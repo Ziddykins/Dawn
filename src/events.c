@@ -13,7 +13,7 @@
 //Prototype
 void check_famine (struct Bot *, int);
 
-static void random_shrine (struct Bot *dawn, char username[64]) {
+static void random_shrine (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_SHRINE_TYPE;
@@ -55,7 +55,7 @@ static void random_shrine (struct Bot *dawn, char username[64]) {
     }
 }
 
-static void random_reward (struct Bot *dawn, char username[64]) {
+static void random_reward (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_REWARD_TYPE;
@@ -90,7 +90,7 @@ static void random_reward (struct Bot *dawn, char username[64]) {
     }
 }
 
-static void random_punishment (struct Bot *dawn, char username[64]) {
+static void random_punishment (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(dawn, username);
     int which = rand() % MAX_PUNISHMENT_TYPE;
@@ -139,15 +139,10 @@ static void random_punishment (struct Bot *dawn, char username[64]) {
 void hourly_events (struct Bot *dawn) {
     int event  = rand() % MAX_EVENT_TYPE;
     int player = rand() % dawn->player_count;
-    int count  = 0;
 
-    while (dawn->players[player].available != 1 && count < 100) {
+    while (dawn->players[player].available != 1) {
         player = rand() % dawn->player_count;
-        count++;
     }
-
-    //No one is online
-    if (count == 99) return;
 
     switch (event) {
         case 0:
@@ -174,34 +169,33 @@ void hourly_events (struct Bot *dawn) {
 }
 
 void update_weather (struct Bot *dawn) {
-    int weather = rand() % 4;
+    int weather = rand() % MAX_WEATHER_TYPE;
     char out[MAX_MESSAGE_BUFFER];
 
     //Avoid same weather
-    while (weather == dawn->weather) weather = rand() % 4;
+    while (weather == dawn->weather) 
+        weather = rand() % MAX_WEATHER_TYPE;
 
     switch (weather) {
         case 0:
             sprintf(out, "PRIVMSG %s :The clouds disperse, allowing "
                         "the sunlight to shine down upon %s\r\n",
                         dawn->active_room, dawn->active_room);
-            send_socket(out);
             dawn->weather = SUNNY;
             break;
         case 1:
             sprintf(out, "PRIVMSG %s :Dark clouds roll in, plunging the town"
                          " of stacked into darkness. Rain begins to fall from"
                          " the sky.\r\n", dawn->active_room);
-            send_socket(out);
             dawn->weather = RAINING;
             break;
         case 2:
             sprintf(out, "PRIVMSG %s :Snow begins to float down from the skies!\r\n",
                          dawn->active_room);
-            send_socket(out);
             dawn->weather = SNOWING;
             break;
     }
+    send_socket(out);
 }
 
 void check_famine (struct Bot *dawn, int whom) {

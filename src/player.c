@@ -13,7 +13,7 @@
 void save_players (struct Bot *, size_t);
 unsigned long long get_nextlvl_exp (struct Bot *, const char []);
 
-int get_pindex (struct Bot *dawn, const char username[64]) {
+int get_pindex (struct Bot *dawn, const char username[MAX_NICK_LENGTH]) {
     for (int i=0; i<dawn->player_count; i++) {
         if (strcmp(dawn->players[i].username, username) == 0)
             return i;
@@ -21,7 +21,7 @@ int get_pindex (struct Bot *dawn, const char username[64]) {
     return -1;
 }
 
-int get_bindex (struct Bot *dawn, const char username[64], const char location[64]) {
+int get_bindex (struct Bot *dawn, const char username[MAX_NICK_LENGTH], const char location[64]) {
     int pindex = get_pindex(dawn, username);
     for (int i=0; i<MAX_BUILDINGS; i++) {
         if (strcmp(location, dawn->players[pindex].current_map.buildings[i].name) == 0) {
@@ -34,6 +34,7 @@ int get_bindex (struct Bot *dawn, const char username[64], const char location[6
 void init_new_character (struct Bot *dawn, struct Message *message) {
     //Check if user exists
     char out[MAX_MESSAGE_BUFFER];
+    char tmp_pwd[] = "temp";
 
     if (get_pindex(dawn, message->sender_nick) != -1) {
         sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
@@ -48,7 +49,7 @@ void init_new_character (struct Bot *dawn, struct Message *message) {
     np.current_map.cur_y = 1;
 
     strcpy(np.username, nultrm(message->sender_nick));
-    strcpy(np.password, "temp");
+    strcpy(np.password, xor_flip(tmp_pwd));
     strcpy(np.hostmask, message->sender_hostmask);
     strcpy(np.first_class, "None");
     strcpy(np.second_class, "None");
@@ -133,7 +134,7 @@ void load_players (struct Bot *dawn, size_t size) {
 }
 
 //Lol this entire thing
-static const char *progress_bar (struct Bot *dawn, const char username[64]) {
+static const char *progress_bar (struct Bot *dawn, const char username[MAX_NICK_LENGTH]) {
     static char bar[48];
     int i = get_pindex(dawn, username);
     unsigned long long nextlvl_exp = get_nextlvl_exp(dawn, username);
@@ -145,7 +146,7 @@ static const char *progress_bar (struct Bot *dawn, const char username[64]) {
     return bar;
 }
 
-unsigned long long get_nextlvl_exp (struct Bot *dawn, const char username[64]) {
+unsigned long long get_nextlvl_exp (struct Bot *dawn, const char username[MAX_NICK_LENGTH]) {
     int curr_level = dawn->players[get_pindex(dawn, username)].level;
     if (curr_level > 10) {
         return (500ULL * curr_level * curr_level * curr_level - 500ULL * curr_level);

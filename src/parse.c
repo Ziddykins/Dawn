@@ -13,13 +13,27 @@
 //All groupers from the regular expression
 //string will be stored here globally.
 char regex_group[15][2048];
+//
 
-char *to_lower (char str[64]) {
+char *to_lower (char str[MAX_MESSAGE_BUFFER]) {
     for (size_t i=0; i<strlen(str); i++) {
         if (str[i] >= 'A' && str[i] <= 'Z') {
             str[i] += 32;
         }
     }
+    return str;
+}
+
+char *xor_flip (char password[64]) {
+    int key = 0xDEADBEBE;
+    for (size_t i=0; i<strlen(password); i++)
+        password[i] ^= key;
+    return password;
+}
+
+char *nultrm (char str[MAX_MESSAGE_BUFFER]) {
+    size_t len = strlen(str);
+    str[len+1] = '\0';
     return str;
 }
 
@@ -89,13 +103,13 @@ void parse_private_message (struct Bot *dawn, struct Message *message) {
 
     if (check_if_matches_regex(message->message, ";set password (\\w+)")) {
         if (strcmp(message->sender_hostmask, dawn->players[pindex].hostmask) == 0) {
-            strcpy(dawn->players[pindex].password, regex_group[1]);
+            strcpy(dawn->players[pindex].password, xor_flip(regex_group[1]));
             sprintf(out, "PRIVMSG %s :Your password has been set\r\n", message->sender_nick);
         }
         send_socket(out);
     } else if (check_if_matches_regex(message->message, ";login (\\w+)")) {
         if (strcmp(dawn->players[pindex].hostmask, message->sender_hostmask) != 0) {
-            if (strcmp(regex_group[1], dawn->players[pindex].password) == 0) {
+            if (strcmp(xor_flip(regex_group[1]), dawn->players[pindex].password) == 0) {
                 strcpy(dawn->players[pindex].hostmask, message->sender_hostmask);
                 sprintf(out, "PRIVMSG %s :%s has been verified\r\n", dawn->active_room, message->sender_nick);
                 send_socket(out);
@@ -139,8 +153,6 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
         strcpy(message->sender_nick, to_lower(regex_group[1]));
         if (get_pindex(dawn, regex_group[1]) != -1) {
             print_sheet(dawn, message);
-        } else {
-            printf("not found\n");
         }
     } else if (strcmp(message->message, ";inv") == 0) {
         print_inventory(dawn, message);
@@ -172,15 +184,17 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
     } else if (check_if_matches_regex(message->message, ";givexp (\\w+) (\\d+)")) {
         //Just temp so I can level people back up who don't want to start over
         if (strcmp(message->sender_nick, "ziddy") == 0) {
-            char username[64];
+            char username[MAX_NICK_LENGTH];
             char *eptr;
             int index;
             unsigned long long amount = strtoll(regex_group[2], &eptr, 10);
-
-            strcpy(username, to_lower(regex_group[1]));
+            
+            strncpy(username, to_lower(regex_group[1]), MAX_NICK_LENGTH);
             index = get_pindex(dawn, username);
             dawn->players[index].experience += amount;
+
             if (index == -1) return;
+
             while (dawn->players[index].experience > get_nextlvl_exp(dawn, username)) {
                 struct Message temp;
                 strcpy(temp.sender_nick, username);
@@ -248,10 +262,4 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
                 message->receiver);
         send_socket(out);
     }
-}
-
-char *nultrm (char string[100]) {
-    size_t len = strlen(string);
-    string[len+1] = '\0';
-    return string;
 }

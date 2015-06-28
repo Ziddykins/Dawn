@@ -4,7 +4,7 @@
 #include "include/status.h"
 #include "include/colors.h"
 
-void call_monster (struct Bot *dawn, const char username[64], int global) {
+void call_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int global) {
     char out[MAX_MESSAGE_BUFFER];
     char pstring[64];
     int i, pindex;
@@ -44,7 +44,7 @@ void call_monster (struct Bot *dawn, const char username[64], int global) {
     send_socket(out);
 }
 
-void slay_monster (struct Bot *dawn, const char username[64], int global, int amount) {
+void slay_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int global, int amount) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(dawn, username);
 
@@ -93,7 +93,7 @@ void slay_monster (struct Bot *dawn, const char username[64], int global, int am
     }
 }
 
-void print_monster (struct Bot *dawn, const char username[64], int global) {
+void print_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int global) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(dawn, username);
     if (global) {

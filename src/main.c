@@ -11,6 +11,11 @@
 #include "include/limits.h"
 #include "include/parse.h"
 
+//External global defined in limit.h
+//Determined by server - if values not received on connect, default to 64
+int MAX_CHANNEL_LENGTH = 64;
+int MAX_NICK_LENGTH    = 64;
+
 int main (void) {
     FILE *urandom = fopen("/dev/urandom", "r");
     unsigned int seed;
@@ -138,18 +143,18 @@ int main (void) {
                 }
             }
 
-            //Regular messages following the format:
-            //nick!~ident@hostname receiver :message
-            //Since this will match regular and private message, we should check
-            //to see if the first character is an octothorpe (#)
-            //In regex_group[4], we also check to see if this was a notice
-            //or a privmsg, since they follow the same format
-            //Also checks for kicks, parts and joins and quits to control availability of users
             //Upon joining rooms the bot will search for status 353, which is names, and will
             //iterate through the online people, setting their status to available if they
             //have an account on the bot
             if (dawn.in_rooms) {
                 struct Message message;
+
+                //Set lengths based on server rather than assuming
+                if (check_if_matches_regex(buffer, ":.*?005.*?CHANNELLEN=(\\d+)\\s.*?NICKLEN=(\\d+)")) {
+                    MAX_CHANNEL_LENGTH = atoi(regex_group[1]) + 1;
+                    MAX_NICK_LENGTH    = atoi(regex_group[2]) + 1;
+                }
+
                 //NAMES (Status 353)
                 if (check_if_matches_regex(buffer, ":(.*?)\\s353\\s(.*?)\\s@\\s(.*?)\\s:(.*)")) {
                     char *ch_ptr;
