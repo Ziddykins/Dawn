@@ -65,7 +65,7 @@ void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
     dx = abs(x - cx);
     dy = abs(y - cy);
     travel_time = sqrt(dx*dx+dy*dy)*TRAVEL_TIME_MULT;
-    assert(travel_time < (double)(((1<<31)-1)/TRAVEL_TIME_MULT));
+    assert(travel_time < (double)((((unsigned int)1<<(sizeof unsigned int * 8 - 1))-1)/TRAVEL_TIME_MULT));
     addEvent(TRAVEL, pindex, (unsigned int)travel_time);
     dawn->players[pindex].travel_timer.x = x;
     dawn->players[pindex].travel_timer.y = y;
