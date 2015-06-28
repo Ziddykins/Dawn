@@ -49,10 +49,9 @@ void print_location (struct Bot *dawn, int i) {
 void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(dawn, message->sender_nick);
-    int dx, dy, cx, cy, distance;
+    int dx, dy, cx, cy;
     int max_x = dawn->players[pindex].current_map.max_x;
     int max_y = dawn->players[pindex].current_map.max_y;
-    time_t current_time = time(0);
     double travel_time;
 
     if ((x > max_x || x < 0) || (y > max_y || y < 0)) {

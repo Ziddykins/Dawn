@@ -50,9 +50,6 @@ enum Events  {HEALING, SAVING, HOURLY, SUNNY, RAINING, SNOWING, TRAVEL};
 
 typedef void * EventList;
 
-static EventList elist = 0; //currently selected list (there may only be one at a time)
-static struct Bot * bot;
-
 EventList createEventList(void);
 void deleteEventList(void);
 void addEvent(int event, int playerID, unsigned int offset);
