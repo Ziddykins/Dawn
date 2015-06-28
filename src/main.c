@@ -24,7 +24,7 @@ int main (void) {
 
     int match;
     ssize_t len;
-    const char dalnet[]  = "67.198.195.194";
+    const char dalnet[]  = "154.35.175.101";
     const char port[]    = "6667";
 
     //Keep a NULL at the end
@@ -109,7 +109,7 @@ int main (void) {
 
             //Handle keepalive pings from the server
             if (check_if_matches_regex(buffer, "PING :(.*)")) {
-                sprintf(out, "PONG: %s\r\n", regex_group[1]);
+                sprintf(out, "PONG :%s\r\n", regex_group[1]);
                 send_socket(out);
             }
 
@@ -185,7 +185,7 @@ int main (void) {
                     }
                     if (dawn.player_count == 0) {
                         struct Message temp;
-                        strcpy(temp.sender_nick, dawn.nickname);
+                        strcpy(temp.sender_nick, to_lower(dawn.nickname));
                         strcpy(temp.sender_hostmask, nultrm(regex_group[3]));
                         init_new_character(&dawn, &temp);
                     }

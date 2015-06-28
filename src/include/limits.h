@@ -6,7 +6,7 @@
 #define MAX_TIMERS          3
 #define MAX_INVENTORY_SLOTS 25
 #define MAX_MONSTERS        40
-#define MAX_EVENT_TYPE      4
+#define MAX_EVENT_TYPE      5
 #define MAX_SHRINE_TYPE     3
 #define MAX_REWARD_TYPE     3
 #define MAX_PUNISHMENT_TYPE 3

@@ -73,8 +73,9 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
         item_dropped.rarity = 8;
     } else {
         enum material {WOOD, LEATHER, STONE, ORE, BRONZE, MAIL, STEEL, DIAMOND};
-        int type, amount;
+        char *mat_types[] = {"wood", "leather", "stone", "ore", "bronze", "mail", "steel", "diamond"};
         char plural[7], mat_name[10];
+        int type, amount;
 
         if (drop_level < 4)       type = rand() % 2;
         else if (drop_level < 6)  type = rand() % 3;
@@ -85,44 +86,23 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
         
         amount = 1 + rand() % 4;
         amount > 1 ? strcpy(plural, "scraps") : strcpy(plural, "scrap");
+        strcpy(mat_name, mat_types[type]);
 
         switch (type) {
-            case WOOD:    
-                strcpy(mat_name, "wood"); 
-                dawn->players[p_index].wood += amount;
-                break;
-            case LEATHER:
-                strcpy(mat_name, "leather"); 
-                dawn->players[p_index].leather += amount;
-                break;
-            case STONE:
-                strcpy(mat_name, "stone");
-                dawn->players[p_index].stone += amount;
-                break;
-            case ORE:
-                strcpy(mat_name, "ore");
-                dawn->players[p_index].ore += amount;
-                break;
-            case BRONZE:
-                strcpy(mat_name, "bronze");
-                dawn->players[p_index].bronze += amount;
-                break;
-            case MAIL: 
-                strcpy(mat_name, "mail");
-                dawn->players[p_index].mail += amount;
-                break;
-            case STEEL: 
-                strcpy(mat_name, "steel");
-                dawn->players[p_index].steel += amount;
-                break;
-            case DIAMOND: 
-                strcpy(mat_name, "diamond");
-                dawn->players[p_index].diamond += amount;
-                break;
+            case WOOD:    dawn->players[p_index].wood    += amount; break;
+            case LEATHER: dawn->players[p_index].leather += amount; break;
+            case STONE:   dawn->players[p_index].stone   += amount; break;
+            case ORE:     dawn->players[p_index].ore     += amount; break;
+            case BRONZE:  dawn->players[p_index].bronze  += amount; break;
+            case MAIL:    dawn->players[p_index].mail    += amount; break;
+            case STEEL:   dawn->players[p_index].steel   += amount; break;
+            case DIAMOND: dawn->players[p_index].diamond += amount; break;
         }
+
         sprintf(out, "PRIVMSG %s :%s finds %d %s %s\r\n",
                 message->receiver, message->sender_nick, amount, mat_name, plural);
         send_socket(out);
+
         return;
     }
 

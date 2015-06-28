@@ -140,10 +140,13 @@ void hourly_events (struct Bot *dawn) {
     int event  = rand() % MAX_EVENT_TYPE;
     int player = rand() % dawn->player_count;
     int count  = 0;
+
     while (dawn->players[player].available != 1 && count < 100) {
         player = rand() % dawn->player_count;
         count++;
     }
+
+    //No one is online
     if (count == 99) return;
 
     switch (event) {
@@ -156,11 +159,14 @@ void hourly_events (struct Bot *dawn) {
         case 2:
             random_shrine(dawn, dawn->players[player].username);
             break;
-        case 3: {
+        case 3:
             call_monster(dawn, NULL, 1);
             break;
-        }
+        case 4:
+            update_weather(dawn);
+            break;        
     }
+
     for (int i=0; i<dawn->player_count; i++) {
         dawn->players[i].fullness--;
     }

@@ -136,9 +136,11 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
     if (strcmp(message->message, ";sheet") == 0) {
         print_sheet(dawn, message);
     } else if (check_if_matches_regex(message->message, ";sheet (\\w+)")) {
-        strcpy(message->sender_nick, regex_group[1]);
+        strcpy(message->sender_nick, to_lower(regex_group[1]));
         if (get_pindex(dawn, regex_group[1]) != -1) {
             print_sheet(dawn, message);
+        } else {
+            printf("not found\n");
         }
     } else if (strcmp(message->message, ";inv") == 0) {
         print_inventory(dawn, message);
@@ -175,9 +177,10 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
             int index;
             unsigned long long amount = strtoll(regex_group[2], &eptr, 10);
 
-            strcpy(username, regex_group[1]);
+            strcpy(username, to_lower(regex_group[1]));
             index = get_pindex(dawn, username);
             dawn->players[index].experience += amount;
+            if (index == -1) return;
             while (dawn->players[index].experience > get_nextlvl_exp(dawn, username)) {
                 struct Message temp;
                 strcpy(temp.sender_nick, username);
@@ -224,11 +227,11 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
                 message->receiver, message->sender_nick, dawn->players[pindex].attr_pts);
         send_socket(out);
     } else if (check_if_matches_regex(message->message, ";assign (\\w+) (\\d+)")) {
-        assign_attr_points(dawn, message, regex_group[1], atoi(regex_group[2]));
+        assign_attr_points(dawn, message, to_lower(regex_group[1]), atoi(regex_group[2]));
     } else if (check_if_matches_regex(message->message, ";travel (\\d+),(\\d+)")) {
         move_player(dawn, message, atoi(regex_group[1]), atoi(regex_group[2]));
     } else if (check_if_matches_regex(message->message, ";locate (\\w+)")) {
-        find_building(dawn, message, regex_group[1]);
+        find_building(dawn, message, to_lower(regex_group[1]));
     } else if (strcmp(message->message, ";materials") == 0) {
         int pindex = get_pindex(dawn, message->sender_nick);
         sprintf(out, "PRIVMSG %s :%s, [Materials: - Wood: %ld - Leather %ld - Stone: %ld - Ore: %ld - "

@@ -8,7 +8,7 @@
 #include "include/colors.h"
 #include "include/inventory.h"
 #include "include/limits.h"
-
+#include "include/parse.h"
 //Prototypes
 void save_players (struct Bot *, size_t);
 unsigned long long get_nextlvl_exp (struct Bot *, const char []);
@@ -47,7 +47,7 @@ void init_new_character (struct Bot *dawn, struct Message *message) {
     np.current_map.cur_x = 0;
     np.current_map.cur_y = 1;
 
-    strcpy(np.username, message->sender_nick);
+    strcpy(np.username, nultrm(message->sender_nick));
     strcpy(np.password, "temp");
     strcpy(np.hostmask, message->sender_hostmask);
     strcpy(np.first_class, "None");
