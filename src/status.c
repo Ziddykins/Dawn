@@ -97,7 +97,7 @@ void removeEvent(struct eventNode * prev) {
     }
 }
 
-void addEvent(enum Events event, int playerID, unsigned int offset, int unique) {
+void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
     if(elist == 0)
         return;
     struct eventList * cmlist = (struct eventList *)elist;
@@ -106,7 +106,7 @@ void addEvent(enum Events event, int playerID, unsigned int offset, int unique) 
     struct eventNode * tmp = cmlist->root, * prev = 0;
     if(unique) {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
-            if(tmp->elem->event == event && tmp->elem->data == playerID) {
+            if(tmp->elem->event == event && tmp->elem->data == eData) {
                 tmp = prev;
                 removeEvent(prev);
             }
@@ -116,7 +116,7 @@ void addEvent(enum Events event, int playerID, unsigned int offset, int unique) 
         }
         struct eventNode * scanner = tmp, * prevScanner = prev;
         while(scanner != 0) {
-            if(tmp->elem->event == event && tmp->elem->data == playerID) {
+            if(tmp->elem->event == event && tmp->elem->data == eData) {
                 removeEvent(prevScanner);
                 scanner = prevScanner;
             }
@@ -153,7 +153,7 @@ void addEvent(enum Events event, int playerID, unsigned int offset, int unique) 
         exit(1);
     }
     prev->elem->event = event;
-    prev->elem->data = playerID;
+    prev->elem->data = eData;
     prev->event_time = newtime;
 
     cmlist->len++;
