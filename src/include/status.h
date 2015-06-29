@@ -13,8 +13,6 @@
 #include "inventory.h"
 #include "player.h"
 
-
-
 //Prototypes
 void set_timer (int, time_t);
 void check_timers (struct Bot *);
@@ -46,13 +44,20 @@ struct eventNode {
     time_t event_time;
 };
 
-enum Events  {HEALING, SAVING, HOURLY, SUNNY, RAINING, SNOWING, TRAVEL};
+enum Events  {
+    HEALING, SAVING, HOURLY,
+    SUNNY, RAINING, SNOWING,
+    TRAVEL
+};
+
+char * eventToStr(enum Events x);
 
 typedef void * EventList;
 
 EventList createEventList(void);
 void deleteEventList(void);
-void addEvent(int event, int playerID, unsigned int offset);
+void addEvent(enum Events event, int playerID, unsigned int offset, int unique);
+void removeEvent(struct eventNode * prev);
 void selectList(EventList);
 
 void printFromNode(struct eventNode * x);

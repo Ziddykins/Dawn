@@ -1,21 +1,7 @@
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "include/status.h"
-#include "include/limits.h"
-#include "include/network.h"
-#include "include/player.h"
-#include "include/colors.h"
-#include "include/events.h"
-#include "include/map.h"
 
 static EventList elist = 0; //currently selected list (there may only be one at a time)
 static struct Bot * bot;
-
-void set_timer (int timer, time_t amount) {
-    addEvent(timer, 0, (unsigned int)amount);
-    printf("Timer %d set for %ld in the future\n", timer, amount);
-}
 
 void init_timers (struct Bot *dawn) {
     //Times are defined in limits.h and are in seconds
@@ -32,9 +18,9 @@ void init_timers (struct Bot *dawn) {
 
     selectList(createEventList());
     bot = dawn;
-    set_timer(HEALING, HEALING_INTERVAL);
-    set_timer(SAVING, SAVING_INTERVAL);
-    set_timer(HOURLY, 3600);
+    addEvent(HEALING, 0, HEALING_INTERVAL, 0);
+    addEvent(SAVING, 0, SAVING_INTERVAL, 0);
+    addEvent(HOURLY, 0, 3600, 0);
     printf("Timers started\n");
 }
 
@@ -111,14 +97,14 @@ void removeEvent(struct eventNode * prev) {
     }
 }
 
-void addEvent(int event, int playerID, unsigned int offset) {
+void addEvent(enum Events event, int playerID, unsigned int offset, int unique) {
     if(elist == 0)
         return;
     struct eventList * cmlist = (struct eventList *)elist;
 
     time_t newtime = time(0) + offset;
     struct eventNode * tmp = cmlist->root, * prev = 0;
-    if(event == TRAVEL) {
+    if(unique) {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
             if(tmp->elem->event == event && tmp->elem->data == playerID) {
                 tmp = prev;
@@ -171,6 +157,7 @@ void addEvent(int event, int playerID, unsigned int offset) {
     prev->event_time = newtime;
 
     cmlist->len++;
+    printf("STATUS: Added Event %s for in %u sec.", eventToStr(event), offset);
     updateAlarm(); //root may have been replaced so we reset the alarm to the next event in the queue
     return;
 }
@@ -251,7 +238,7 @@ void eventHandler(int sig) {
                         bot->players[e->event].health = bot->players[e->event].max_health;
                     }
                 }
-                set_timer(HEALING, HEALING_INTERVAL);
+                addEvent(HEALING, 0, HEALING_INTERVAL, 0);
                 break;
             }
             case SAVING:
@@ -259,13 +246,13 @@ void eventHandler(int sig) {
                 struct Bot temp;
                 size_t size = sizeof(temp);
                 save_players(bot, size);
-                set_timer(SAVING, SAVING_INTERVAL);
+                addEvent(SAVING, 0, SAVING_INTERVAL, 0);
                 break;
             }
             case HOURLY:
             {
                 hourly_events(bot);
-                set_timer(HOURLY, 3600);
+                addEvent(HOURLY, 0, 3600, 0);
                 break;
             }
             case TRAVEL:
@@ -286,4 +273,24 @@ void eventHandler(int sig) {
                 continue;
         }
     } while(nextIsDue());
+}
+
+char * eventToStr(enum Events x) {
+    switch(x) {
+        case HEALING:
+            return "HEALING";
+        case SAVING:
+            return "SAVING";
+        case HOURLY:
+            return "HOURLY";
+        case SUNNY:
+            return "SUNNY";
+        case RAINING:
+            return "RAINING";
+        case SNOWING:
+            return "SNOWING";
+        case TRAVEL:
+            return "TRAVEL";
+    }
+    return "NONE";
 }
