@@ -8,6 +8,24 @@ struct Message {
     char receiver[64], message[2048];
 };
 
+struct msgNode {
+    char * msg; //the message
+    size_t len; //the length of the message without \0
+    time_t date; //when the message was enqueued
+    struct msgNode * next;
+};
+
+struct msgList {
+    struct msgNode * head, * tail; //start and end
+    size_t byteSize; //total size of the queue
+    size_t msgs; //number of messages waiting to be sent
+};
+
+typedef void * msgList;
+
+msgList createMsgList(void);
+void addMsg(msgList mlist, char * msg, size_t len);
+
 extern char buffer[MAX_RECV_BUFFER + 1];
 extern int con_socket;
 

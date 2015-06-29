@@ -47,7 +47,8 @@ struct eventNode {
 enum Events  {
     HEALING, SAVING, HOURLY,
     SUNNY, RAINING, SNOWING,
-    TRAVEL
+    TRAVEL,
+    MSGSEND,
 };
 
 char * eventToStr(enum Events x);

@@ -1,4 +1,6 @@
-1) send queue
-2) update item and drop system
-3) concatenate similar events
-4) market
+send queue
+update item and drop system
+concatenate similar events
+fluctuating marketplace
+spell system
+special monster modifiers

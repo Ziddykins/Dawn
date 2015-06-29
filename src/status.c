@@ -158,7 +158,7 @@ void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
     prev->event_time = newtime;
 
     cmlist->len++;
-    printf("STATUS: Added Event %s, %zu(+%u) sec.", eventToStr(event), time(0), offset);
+    printf("STATUS: Added Event %s, %zu(+%u) sec.\n", eventToStr(event), time(0), offset);
     updateAlarm(); //root may have been replaced so we reset the alarm to the next event in the queue
     return;
 }
@@ -292,6 +292,8 @@ char * eventToStr(enum Events x) {
             return "SNOWING";
         case TRAVEL:
             return "TRAVEL";
+        case MSGSEND:
+            return "MSGSEND";
     }
     return "NONE";
 }
