@@ -23,7 +23,7 @@ int init_connect_server (const char *ip_addr, const char *port) {
     printf("trying to connect\n");
     connect(con_socket, res->ai_addr, res->ai_addrlen);
     printf("gud\n");
-    free(res);
+    freeaddrinfo(res);
     return errno;
 }
 
