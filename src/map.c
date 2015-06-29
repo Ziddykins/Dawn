@@ -62,6 +62,9 @@ void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
 
     cx = dawn->players[pindex].current_map.cur_x;
     cy = dawn->players[pindex].current_map.cur_y;
+
+    if (cx == x && cy == y) return;
+
     dx = abs(x - cx);
     dy = abs(y - cy);
     travel_time = sqrt(dx*dx+dy*dy)*TRAVEL_TIME_MULT;

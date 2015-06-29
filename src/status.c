@@ -1,4 +1,5 @@
 #include "include/status.h"
+#include "include/events.h"
 
 static EventList elist = 0; //currently selected list (there may only be one at a time)
 static struct Bot * bot;
@@ -106,7 +107,7 @@ void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
     struct eventNode * tmp = cmlist->root, * prev = 0;
     if(unique) {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
-            if(tmp->elem->event == event && tmp->elem->data == eData) {
+            if((unsigned)tmp->elem->event == event && tmp->elem->data == eData) {
                 tmp = prev;
                 removeEvent(prev);
             }
@@ -116,7 +117,7 @@ void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
         }
         struct eventNode * scanner = tmp, * prevScanner = prev;
         while(scanner != 0) {
-            if(tmp->elem->event == event && tmp->elem->data == eData) {
+            if((unsigned)tmp->elem->event == event && tmp->elem->data == eData) {
                 removeEvent(prevScanner);
                 scanner = prevScanner;
             }
@@ -157,7 +158,7 @@ void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
     prev->event_time = newtime;
 
     cmlist->len++;
-    printf("STATUS: Added Event %s for in %u sec.", eventToStr(event), offset);
+    printf("STATUS: Added Event %s, %zu(+%u) sec.", eventToStr(event), time(0), offset);
     updateAlarm(); //root may have been replaced so we reset the alarm to the next event in the queue
     return;
 }
