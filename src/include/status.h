@@ -56,7 +56,7 @@ typedef void * EventList;
 
 EventList createEventList(void);
 void deleteEventList(void);
-void addEvent(enum Events event, int playerID, unsigned int offset, int unique);
+void addEvent(enum Events event, int eData, unsigned int offset, int unique);
 void removeEvent(struct eventNode * prev);
 void selectList(EventList);
 
