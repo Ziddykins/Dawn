@@ -14,7 +14,7 @@ void call_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
         if (dawn->global_monster.active) {
             sprintf(out, "PRIVMSG %s :The %s got bored and left town. Unfortunately his friend wandered in...\r\n",
                     dawn->active_room, dawn->global_monster.name);
-            send_socket(out);
+            addMsg(out, strlen(out));
             dawn->global_monster.slay_cost = dawn->global_monster.gold;
             dawn->global_monster.hp = dawn->global_monster.mhp;
         }
@@ -41,7 +41,7 @@ void call_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
                  " [%d MDEF]\r\n",
                  dawn->active_room, pstring, tmp.name, tmp.hp, tmp.mhp, red, normal, tmp.str, tmp.def,
                  tmp.intel, tmp.mdef);
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void slay_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int global, int amount) {
@@ -51,7 +51,7 @@ void slay_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
     if (global && dawn->global_monster.active) {
         if (amount < 1 || amount >= MAX_SLAY_GOLD) {
             sprintf(out, "PRIVMSG %s :Please enter an amount in between 1 - 10,000,000 gold\r\n", dawn->active_room);
-            send_socket(out);
+            addMsg(out, strlen(out));
             return;
         }
 
@@ -65,7 +65,7 @@ void slay_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
             sprintf(out, "PRIVMSG %s :%s, you do not have that much gold\r\n", dawn->active_room, username);
         }
 
-        send_socket(out);
+        addMsg(out, strlen(out));
 
         if (dawn->global_monster.slay_cost <= 0) {
             sprintf(out, "PRIVMSG %s :The people have raised enough money to rid their town of the horrid monster "
@@ -74,7 +74,7 @@ void slay_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
             dawn->global_monster.active = 0;
             dawn->global_monster.slay_cost = dawn->global_monster.gold;
             dawn->global_monster.hp = dawn->global_monster.mhp;
-            send_socket(out);
+            addMsg(out, strlen(out));
         }
     } else {
         pindex = get_pindex(dawn, username);
@@ -89,7 +89,7 @@ void slay_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int g
             sprintf(out, "PRIVMSG %s :%s, you don't have enough gold to pay a true warrior to dispose "
                     "of this monster [cost: 150 gold]\r\n", dawn->active_room, username);
         }
-        send_socket(out);
+        addMsg(out, strlen(out));
     }
 }
 
@@ -118,6 +118,6 @@ void print_monster (struct Bot *dawn, const char username[MAX_NICK_LENGTH], int 
                     dawn->players[pindex].personal_monster.mdef);
         }
     }
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 

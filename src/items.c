@@ -27,7 +27,7 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
     const char *armor[]   = {"Leather Armor", "Breastplate Armor", "Fullplate Armor", "Chainmail Armor", "Cloth Armor"};
     char item_name[200];
     item_name[0] = '\0';
-    
+
     float rarity_chance = rand()/(float)(RAND_MAX/100.0f);
     int type_chance     = rand()%MAX_ITEM_TYPE;
     int p_index         = get_pindex(dawn, message->sender_nick);
@@ -38,7 +38,7 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
     if (dawn->players[p_index].available_slots == 0) {
         sprintf(out, "PRIVMSG %s :%s has found an item, but has no more room in his inventory!\r\n",
                 message->receiver, message->sender_nick);
-        send_socket(out);
+        addMsg(out, strlen(out));
         return;
     }
 
@@ -83,7 +83,7 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
         else if (drop_level < 10) type = rand() % 6;
         else if (drop_level < 11) type = rand() % 7;
         else                      type = rand() % MAX_MATERIAL_TYPE;
-        
+
         amount = 1 + rand() % 4;
         amount > 1 ? strcpy(plural, "scraps") : strcpy(plural, "scrap");
         strcpy(mat_name, mat_types[type]);
@@ -101,7 +101,7 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
 
         sprintf(out, "PRIVMSG %s :%s finds %d %s %s\r\n",
                 message->receiver, message->sender_nick, amount, mat_name, plural);
-        send_socket(out);
+        addMsg(out, strlen(out));
 
         return;
     }
@@ -131,7 +131,7 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
             strcat(item_name, shield_type);
             break;
         }
-        case 2: 
+        case 2:
         {
             char armor_type[48];
             def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
@@ -143,7 +143,7 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
             break;
         }
     }
-    
+
     strcat(item_name, normal);
     strcpy(item_name, nultrm(item_name));
     strcpy(item_dropped.name, item_name);
@@ -172,15 +172,15 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
             } else {
                 sprintf(out, "PRIVMSG %s :%s, you have no room in your inventory!\r\n",
                         message->receiver, message->sender_nick);
-                send_socket(out);
+                addMsg(out, strlen(out));
                 return;
             }
         }
     }
 
-    sprintf(out, "PRIVMSG %s :%s has found a %s [S: %u - D: %u I: %u - MD: %u] on the corpse of the monster!\r\n", 
+    sprintf(out, "PRIVMSG %s :%s has found a %s [S: %u - D: %u I: %u - MD: %u] on the corpse of the monster!\r\n",
             message->receiver, message->sender_nick, item_name, str, def, intel, mdef);
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void drop_item (struct Bot *dawn, struct Message *message, int slot) {
@@ -206,7 +206,7 @@ void drop_item (struct Bot *dawn, struct Message *message, int slot) {
         }
         dawn->players[pindex].available_slots++;
         sprintf(out, "PRIVMSG %s :%s has dropped the %s\r\n", message->receiver, message->sender_nick, item_name);
-        send_socket(out);
+        addMsg(out, strlen(out));
     }
 }
 
@@ -228,6 +228,6 @@ void get_item_info (struct Bot *dawn, struct Message *message, int slot) {
         strcpy(item_name, dawn->players[index].inventory[slot].name);
         sprintf(out, "PRIVMSG %s :%s - STR: %d - DEF: %d - INT: %d - MDEF: %d - HP: %d - MP: %d"
                " - Weight: %d - Req lvl: %d\r\n", message->receiver, item_name, str, def, intel, mdef, hp, mp, weight, reqlvl);
-        send_socket(out);
+        addMsg(out, strlen(out));
     }
 }

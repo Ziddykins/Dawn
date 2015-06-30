@@ -17,7 +17,7 @@ void print_inventory (struct Bot *dawn, struct Message *message) {
     for (j=0; j<(MAX_INVENTORY_SLOTS - dawn->players[i].available_slots); j++) {
         if (j % 9 == 0) {
             strcat(out, "\r\n");
-            send_socket(out);
+            addMsg(out, strlen(out));
             sprintf(out, "PRIVMSG %s :", message->receiver);
         }
         int equipped = dawn->players[i].inventory[j].equipped;
@@ -29,29 +29,29 @@ void print_inventory (struct Bot *dawn, struct Message *message) {
     sprintf(temp, " - Available slots: %d", dawn->players[i].available_slots);
     strcat(out, temp);
     strcat(out, "\r\n");
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void equip_inventory (struct Bot *dawn, struct Message *message, int slot, int unequip) {
     int i = get_pindex(dawn, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
-    
+
     if (slot > MAX_INVENTORY_SLOTS) return;
 
     if (slot >= (MAX_INVENTORY_SLOTS - dawn->players[i].available_slots)) {
         sprintf(out, "PRIVMSG %s :There is nothing in slot %d\r\n", message->receiver, slot);
-        send_socket(out);
+        addMsg(out, strlen(out));
         return;
     }
     if (unequip && dawn->players[i].inventory[slot].equipped) {
         sprintf(out, "PRIVMSG %s :%s unequipped\r\n", message->receiver, dawn->players[i].inventory[slot].name);
         dawn->players[i].inventory[slot].equipped = 0;
-        send_socket(out);
+        addMsg(out, strlen(out));
         return;
     } else if (unequip && !dawn->players[i].inventory[slot].equipped) {
-        sprintf(out, "PRIVMSG %s :%s is not equipped\r\n", message->receiver, 
+        sprintf(out, "PRIVMSG %s :%s is not equipped\r\n", message->receiver,
                       dawn->players[i].inventory[slot].name);
-        send_socket(out);
+        addMsg(out, strlen(out));
     }
 
     if (dawn->players[i].inventory[slot].equippable && !dawn->players[i].inventory[slot].equipped) {
@@ -62,5 +62,5 @@ void equip_inventory (struct Bot *dawn, struct Message *message, int slot, int u
                 message->receiver,
                 dawn->players[i].inventory[slot].name);
     }
-    send_socket(out);
+    addMsg(out, strlen(out));
 }

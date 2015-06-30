@@ -43,7 +43,7 @@ void print_location (struct Bot *dawn, int i) {
     sprintf(out, "PRIVMSG %s :%s, you are at %d,%d in %s\r\n", dawn->active_room, dawn->players[i].username,
             dawn->players[i].current_map.cur_x, dawn->players[i].current_map.cur_y,
             dawn->players[i].current_map.name);
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
@@ -56,7 +56,7 @@ void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
 
     if ((x > max_x || x < 0) || (y > max_y || y < 0)) {
         sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, max_x, max_y);
-        send_socket(out);
+        addMsg(out, strlen(out));
         return;
     }
 
@@ -76,7 +76,7 @@ void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
 
     sprintf(out, "PRIVMSG %s :%s, you are traveling from (%d,%d) to (%d,%d). This will take %u seconds.\r\n",
             message->receiver, message->sender_nick, cx, cy, x, y, (unsigned int)travel_time);
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void find_building (struct Bot *dawn, struct Message *message, char location[48]) {
@@ -91,7 +91,7 @@ void find_building (struct Bot *dawn, struct Message *message, char location[48]
     } else {
         sprintf(out, "PRIVMSG %s :Unknown location '%s'\r\n", message->receiver, location);
     }
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void check_special_location (struct Bot *dawn, int pindex) {
@@ -105,7 +105,7 @@ void check_special_location (struct Bot *dawn, int pindex) {
             if (cur_x == 0 && cur_y == 0) continue;
             sprintf(out, "PRIVMSG %s :%s stands in front of the %s\r\n",
                     dawn->active_room, dawn->players[pindex].username, dawn->players[pindex].current_map.buildings[i].name);
-            send_socket(out);
+            addMsg(out, strlen(out));
         }
     }
 }

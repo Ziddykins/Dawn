@@ -270,7 +270,7 @@ void eventHandler(int sig) {
                     bot->players[e->data].current_map.cur_y = bot->players[e->data].travel_timer.y;
                     sprintf(out, "PRIVMSG %s :%s has arrived at %d,%d\r\n", bot->active_room, bot->players[e->data].username,
                             bot->players[e->data].current_map.cur_x, bot->players[e->data].current_map.cur_y);
-                    send_socket(out);
+                    addMsg(out, strlen(out));
                     bot->players[e->data].travel_timer.active = 0;
                     check_special_location(bot, e->data);
                 }

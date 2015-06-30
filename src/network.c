@@ -24,14 +24,21 @@ void init_send_queue() {
 }
 
 int init_connect_server (const char *ip_addr, const char *port) {
+    errno = 0;
     struct addrinfo destination, *res;
     memset(&destination, 0, sizeof destination);
     destination.ai_family = AF_INET;
     destination.ai_socktype = SOCK_STREAM;
     getaddrinfo(ip_addr, port, &destination, &res);
-    con_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if((con_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) == -1) {
+        perror("socket");
+        exit(1);
+    }
     printf("trying to connect\n");
-    connect(con_socket, res->ai_addr, res->ai_addrlen);
+    if(connect(con_socket, res->ai_addr, res->ai_addrlen) == -1) {
+        perror("connect");
+        exit(1);
+    }
     printf("gud\n");
     freeaddrinfo(res);
     return errno;
@@ -145,7 +152,6 @@ char * retrMsg() {
     cmlist->head = newHead;
     if(cmlist->head == 0)
         cmlist->tail = 0;
-
     return data;
 }
 
@@ -158,20 +164,22 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
     time_t curTime = time(0);
     while(cmhlist->head != 0 && cmhlist->head->date <= curTime - SENDQ_INTERVAL) {
         cmhlist->byteSize -= cmhlist->head->len;
+        cmhlist->msgs--;
         struct msgHistoryNode * newHead = cmhlist->head->next;
         free(cmhlist->head);
         cmhlist->head = newHead;
     }
-    if(cmhlist->head != 0)
-        addEvent(MSGSEND, 0, (unsigned int)(curTime - cmhlist->head->date), 1);
+    if(cmhlist->head != 0) {
+        addEvent(MSGSEND, 0, (unsigned int)(SENDQ_INTERVAL - curTime - cmhlist->head->date), 1);
+    }
 }
 
 size_t peekMsgSize() {
     if(mlist == 0)
-        return (size_t)-1;
+        return 0;
     struct msgList * cmlist = mlist;
     if(cmlist->head == 0)
-        return (size_t)-1;
+        return 0;
     return cmlist->head->len;
 }
 
@@ -181,13 +189,12 @@ void processMessages() {
     struct msgList * csrc = mlist;
     struct msgHistoryList * cdest = mhlist;
 
-    if(csrc->head == 0) {
-        return;
-    }
-
     size_t len;
-    while(cdest->byteSize + (len = peekMsgSize()) < MAX_SENDQ_SIZE) {
+    while(csrc->head != 0 && cdest->byteSize + (len = peekMsgSize()) < MAX_SENDQ_SIZE) {
         send_socket(retrMsg());
         addMsgHistory(len);
+    }
+    if(cdest->byteSize + peekMsgSize() >= MAX_SENDQ_SIZE) {
+        printf("MESSAGE QUEUE FULL\n");
     }
 }

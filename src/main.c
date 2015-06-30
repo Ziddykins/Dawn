@@ -94,7 +94,7 @@ int main (void) {
     }
 
     //Initial settings
-    strcpy(dawn.nickname, "WellFuk");
+    strcpy(dawn.nickname, "WellFuk2");
     strcpy(dawn.realname, "Helo");
     strcpy(dawn.ident,    "hehe");
     strcpy(dawn.password, "none");
@@ -102,11 +102,10 @@ int main (void) {
 
     dawn.login_sent = 0;
     dawn.in_rooms   = 0;
-
-    init_timers(&dawn);
-
+    init_send_queue();
     if (init_connect_server(dalnet, port) == 0) {
         printf("[!] Connected to server %s\n", dalnet);
+        init_timers(&dawn);
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
             char out[MAX_MESSAGE_BUFFER];
             buffer[len] = '\0';
@@ -114,7 +113,7 @@ int main (void) {
             //Handle keepalive pings from the server
             if (check_if_matches_regex(buffer, "PING :(.*)")) {
                 sprintf(out, "PONG :%s\r\n", regex_group[1]);
-                send_socket(out);
+                addMsg(out, strlen(out));
             }
 
             //Connected to the server, send nick/user details
@@ -135,7 +134,7 @@ int main (void) {
                     printf("[!] Got welcome message from server, joining rooms\n");
                     while (*n != NULL) {
                         sprintf(out, "JOIN %s\r\n", *n++);
-                        send_socket(out);
+                        addMsg(out, strlen(out));
                     }
                     n = NULL;
                     dawn.in_rooms = 1;
@@ -214,7 +213,7 @@ int main (void) {
             }
         }
     } else {
-        printf("[*] Could not connect, error: %d\n", errno);
+        perror("Failed to connect");
         close(con_socket);
         return 1;
     }

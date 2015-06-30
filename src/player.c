@@ -38,10 +38,10 @@ void init_new_character (struct Bot *dawn, struct Message *message) {
 
     if (get_pindex(dawn, message->sender_nick) != -1) {
         sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
-        send_socket(out);
+        addMsg(out, strlen(out));
         return;
     }
-            
+
     struct Player np;
 
     np.current_map = set_map(0);
@@ -88,8 +88,8 @@ void init_new_character (struct Bot *dawn, struct Message *message) {
 
     for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
         np.inventory[i].name[0] = '\0';
-        np.inventory[i].attr_health = np.inventory[i].attr_defense = np.inventory[i].attr_intelligence = 
-            np.inventory[i].attr_strength = np.inventory[i].attr_mdef = np.inventory[i].req_level = 
+        np.inventory[i].attr_health = np.inventory[i].attr_defense = np.inventory[i].attr_intelligence =
+            np.inventory[i].attr_strength = np.inventory[i].attr_mdef = np.inventory[i].req_level =
             np.inventory[i].weight = np.inventory[i].socket_one = np.inventory[i].socket_two =
             np.inventory[i].socket_three = np.inventory[i].type = np.inventory[i].rusted = np.inventory[i].equipped =
             np.inventory[i].equippable = np.inventory[i].attr_mana = np.inventory[i].rarity = 0;
@@ -102,7 +102,7 @@ void init_new_character (struct Bot *dawn, struct Message *message) {
     np.inventory[0] = sword;
     np.inventory[1] = shield;
 
-    
+
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
 
@@ -112,7 +112,7 @@ void init_new_character (struct Bot *dawn, struct Message *message) {
 
     struct Bot temp;
     save_players (dawn, sizeof(temp));
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void save_players (struct Bot *dawn, size_t size) {
@@ -163,16 +163,16 @@ void print_sheet (struct Bot *dawn, struct Message *message) {
                      dawn->players[i].m_def, dawn->players[i].defense };
     get_stat(dawn, message, stats);
 
-    sprintf(out, 
+    sprintf(out,
             "PRIVMSG %s :[%s (Lv: %d)] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
-            " - Def: %d (%ldK/%ldD) [EXP: %llu / %llu %s - Gold: %s%ld%s] [Fullness: %hd%%]\r\n", message->receiver, message->sender_nick, 
-            dawn->players[i].level, dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1], 
-            stats[2], stats[3], stats[4], stats[5], dawn->players[i].kills, dawn->players[i].deaths, 
+            " - Def: %d (%ldK/%ldD) [EXP: %llu / %llu %s - Gold: %s%ld%s] [Fullness: %hd%%]\r\n", message->receiver, message->sender_nick,
+            dawn->players[i].level, dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1],
+            stats[2], stats[3], stats[4], stats[5], dawn->players[i].kills, dawn->players[i].deaths,
             dawn->players[i].experience, get_nextlvl_exp(dawn, dawn->players[i].username),
             progress_bar(dawn, message->sender_nick), orange, dawn->players[i].gold, normal,
             dawn->players[i].fullness);
 
-    send_socket(out);
+    addMsg(out, strlen(out));
     return;
 }
 
@@ -194,7 +194,7 @@ void check_levelup (struct Bot *dawn, struct Message *message) {
             sprintf(out, "PRIVMSG %s :%s has achieved level %d. 20 attribute points ready for assignment, HP and MP"
                     " increased +25! Increase your attributes using the ;assign command!\r\n",
                     message->receiver, message->sender_nick, curr_level + 1);
-            send_socket(out);
+            addMsg(out, strlen(out));
         }
 
     }
@@ -216,13 +216,13 @@ void assign_attr_points (struct Bot *dawn, struct Message *message, char which[5
     } else {
         sprintf(out, "PRIVMSG %s :%s, you have chosen an invalid attribute to increase or do not have the amount "
                 "of attribute points required: (%d points available)\r\n", message->receiver, message->sender_nick, attr_pts);
-        send_socket(out);
+        addMsg(out, strlen(out));
         return;
     }
     dawn->players[pindex].attr_pts -= amount;
     sprintf(out, "PRIVMSG %s :%s has increased %s by %d, you have %d attribute points available\r\n", message->receiver,
             message->sender_nick, which, amount, attr_pts - amount);
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void revive (struct Bot *dawn, struct Message *message) {
@@ -245,5 +245,5 @@ void revive (struct Bot *dawn, struct Message *message) {
     } else {
         sprintf(out, "PRIVMSG %s :%s, you must be at a shrine to revive!\r\n", message->receiver, message->sender_nick);
     }
-    send_socket(out);
+    addMsg(out, strlen(out));
 }

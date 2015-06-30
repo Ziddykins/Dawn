@@ -24,7 +24,7 @@ static void random_shrine (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
             dawn->players[index].mana   = dawn->players[index].max_mana;
             sprintf(out, "PRIVMSG %s :%s has come across a spring! %s hops in and relaxes. HP/MP replenished!\r\n",
                     dawn->active_room, username, username);
-            send_socket(out);
+            addMsg(out, strlen(out));
             break;
         case 1:
         {
@@ -35,7 +35,7 @@ static void random_shrine (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
             }
             sprintf(out, "PRIVMSG %s :%s has come across a spring! %s hops in and relaxes... A bit too much. %s"
                    " has peed in the spring! HP +%d\r\n", dawn->active_room, username, username, username, health_gain);
-            send_socket(out);
+            addMsg(out, strlen(out));
             break;
         }
         case 2:
@@ -49,7 +49,7 @@ static void random_shrine (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
             sprintf(out, "PRIVMSG %s :%s has come across a spring! They notice etchings all around the spring."
                     " Taking the time to understand the etchings makes them feel more experienced! Exp +%d\r\n",
                     temp.receiver, username, experience_gain);
-            send_socket(out);
+            addMsg(out, strlen(out));
             break;
         }
     }
@@ -67,7 +67,7 @@ static void random_reward (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
             dawn->players[index].gold += gold_gain;
             sprintf(out, "PRIVMSG %s :While %s was walking, they found a pouch on the ground. Upon further inspection,"
                    " the pouch contained some gold! Score! Gold +%d\r\n", dawn->active_room, username, gold_gain);
-            send_socket(out);
+            addMsg(out, strlen(out));
             break;
         }
         case 1:
@@ -77,7 +77,7 @@ static void random_reward (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
             sprintf(out, "PRIVMSG %s :%s has tripped! As they bring their head up, a large sack is spotted behind"
                    " a rock. %s hops up and goes to inspect the sack, to discover it is full of gold! Gold +%d\r\n",
                    dawn->active_room, username, username, gold_gain);
-            send_socket(out);
+            addMsg(out, strlen(out));
             break;
         }
         case 2:
@@ -85,7 +85,7 @@ static void random_reward (struct Bot *dawn, char username[MAX_NICK_LENGTH]) {
             if (dawn->players[index].fullness > 100) dawn->players[index].fullness = 100;
             sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to try a "
                     "wedge, and it is delicious! Fullness +5\r\n", dawn->active_room, username);
-            send_socket(out);
+            addMsg(out, strlen(out));
             break;
     }
 }
@@ -105,7 +105,7 @@ static void random_punishment (struct Bot *dawn, char username[MAX_NICK_LENGTH])
             dawn->players[index].health -= damage_taken;
             sprintf(out, "PRIVMSG %s :A pack of wolves corner %s and munch on them a little bit. HP -%d\r\n",
                     dawn->active_room, username, damage_taken);
-            send_socket(out);
+            addMsg(out, strlen(out));
             check_alive(dawn, &temp);
             break;
         }
@@ -118,7 +118,7 @@ static void random_punishment (struct Bot *dawn, char username[MAX_NICK_LENGTH])
             dawn->players[index].health -= damage_taken;
             sprintf(out, "PRIVMSG %s :While walking, %s was struck by lightning! HP -%d\r\n",
                     dawn->active_room, username, damage_taken);
-            send_socket(out);
+            addMsg(out, strlen(out));
             check_alive(dawn, &temp);
             break;
         }
@@ -126,7 +126,7 @@ static void random_punishment (struct Bot *dawn, char username[MAX_NICK_LENGTH])
             dawn->players[index].fullness -= 5;
             sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to "
                     "try a wedge, and it is awful! You promptly vomit.  Fullness -5\r\n", dawn->active_room, username);
-            send_socket(out);
+            addMsg(out, strlen(out));
             check_famine(dawn, index);
             break;
     }
@@ -159,7 +159,7 @@ void hourly_events (struct Bot *dawn) {
             break;
         case 4:
             update_weather(dawn);
-            break;        
+            break;
     }
 
     for (int i=0; i<dawn->player_count; i++) {
@@ -173,7 +173,7 @@ void update_weather (struct Bot *dawn) {
     char out[MAX_MESSAGE_BUFFER];
 
     //Avoid same weather
-    while (weather == dawn->weather) 
+    while (weather == dawn->weather)
         weather = rand() % MAX_WEATHER_TYPE;
 
     switch (weather) {
@@ -195,7 +195,7 @@ void update_weather (struct Bot *dawn) {
             dawn->weather = SNOWING;
             break;
     }
-    send_socket(out);
+    addMsg(out, strlen(out));
 }
 
 void check_famine (struct Bot *dawn, int whom) {
