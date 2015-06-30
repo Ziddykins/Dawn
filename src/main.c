@@ -40,6 +40,7 @@ int main (void) {
     struct Bot dawn;
 
     //Load characters
+
     if (access("players.db", F_OK) != -1) {
         FILE *file = fopen("players.db", "r");
         fseek(file, 0L, SEEK_END);
@@ -53,7 +54,6 @@ int main (void) {
     } else {
         FILE *file = fopen("players.db", "w+");
         fclose(file);
-        printf("Player database not found, creating\nPlease rerun\n");
         exit(1);
     }
 

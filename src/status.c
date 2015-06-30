@@ -227,7 +227,7 @@ void eventHandler(int sig) {
     struct event * e;
     do {
         e = retrEvent(); //handle event
-
+        printf("RECEIVED %s\n", eventToStr(e->event));
         switch (e->event) {
             case MSGSEND:
             {

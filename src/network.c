@@ -167,6 +167,7 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
     if(cmhlist->head != 0) {
         addEvent(MSGSEND, 1, (unsigned int)(SENDQ_INTERVAL - (curTime - cmhlist->head->date)), 0);
     }
+    processMessages();
 }
 
 size_t peekMsgSize() {

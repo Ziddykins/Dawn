@@ -4,9 +4,9 @@
 //networking
 #define MAX_RECV_BUFFER     (4096)
 #define MAX_MESSAGE_BUFFER  (400)
-#define MAX_SENDQ_SIZE (950)
-#define MAX_MSGS_IN_INTERVAL (5)
-#define SENDQ_INTERVAL (10)
+#define MAX_SENDQ_SIZE (1800)
+#define MAX_MSGS_IN_INTERVAL (10)
+#define SENDQ_INTERVAL (25)
 
 #define MAX_INVENTORY_SLOTS (25)
 #define MAX_MONSTERS        (40)

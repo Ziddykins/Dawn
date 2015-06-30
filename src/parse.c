@@ -125,10 +125,6 @@ void parse_private_message (struct Bot *dawn, struct Message *message) {
 }
 
 int command_allowed (struct Bot *dawn, char command[16], int pindex) {
-    if(dawn->players[pindex].travel_timer.active != 0) { //REMOVE IN FUTURE VERSIONS
-        printf("ERR: Setting travel timer to 0\n");
-        dawn->players[pindex].travel_timer.active = 0;
-    }
     if (dawn->players[pindex].travel_timer.active) {
         char disallowed[3][16] = {"travel", "melee", "gmelee"}; //remember to change array limits
         for (int i=0; i<3; i++) {

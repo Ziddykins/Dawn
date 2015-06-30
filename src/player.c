@@ -85,6 +85,7 @@ void init_new_character (struct Bot *dawn, struct Message *message) {
     np.m_def        = 5;
     np.available_slots = 23;
     np.available_capacity = 70;
+    np.travel_timer.active = 0;
 
     for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
         np.inventory[i].name[0] = '\0';
