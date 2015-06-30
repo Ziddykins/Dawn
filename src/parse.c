@@ -124,6 +124,17 @@ void parse_private_message (struct Bot *dawn, struct Message *message) {
     }
 }
 
+int command_allowed (struct Bot *dawn, char command[16], int pindex) {
+    if (dawn->players[pindex].travel_timer.active) {
+        char disallowed[25][16] = {"travel", "melee", "gmelee"};
+        for (int i=0; i<25; i++) {
+            printf("recv '%s' iter '%s'\n", command, disallowed[i]);
+            if (strcmp(command, disallowed[i]) == 0) return 0;
+        }
+    }
+    return 1;
+}
+    
 void parse_room_message (struct Bot *dawn, struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
     if (strcmp(message->message, ";new") == 0) {
@@ -133,6 +144,10 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
     //Check if a user has an account and is logged in from the correct host
     if (check_if_matches_regex(message->message, "^;(.*)")) {
         int pindex = get_pindex(dawn, message->sender_nick);
+        
+        //store command to check if user can execute it in current state
+        check_if_matches_regex(message->message, "^;(.*?)\\s");
+
         if (pindex == -1) {
             sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", message->receiver);
             send_socket(out);
@@ -142,6 +157,11 @@ void parse_room_message (struct Bot *dawn, struct Message *message) {
             sprintf(out, "PRIVMSG %s :%s, I seem to recall you connecting from a different host. Please login "
                     "by sending me a private message containing: ;login <your_password>\r\n", 
                     message->receiver, message->sender_nick);
+            send_socket(out);
+            return;
+        }
+        if (!command_allowed(dawn, regex_group[1], pindex)) {
+            sprintf(out, "PRIVMSG %s :This command cannot be used at this time\r\n",  message->receiver);
             send_socket(out);
             return;
         }
