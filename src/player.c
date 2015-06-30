@@ -77,6 +77,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
     np.intelligence = 5;
     np.defense      = 5;
     np.m_def        = 5;
+    np.attr_pts     = 1;
     np.available_slots = 23;
     np.available_capacity = 70;
     np.travel_timer.active = 0;

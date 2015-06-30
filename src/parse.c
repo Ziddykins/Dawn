@@ -283,6 +283,10 @@ void parse_room_message (struct Bot *b, struct Message *message) {
                b->players[pindex].bronze, b->players[pindex].mail, b->players[pindex].steel,
                b->players[pindex].diamond);
         addMsg(out, strlen(out));
+    } else if (strcmp(message->message, ";save") == 0) {
+        persistent_save(dawn);
+        sprintf(out, "PRIVMSG %s :Saved.", message->receiver);
+        addMsg(out, strlen(out));
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"
