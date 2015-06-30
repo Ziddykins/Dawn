@@ -3,10 +3,16 @@
 #include "status.h"
 #include "network.h"
 #include "map.h"
+#include "network.h"
+#include "stats.h"
+#include "colors.h"
+#include "inventory.h"
+#include "limits.h"
+#include "parse.h"
 
 //Prototypes
-void save_players (struct Bot *, size_t);
-void load_players (struct Bot *, size_t);
+void save_players (struct Bot *);
+void load_players (struct Bot *);
 void print_sheet (struct Bot *, struct Message *);
 void init_new_character (struct Bot *, struct Message *);
 void check_levelup (struct Bot *, struct Message *);

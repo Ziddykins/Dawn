@@ -38,20 +38,20 @@ struct Map set_map (int which) {
     return return_map;
 }
 
-void print_location (struct Bot *dawn, int i) {
+void print_location (struct Bot *b, int i) {
     char out[MAX_MESSAGE_BUFFER];
-    sprintf(out, "PRIVMSG %s :%s, you are at %d,%d in %s\r\n", dawn->active_room, dawn->players[i].username,
-            dawn->players[i].current_map.cur_x, dawn->players[i].current_map.cur_y,
-            dawn->players[i].current_map.name);
+    sprintf(out, "PRIVMSG %s :%s, you are at %d,%d in %s\r\n", b->active_room, b->players[i].username,
+            b->players[i].current_map.cur_x, b->players[i].current_map.cur_y,
+            b->players[i].current_map.name);
     addMsg(out, strlen(out));
 }
 
-void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
+void move_player (struct Bot *b, struct Message *message, int x, int y) {
     char out[MAX_MESSAGE_BUFFER];
-    int pindex = get_pindex(dawn, message->sender_nick);
+    int pindex = get_pindex(b, message->sender_nick);
     int dx, dy, cx, cy;
-    int max_x = dawn->players[pindex].current_map.max_x;
-    int max_y = dawn->players[pindex].current_map.max_y;
+    int max_x = b->players[pindex].current_map.max_x;
+    int max_y = b->players[pindex].current_map.max_y;
     double travel_time;
 
     if ((x > max_x || x < 0) || (y > max_y || y < 0)) {
@@ -60,8 +60,8 @@ void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
         return;
     }
 
-    cx = dawn->players[pindex].current_map.cur_x;
-    cy = dawn->players[pindex].current_map.cur_y;
+    cx = b->players[pindex].current_map.cur_x;
+    cy = b->players[pindex].current_map.cur_y;
 
     if (cx == x && cy == y) return;
 
@@ -70,41 +70,41 @@ void move_player (struct Bot *dawn, struct Message *message, int x, int y) {
     travel_time = sqrt(dx*dx+dy*dy)*TRAVEL_TIME_MULT;
     assert(travel_time < (double)((((unsigned int)1<<(sizeof(unsigned int) * 8 - 1))-1)/TRAVEL_TIME_MULT));
     addEvent(TRAVEL, pindex, (unsigned int)travel_time, 1);
-    dawn->players[pindex].travel_timer.x = x;
-    dawn->players[pindex].travel_timer.y = y;
-    dawn->players[pindex].travel_timer.active = 1;
+    b->players[pindex].travel_timer.x = x;
+    b->players[pindex].travel_timer.y = y;
+    b->players[pindex].travel_timer.active = 1;
 
     sprintf(out, "PRIVMSG %s :%s, you are traveling from (%d,%d) to (%d,%d). This will take %u seconds.\r\n",
             message->receiver, message->sender_nick, cx, cy, x, y, (unsigned int)travel_time);
     addMsg(out, strlen(out));
 }
 
-void find_building (struct Bot *dawn, struct Message *message, char location[48]) {
+void find_building (struct Bot *b, struct Message *message, char location[48]) {
     char out[MAX_MESSAGE_BUFFER];
-    int pindex = get_pindex(dawn, message->sender_nick);
-    int bindex = get_bindex(dawn, message->sender_nick, location);
+    int pindex = get_pindex(b, message->sender_nick);
+    int bindex = get_bindex(b, message->sender_nick, location);
 
     if (bindex != -1) {
         sprintf(out, "PRIVMSG %s :The %s in %s is located at %d,%d\r\n", message->receiver, location,
-                dawn->players[pindex].current_map.name, dawn->players[pindex].current_map.buildings[bindex].x,
-                dawn->players[pindex].current_map.buildings[bindex].y);
+                b->players[pindex].current_map.name, b->players[pindex].current_map.buildings[bindex].x,
+                b->players[pindex].current_map.buildings[bindex].y);
     } else {
         sprintf(out, "PRIVMSG %s :Unknown location '%s'\r\n", message->receiver, location);
     }
     addMsg(out, strlen(out));
 }
 
-void check_special_location (struct Bot *dawn, int pindex) {
+void check_special_location (struct Bot *b, int pindex) {
     char out[MAX_MESSAGE_BUFFER];
-    int cur_x = dawn->players[pindex].current_map.cur_x;
-    int cur_y = dawn->players[pindex].current_map.cur_y;
+    int cur_x = b->players[pindex].current_map.cur_x;
+    int cur_y = b->players[pindex].current_map.cur_y;
 
     for (int i=0; i<MAX_BUILDINGS; i++) {
-        if (dawn->players[pindex].current_map.buildings[i].x == cur_x &&
-                dawn->players[pindex].current_map.buildings[i].y == cur_y) {
+        if (b->players[pindex].current_map.buildings[i].x == cur_x &&
+                b->players[pindex].current_map.buildings[i].y == cur_y) {
             if (cur_x == 0 && cur_y == 0) continue;
             sprintf(out, "PRIVMSG %s :%s stands in front of the %s\r\n",
-                    dawn->active_room, dawn->players[pindex].username, dawn->players[pindex].current_map.buildings[i].name);
+                    b->active_room, b->players[pindex].username, b->players[pindex].current_map.buildings[i].name);
             addMsg(out, strlen(out));
         }
     }

@@ -19,7 +19,7 @@
 #define GODLY     95.00f //0.25%
 #define FORSAKEN  95.02f //0.02%
 
-void generate_drop (struct Bot *dawn, struct Message *message) {
+void generate_drop (struct Bot *b, struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
     const char *rarity[]  = {NULL, "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
     const char *weapons[] = {"Sword", "Mace", "Scimitar", "Axe", "Club", "Staff", "Wand"};
@@ -30,12 +30,12 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
 
     float rarity_chance = rand()/(float)(RAND_MAX/100.0f);
     int type_chance     = rand()%MAX_ITEM_TYPE;
-    int p_index         = get_pindex(dawn, message->sender_nick);
-    int drop_level      = dawn->global_monster.drop_level;
+    int p_index         = get_pindex(b, message->sender_nick);
+    int drop_level      = b->global_monster.drop_level;
     int str, def, intel, mdef;
     str = def = intel = mdef = 0;
 
-    if (dawn->players[p_index].available_slots == 0) {
+    if (b->players[p_index].available_slots == 0) {
         sprintf(out, "PRIVMSG %s :%s has found an item, but has no more room in his inventory!\r\n",
                 message->receiver, message->sender_nick);
         addMsg(out, strlen(out));
@@ -89,14 +89,14 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
         strcpy(mat_name, mat_types[type]);
 
         switch (type) {
-            case WOOD:    dawn->players[p_index].wood    += amount; break;
-            case LEATHER: dawn->players[p_index].leather += amount; break;
-            case STONE:   dawn->players[p_index].stone   += amount; break;
-            case ORE:     dawn->players[p_index].ore     += amount; break;
-            case BRONZE:  dawn->players[p_index].bronze  += amount; break;
-            case MAIL:    dawn->players[p_index].mail    += amount; break;
-            case STEEL:   dawn->players[p_index].steel   += amount; break;
-            case DIAMOND: dawn->players[p_index].diamond += amount; break;
+            case WOOD:    b->players[p_index].wood    += amount; break;
+            case LEATHER: b->players[p_index].leather += amount; break;
+            case STONE:   b->players[p_index].stone   += amount; break;
+            case ORE:     b->players[p_index].ore     += amount; break;
+            case BRONZE:  b->players[p_index].bronze  += amount; break;
+            case MAIL:    b->players[p_index].mail    += amount; break;
+            case STEEL:   b->players[p_index].steel   += amount; break;
+            case DIAMOND: b->players[p_index].diamond += amount; break;
         }
 
         sprintf(out, "PRIVMSG %s :%s finds %d %s %s\r\n",
@@ -112,8 +112,8 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
         case 0:
         {
             char weapon_type[48];
-            str   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
-            intel = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
+            str   = 1 + rand() % ((drop_level * b->players[p_index].level) * 2 * item_dropped.rarity);
+            intel = 1 + rand() % ((drop_level * b->players[p_index].level) * 2 * item_dropped.rarity);
             def   = 1 + rand() % str;
             mdef  = 1 + rand() % str;
             strcpy(weapon_type, weapons[rand()%MAX_WEAPON_TYPE]);
@@ -123,10 +123,10 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
         case 1:
         {
             char shield_type[48];
-            def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
+            def   = 1 + rand() % ((drop_level * b->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % def;
             str   = 1 + rand() % def;
-            mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
+            mdef  = 1 + rand() % ((drop_level * b->players[p_index].level) * 2 * item_dropped.rarity);
             strcpy(shield_type, shields[rand()%MAX_SHIELD_TYPE]);
             strcat(item_name, shield_type);
             break;
@@ -134,10 +134,10 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
         case 2:
         {
             char armor_type[48];
-            def   = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
+            def   = 1 + rand() % ((drop_level * b->players[p_index].level) * 2 * item_dropped.rarity);
             intel = 1 + rand() % def;
             str   = 1 + rand() % def;
-            mdef  = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
+            mdef  = 1 + rand() % ((drop_level * b->players[p_index].level) * 2 * item_dropped.rarity);
             strcpy(armor_type, armor[rand()%MAX_ARMOR_TYPE]);
             strcat(item_name, armor_type);
             break;
@@ -164,10 +164,10 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
     item_dropped.attr_mana = 0;
 
     for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
-        if (strlen(dawn->players[p_index].inventory[i].name) < 2) {
-            if (dawn->players[p_index].available_slots > 0) {
-                dawn->players[p_index].inventory[i] = item_dropped;
-                dawn->players[p_index].available_slots--;
+        if (strlen(b->players[p_index].inventory[i].name) < 2) {
+            if (b->players[p_index].available_slots > 0) {
+                b->players[p_index].inventory[i] = item_dropped;
+                b->players[p_index].available_slots--;
                 break;
             } else {
                 sprintf(out, "PRIVMSG %s :%s, you have no room in your inventory!\r\n",
@@ -183,49 +183,49 @@ void generate_drop (struct Bot *dawn, struct Message *message) {
     addMsg(out, strlen(out));
 }
 
-void drop_item (struct Bot *dawn, struct Message *message, int slot) {
+void drop_item (struct Bot *b, struct Message *message, int slot) {
     char out[MAX_MESSAGE_BUFFER];
     char item_name[128];
-    int pindex = get_pindex(dawn, message->sender_nick);
-    int total_items = MAX_INVENTORY_SLOTS - dawn->players[pindex].available_slots;
+    int pindex = get_pindex(b, message->sender_nick);
+    int total_items = MAX_INVENTORY_SLOTS - b->players[pindex].available_slots;
     struct Inventory empty;
 
     item_name[0] = '\0';
     empty.name[0] = '\0';
-    strcpy(item_name, dawn->players[pindex].inventory[slot].name);
+    strcpy(item_name, b->players[pindex].inventory[slot].name);
 
     if (total_items > 0 && slot < total_items && slot > -1) {
         int last_index = total_items - 1;
         if (slot == last_index) {
-            dawn->players[pindex].inventory[slot] = empty;
+            b->players[pindex].inventory[slot] = empty;
         } else {
             for (int i=slot; i<last_index; i++) {
-                dawn->players[pindex].inventory[i] = dawn->players[pindex].inventory[i+1];
+                b->players[pindex].inventory[i] = b->players[pindex].inventory[i+1];
             }
-            dawn->players[pindex].inventory[last_index] = empty;
+            b->players[pindex].inventory[last_index] = empty;
         }
-        dawn->players[pindex].available_slots++;
+        b->players[pindex].available_slots++;
         sprintf(out, "PRIVMSG %s :%s has dropped the %s\r\n", message->receiver, message->sender_nick, item_name);
         addMsg(out, strlen(out));
     }
 }
 
-void get_item_info (struct Bot *dawn, struct Message *message, int slot) {
+void get_item_info (struct Bot *b, struct Message *message, int slot) {
     char item_name[128];
     char out[MAX_MESSAGE_BUFFER];
-    int index = get_pindex(dawn, message->sender_nick);
-    int total_items = MAX_INVENTORY_SLOTS - dawn->players[index].available_slots;
-    int str    = dawn->players[index].inventory[slot].attr_strength;
-    int intel  = dawn->players[index].inventory[slot].attr_intelligence;
-    int def    = dawn->players[index].inventory[slot].attr_defense;
-    int mdef   = dawn->players[index].inventory[slot].attr_mdef;
-    int hp     = dawn->players[index].inventory[slot].attr_health;
-    int mp     = dawn->players[index].inventory[slot].attr_mana;
-    int weight = dawn->players[index].inventory[slot].weight;
-    int reqlvl = dawn->players[index].inventory[slot].req_level;
+    int index = get_pindex(b, message->sender_nick);
+    int total_items = MAX_INVENTORY_SLOTS - b->players[index].available_slots;
+    int str    = b->players[index].inventory[slot].attr_strength;
+    int intel  = b->players[index].inventory[slot].attr_intelligence;
+    int def    = b->players[index].inventory[slot].attr_defense;
+    int mdef   = b->players[index].inventory[slot].attr_mdef;
+    int hp     = b->players[index].inventory[slot].attr_health;
+    int mp     = b->players[index].inventory[slot].attr_mana;
+    int weight = b->players[index].inventory[slot].weight;
+    int reqlvl = b->players[index].inventory[slot].req_level;
 
     if (slot < total_items && slot > -1) {
-        strcpy(item_name, dawn->players[index].inventory[slot].name);
+        strcpy(item_name, b->players[index].inventory[slot].name);
         sprintf(out, "PRIVMSG %s :%s - STR: %d - DEF: %d - INT: %d - MDEF: %d - HP: %d - MP: %d"
                " - Weight: %d - Req lvl: %d\r\n", message->receiver, item_name, str, def, intel, mdef, hp, mp, weight, reqlvl);
         addMsg(out, strlen(out));

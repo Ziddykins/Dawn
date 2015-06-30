@@ -24,8 +24,8 @@
 #define MAX_BUILDINGS       (5)
 //Seconds
 #define HEALING_INTERVAL    (1800)
-#define SAVING_INTERVAL     (900)
+#define SAVING_INTERVAL     (30)
 
-extern int MAX_NICK_LENGTH;
-extern int MAX_CHANNEL_LENGTH;
+extern unsigned int MAX_NICK_LENGTH;
+extern unsigned int MAX_CHANNEL_LENGTH;
 #endif

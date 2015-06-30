@@ -12,11 +12,13 @@
 #include "map.h"
 #include "inventory.h"
 #include "player.h"
+#include "persistence.h"
+
+extern struct Bot * dawn;
 
 //Prototypes
 void set_timer (int, time_t);
-void check_timers (struct Bot *);
-void init_timers (struct Bot *);
+void init_timers (struct Bot *, const char *);
 void print_location (struct Bot *, int);
 struct Map set_map (int);
 
@@ -50,6 +52,11 @@ struct eventNode {
     time_t event_time;
 };
 
+struct eventList {
+    struct eventNode * head;
+    size_t len;
+};
+
 char * eventToStr(enum Events x);
 
 typedef void * EventList;
@@ -71,5 +78,8 @@ size_t listLen(void);
 
 int nextIsDue(void);
 void eventHandler(int sig);
+
+void save_events(char const *);
+void load_events(char const *);
 
 #endif
