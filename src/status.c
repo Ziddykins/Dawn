@@ -358,19 +358,22 @@ void load_events(char const * fn) {
             return;
         }
 
-        if(!fread(&tmpT, sizeof tmpT, 1, file)) {
+        fread(&tmpT, sizeof tmpT, 1, file);
+        if(feof(file) || ferror(file)) {
             perror("ERR: STATUS: fread");
             fclose(file);
             return;
         }
 
-        if(!fread(&tmpE, sizeof tmpE, 1, file)) {
+        fread(&tmpE, sizeof tmpE, 1, file);
+        if(feof(file) || ferror(file)) {
             perror("ERR: STATUS: fread");
             fclose(file);
             return;
         }
 
-        if(!fread(&tmpD, sizeof tmpD, 1, file)) {
+        fread(&tmpD, sizeof tmpD, 1, file);
+        if(ferror(file)) {
             perror("ERR: STATUS: fread");
             fclose(file);
             return;
@@ -383,17 +386,23 @@ void load_events(char const * fn) {
             tmp->elem->event = tmpE;
             tmp->elem->data = tmpD;
 
-            if(!fread(&tmpT, sizeof tmpT, 1, file)) {
+            fread(&tmpT, sizeof tmpT, 1, file);
+            if(feof(file)) {
+                break;
+            }
+            if(ferror(file)) {
                 perror("ERR: STATUS: fread");
                 break;
             }
 
-            if(!fread(&tmpE, sizeof tmpE, 1, file)) {
+            fread(&tmpE, sizeof tmpE, 1, file);
+            if(feof(file) || ferror(file)) {
                 perror("ERR: STATUS: fread");
                 break;
             }
 
-            if(!fread(&tmpD, sizeof tmpD, 1, file)) {
+            fread(&tmpD, sizeof tmpD, 1, file);
+            if(ferror(file)) {
                 perror("ERR: STATUS: fread");
                 break;
             }
