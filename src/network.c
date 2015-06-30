@@ -44,18 +44,10 @@ void send_socket (char * out_buf) {
         printf("Message too long: %lu", len);
         return;
     }
-<<<<<<< HEAD
 
     if(!write(con_socket, out_buf, len)) {
         perror("write");
         exit(1);
-=======
-    ssize_t ret = write(con_socket, out_buf, len);
-    if(!ret || ret == EINTR) {
-        send_socket(out_buf);
-    } else if((size_t)ret < len) {
-        send_socket(out_buf + ret + 1);
->>>>>>> 2b684d5a55bfe0fa04dd2541ca3be795f1ff9765
     }
 }
 
