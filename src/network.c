@@ -170,7 +170,7 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
         cmhlist->head = newHead;
     }
     if(cmhlist->head != 0) {
-        addEvent(MSGSEND, 0, (unsigned int)(SENDQ_INTERVAL - curTime - cmhlist->head->date), 1);
+        addEvent(MSGSEND, 1, (unsigned int)(SENDQ_INTERVAL - curTime - cmhlist->head->date), 0);
     }
 }
 
