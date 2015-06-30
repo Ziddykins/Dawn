@@ -89,9 +89,9 @@ void printNextEvent() {
             celist->head != 0 ?
                 celist->head->elem != 0 ?
                     eventToStr(celist->head->elem->event)
-                : 0
-            : 0
-        : 0);
+                : "NONE"
+            : "NONE"
+        : "NONE");
 }
 
 void removeEvent(struct eventNode * prev) {
