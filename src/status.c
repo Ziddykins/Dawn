@@ -153,8 +153,8 @@ void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
     prev->event_time = newtime;
 
     cmlist->len++;
-    printf("STATUS: Added Event %s with data %d, %zu(+%u) sec.\n", eventToStr(event), eData, time(0), offset);
     updateAlarm(); //head may have been replaced so we reset the alarm to the next event in the queue
+    printf("STATUS: Added Event %s with data %d, %zu(+%u); next in +%zu (%s)\n", eventToStr(event), eData, time(0), offset, cmlist->head->event_time-time(0), eventToStr(cmlist->head->elem->event));
     return;
 }
 

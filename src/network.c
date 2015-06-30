@@ -192,6 +192,6 @@ void processMessages() {
         printf("MQueue: %zu of %d (PUSH)\n", cdest->byteSize, MAX_SENDQ_SIZE);
     }
     if(cdest->msgs >= MAX_MSGS_IN_INTERVAL || cdest->byteSize + peekMsgSize() >= MAX_SENDQ_SIZE) {
-        printf("MESSAGE QUEUE FULL\n");
+        printf("MQeue: full - waiting for update.\n");
     }
 }

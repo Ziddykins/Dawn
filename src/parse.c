@@ -3,7 +3,6 @@
 //All groupers from the regular expression
 //string will be stored here globally.
 char regex_group[15][2048];
-//
 
 char *to_lower (char str[MAX_MESSAGE_BUFFER]) {
     for (size_t i=0; i<strlen(str); i++) {
@@ -19,6 +18,10 @@ char *xor_flip (char * password) { //password -> 64
     for (size_t i=0; i<strlen(password); i++)
         password[i] ^= key;
     return password;
+}
+
+uint64_t hashPwd(char const * username, char const * password) {
+    return hash(username) ^ hash(password);
 }
 
 uint64_t hash(char const * password) {
@@ -108,13 +111,13 @@ void parse_private_message (struct Bot *b, struct Message *message) {
 
     if (check_if_matches_regex(message->message, ";set password (\\w+)")) {
         if (strcmp(message->sender_hostmask, b->players[pindex].hostmask) == 0) {
-            b->players[pindex].password = hash(regex_group[1]);
+            b->players[pindex].password = hashPwd(b->players[pindex].username, regex_group[1]);
             sprintf(out, "PRIVMSG %s :Your password has been set\r\n", message->sender_nick);
         }
         addMsg(out, strlen(out));
     } else if (check_if_matches_regex(message->message, ";login (\\w+)")) {
         if (strcmp(b->players[pindex].hostmask, message->sender_hostmask) != 0) {
-            if (hash(regex_group[1]) == b->players[pindex].password) {
+            if (hashPwd(b->players[pindex].username, regex_group[1]) == b->players[pindex].password) {
                 strcpy(b->players[pindex].hostmask, message->sender_hostmask);
                 sprintf(out, "PRIVMSG %s :%s has been verified\r\n", b->active_room, message->sender_nick);
                 addMsg(out, strlen(out));
