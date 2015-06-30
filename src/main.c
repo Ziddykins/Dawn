@@ -94,7 +94,7 @@ int main (void) {
     }
 
     //Initial settings
-    strcpy(dawn.nickname, "WellFuk1");
+    strcpy(dawn.nickname, "Ziddy");
     strcpy(dawn.realname, "Helo");
     strcpy(dawn.ident,    "hehe");
     strcpy(dawn.password, "none");
@@ -125,6 +125,15 @@ int main (void) {
                     dawn.login_sent = 1;
                 }
             }
+
+            //Nickname is in use, add a random suffix
+            if (check_if_matches_regex(buffer, ":.*?\\s433\\s*\\s.*")) {
+                int rand_suffix = rand() % 5000;
+                printf("Username %s in use\n", dawn.nickname);
+                sprintf(dawn.nickname, "%s%d", dawn.nickname, rand_suffix);
+                handle_login(dawn.nickname, dawn.password, dawn.realname, dawn.ident);
+            }
+
 
             //If we're logged in and we're received a
             //welcome message, join the rooms

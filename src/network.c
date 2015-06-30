@@ -182,7 +182,7 @@ void processMessages() {
 
     size_t len;
     while(csrc->head != 0 && cdest->byteSize + (len = peekMsgSize()) < MAX_SENDQ_SIZE) {
-        printf("MQueue: %d of %d\n", cdest->byteSize, MAX_SENDQ_SIZE);
+        printf("MQueue: %zu of %d\n", cdest->byteSize, MAX_SENDQ_SIZE);
         send_socket(retrMsg());
         addMsgHistory(len);
     }
