@@ -44,7 +44,11 @@ void send_socket (char * out_buf) {
         printf("Message too long: %lu", len);
         return;
     }
-    write(con_socket, out_buf, len);
+
+    if(!write(con_socket, out_buf, len)) {
+        perror("write");
+        exit(1);
+    }
 }
 
 MsgHistoryList createMsgHistoryList() {

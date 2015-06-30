@@ -10,7 +10,7 @@ void init_timers (struct Bot *dawn) {
     memset(&act, '\0', sizeof act);
 
     act.sa_handler = eventHandler; //use simple signal handler
-    //act.sa_flags = SA_SIGINFO;
+    act.sa_flags = SA_RESTART; //use SA_SIGINFO for more advanced handler
 
     if(sigaction(SIGALRM, &act, NULL) < 0) { //hook SIGALRM to call our messageHandler function
         perror("sigaction");
