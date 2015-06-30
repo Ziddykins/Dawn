@@ -16,7 +16,15 @@
 int MAX_CHANNEL_LENGTH = 64;
 int MAX_NICK_LENGTH    = 64;
 
-int main (void) {
+int main (int argc, char **argv) {
+    if(argc > 1) {
+        for(int i = 1; i < argc; i++) {
+            if(!strcmp(argv[1], "v")) {
+                verbosity++;
+            }
+        }
+    }
+
     FILE *urandom = fopen("/dev/urandom", "r");
     unsigned int seed;
     if (urandom == NULL) {
