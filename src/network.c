@@ -1,14 +1,4 @@
-#include <stdio.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <netdb.h>
 #include "include/network.h"
-#include "include/limits.h"
 
 char buffer[MAX_RECV_BUFFER + 1];
 int con_socket;
@@ -162,7 +152,7 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
     if(cmhlist->head == 0)
         return;
     time_t curTime = time(0);
-    while(cmhlist->head != 0 && SENDQ_INTERVAL - curTime - cmhlist->head->date <= 0) {
+    while(cmhlist->head != 0 && curTime - SENDQ_INTERVAL >= cmhlist->head->date) {
         cmhlist->byteSize -= cmhlist->head->len;
         cmhlist->msgs--;
         struct msgHistoryNode * newHead = cmhlist->head->next;
@@ -170,7 +160,7 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
         cmhlist->head = newHead;
     }
     if(cmhlist->head != 0) {
-        addEvent(MSGSEND, 1, (unsigned int)(SENDQ_INTERVAL - curTime - cmhlist->head->date), 0);
+        addEvent(MSGSEND, 1, (unsigned int)(SENDQ_INTERVAL - (curTime - cmhlist->head->date)), 0);
     }
 }
 
