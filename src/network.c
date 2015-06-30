@@ -153,9 +153,7 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
         return;
     time_t curTime = time(0);
     while(cmhlist->head != 0 && curTime - SENDQ_INTERVAL >= cmhlist->head->date) {
-        if(verbosity >= 1) {
-            printf("MSG HIST POP");
-        }
+        printf("MSG HIST POP\n");
         cmhlist->byteSize -= cmhlist->head->len;
         cmhlist->msgs--;
         struct msgHistoryNode * newHead = cmhlist->head->next;
@@ -184,9 +182,7 @@ void processMessages() {
 
     size_t len;
     while(csrc->head != 0 && cdest->byteSize + (len = peekMsgSize()) < MAX_SENDQ_SIZE) {
-        if(verbosity >= 2) {
-            printf("MQueue: %d of %d", cdest->byteSize, MAX_SENDQ_SIZE);
-        }
+        printf("MQueue: %d of %d\n", cdest->byteSize, MAX_SENDQ_SIZE);
         send_socket(retrMsg());
         addMsgHistory(len);
     }

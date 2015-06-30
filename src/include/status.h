@@ -13,8 +13,6 @@
 #include "inventory.h"
 #include "player.h"
 
-static int verbosity = 0;
-
 //Prototypes
 void set_timer (int, time_t);
 void check_timers (struct Bot *);

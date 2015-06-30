@@ -16,15 +16,7 @@
 int MAX_CHANNEL_LENGTH = 64;
 int MAX_NICK_LENGTH    = 64;
 
-int main (int argc, char **argv) {
-    if(argc > 1) {
-        for(int i = 1; i < argc; i++) {
-            if(!strcmp(argv[1], "v")) {
-                verbosity++;
-            }
-        }
-    }
-
+int main (void) {
     FILE *urandom = fopen("/dev/urandom", "r");
     unsigned int seed;
     if (urandom == NULL) {
@@ -102,7 +94,7 @@ int main (int argc, char **argv) {
     }
 
     //Initial settings
-    strcpy(dawn.nickname, "WellFuk2");
+    strcpy(dawn.nickname, "WellFuk1");
     strcpy(dawn.realname, "Helo");
     strcpy(dawn.ident,    "hehe");
     strcpy(dawn.password, "none");
