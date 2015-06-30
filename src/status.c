@@ -25,7 +25,7 @@ void init_timers (struct Bot *dawn) {
     printf("Timers started\n");
 }
 
-static int singleton = 0; //only one instance may be created at any time
+static int eventQ_singleton = 0; //only one instance may be created at any time
 
 struct eventList {
     struct eventNode * root;
@@ -33,9 +33,9 @@ struct eventList {
 };
 
 EventList createEventList() {
-    if(singleton) //if an instance already exists do not create a new one
+    if(eventQ_singleton) //if an instance already exists do not create a new one
         return 0;
-    singleton++;
+    eventQ_singleton++;
     struct eventList * newlist = calloc(1, sizeof *newlist);
     if(!newlist) {
         perror("calloc createEventList");
@@ -57,7 +57,7 @@ void deleteEventList() {
         tmp = next;
     }
     free(elist);
-    singleton--;
+    eventQ_singleton--;
     elist = 0;
 }
 
@@ -181,7 +181,7 @@ void printList() {
     printf("\n");
 }
 
-struct event * retrMsg() { //callee must free the data himself
+struct event * retrEvent() { //callee must free the data himself
     if(elist == 0)
         return 0;
     struct eventList * cmlist = (struct eventList *)elist;
@@ -226,9 +226,15 @@ void eventHandler(int sig) {
     assert(sig == SIGALRM);
     struct event * e;
     do {
-        e = retrMsg(); //handle event
+        e = retrEvent(); //handle event
 
         switch (e->event) {
+            case MSGSEND:
+            {
+                popMsgHist();
+                processMessages();
+                break;
+            }
             case HEALING:
             {
                 int j;

@@ -8,10 +8,26 @@ struct Message {
     char receiver[64], message[2048];
 };
 
+struct msgHistoryNode {
+    size_t len;
+    time_t date;
+    struct msgHistoryNode * next;
+};
+
+struct msgHistoryList {
+    struct msgHistoryNode * head, * tail;
+    size_t byteSize;
+    size_t msgs;
+};
+
+typedef void * MsgHistoryList;
+
+MsgHistoryList createMsgHistoryList(void);
+void addMsgHistory(size_t len);
+
 struct msgNode {
     char * msg; //the message
     size_t len; //the length of the message without \0
-    time_t date; //when the message was enqueued
     struct msgNode * next;
 };
 
@@ -21,10 +37,20 @@ struct msgList {
     size_t msgs; //number of messages waiting to be sent
 };
 
-typedef void * msgList;
+typedef void * MsgList;
 
-msgList createMsgList(void);
-void addMsg(msgList mlist, char * msg, size_t len);
+MsgList createMsgList(void);
+void addMsg(char * msg, size_t len); //deep copies msg
+
+char * retrMsg(void); //returns pointer to msg, destroys node
+
+void popMsgHist(void); //updates the message history
+size_t peekMsgSize(void); //returns size of mlist's head
+
+
+void processMessages(void); //will move messages from src to dest while allowed
+
+void init_send_queue(void);
 
 extern char buffer[MAX_RECV_BUFFER + 1];
 extern int con_socket;

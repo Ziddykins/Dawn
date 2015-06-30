@@ -28,20 +28,8 @@ struct Bot {
     char nickname[64], realname[64], ident[64], password[64], active_room[64];
     int login_sent, in_rooms, player_count, weather;
     struct Player players[100];
-    struct Timers timer[MAX_TIMERS];
     struct Monsters monsters[MAX_MONSTERS];
     struct Monsters global_monster;
-};
-
-struct event {
-    int event;
-    int data; //playerID
-};
-
-struct eventNode {
-    struct eventNode * next;
-    struct event * elem;
-    time_t event_time;
 };
 
 enum Events  {
@@ -49,6 +37,17 @@ enum Events  {
     SUNNY, RAINING, SNOWING,
     TRAVEL,
     MSGSEND,
+};
+
+struct event {
+    enum Events event;
+    int data; //playerID
+};
+
+struct eventNode {
+    struct eventNode * next;
+    struct event * elem;
+    time_t event_time;
 };
 
 char * eventToStr(enum Events x);
@@ -64,7 +63,7 @@ void selectList(EventList);
 void printFromNode(struct eventNode * x);
 void printList(void);
 
-struct event * retrMsg(void);
+struct event * retrEvent(void);
 void updateAlarm(void);
 time_t timeToNextMsg(void);
 
