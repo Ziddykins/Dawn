@@ -21,7 +21,7 @@ char *xor_flip (char * password) { //password -> 64
 }
 
 uint64_t hashPwd(char const * username, char const * password) {
-    return hash(username) ^ hash(password);
+    return hash(username) + hash(password);
 }
 
 uint64_t hash(char const * password) {
