@@ -66,7 +66,7 @@ void deleteEventList(void);
 void addEvent(enum Events event, int eData, unsigned int offset, int unique);
 void removeEvent(struct eventNode * prev);
 void selectList(EventList);
-
+void printNextEvent(void);
 void printFromNode(struct eventNode * x);
 void printList(void);
 

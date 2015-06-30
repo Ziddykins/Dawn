@@ -60,12 +60,12 @@ void deleteEventList() {
 void updateAlarm() {
     if(elist == 0)
         return;
-    struct eventList* cmlist = (struct eventList *)elist;
-    if(cmlist->head == 0)
+    struct eventList* celist = (struct eventList *)elist;
+    if(celist->head == 0)
         return;
 
     time_t curtime = time(0);
-    time_t event = cmlist->head->event_time;
+    time_t event = celist->head->event_time;
     if(event < curtime)
         eventHandler(SIGALRM);
     else
@@ -74,6 +74,24 @@ void updateAlarm() {
 
 void selectList(EventList x) {
     elist = x;
+}
+
+void printNextEvent() {
+    struct eventList * celist = elist;
+    printf(" next in +%zu (%s)",
+        celist != 0 ?
+            celist->head != 0 ?
+                celist->head->event_time-time(0)
+            : 0
+        : 0,
+
+        celist != 0 ?
+            celist->head != 0 ?
+                celist->head->elem != 0 ?
+                    eventToStr(celist->head->elem->event)
+                : 0
+            : 0
+        : 0);
 }
 
 void removeEvent(struct eventNode * prev) {
@@ -96,10 +114,10 @@ void removeEvent(struct eventNode * prev) {
 void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
     if(elist == 0)
         return;
-    struct eventList * cmlist = (struct eventList *)elist;
+    struct eventList * celist = (struct eventList *)elist;
 
     time_t newtime = time(0) + offset;
-    struct eventNode * tmp = cmlist->head, * prev = 0;
+    struct eventNode * tmp = celist->head, * prev = 0;
     if(unique) {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
             if((unsigned)tmp->elem->event == event && tmp->elem->data == eData) {
@@ -128,13 +146,13 @@ void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
     }
 
     if(prev == 0) { //create a new node from scratch
-        struct eventNode * prev_head = cmlist->head;
-        if(!(cmlist->head = calloc(1, sizeof *cmlist->head))) {
+        struct eventNode * prev_head = celist->head;
+        if(!(celist->head = calloc(1, sizeof *celist->head))) {
             perror("calloc eventNode");
             exit(1);
         }
-        cmlist->head->next = prev_head;
-        prev = cmlist->head;
+        celist->head->next = prev_head;
+        prev = celist->head;
     } else { //or insert it where it belongs
         struct eventNode * prevnext = prev->next;
         if(!(prev->next = calloc(1, sizeof *prev))) {
@@ -152,9 +170,11 @@ void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
     prev->elem->data = eData;
     prev->event_time = newtime;
 
-    cmlist->len++;
+    celist->len++;
     updateAlarm(); //head may have been replaced so we reset the alarm to the next event in the queue
-    printf("STATUS: Added Event %s with data %d, %zu(+%u); next in +%zu (%s)\n", eventToStr(event), eData, time(0), offset, cmlist->head->event_time-time(0), eventToStr(cmlist->head->elem->event));
+    printf("STATUS: Added Event %s with data %d, %zu(+%u);", eventToStr(event), eData, time(0), offset);
+    printNextEvent();
+    putchar('\n');
     return;
 }
 
@@ -171,23 +191,23 @@ void printFromNode(struct eventNode * x) {
 void printList() {
     if(elist == 0)
         return;
-    struct eventList * cmlist = (struct eventList *)elist;
-    printFromNode(cmlist->head);
+    struct eventList * celist = (struct eventList *)elist;
+    printFromNode(celist->head);
     printf("\n");
 }
 
 struct event * retrEvent() { //callee must free the data himself
     if(elist == 0)
         return 0;
-    struct eventList * cmlist = (struct eventList *)elist;
-    if(cmlist->head == 0)
+    struct eventList * celist = (struct eventList *)elist;
+    if(celist->head == 0)
         return 0;
 
-    struct event * ret = cmlist->head->elem;
-    struct eventNode * toFree = cmlist->head;
-    cmlist->head = cmlist->head->next;
+    struct event * ret = celist->head->elem;
+    struct eventNode * toFree = celist->head;
+    celist->head = celist->head->next;
     free(toFree);
-    cmlist->len--;
+    celist->len--;
     updateAlarm();
     return ret;
 }
@@ -195,26 +215,26 @@ struct event * retrEvent() { //callee must free the data himself
 time_t timeToNextMsg() {
     if(elist == 0)
         return time(0);
-    struct eventList * cmlist = (struct eventList *)elist;
-    if(cmlist->head == 0)
+    struct eventList * celist = (struct eventList *)elist;
+    if(celist->head == 0)
         return time(0);
-    return cmlist->head->event_time;
+    return celist->head->event_time;
 }
 
 size_t listLen() {
     if(elist == 0)
         return 0;
-    struct eventList * cmlist = (struct eventList *)elist;
-    return cmlist->len;
+    struct eventList * celist = (struct eventList *)elist;
+    return celist->len;
 }
 
 int nextIsDue() {
     if(elist == 0)
         return 0;
-    struct eventList * cmlist = (struct eventList *)elist;
-    if(cmlist->head == 0)
+    struct eventList * celist = (struct eventList *)elist;
+    if(celist->head == 0)
         return 0;
-    return cmlist->head->event_time <= time(0);
+    return celist->head->event_time <= time(0);
 }
 
 void eventHandler(int sig) {
@@ -222,7 +242,9 @@ void eventHandler(int sig) {
     struct event * e;
     do {
         e = retrEvent(); //handle event
-        printf("RECEIVED %s\n", eventToStr(e->event));
+        printf("STATUS: Received %s;", eventToStr(e->event));
+        printNextEvent();
+        putchar('\n');
         switch (e->event) {
             case MSGSEND:
             {
