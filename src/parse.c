@@ -285,7 +285,7 @@ void parse_room_message (struct Bot *b, struct Message *message) {
         addMsg(out, strlen(out));
     } else if (strcmp(message->message, ";save") == 0) {
         persistent_save(dawn);
-        sprintf(out, "PRIVMSG %s :Saved.", message->receiver);
+        sprintf(out, "PRIVMSG %s :Saved.\r\n", message->receiver);
         addMsg(out, strlen(out));
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
