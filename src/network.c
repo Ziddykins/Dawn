@@ -44,7 +44,12 @@ void send_socket (char * out_buf) {
         printf("Message too long: %lu", len);
         return;
     }
-    write(con_socket, out_buf, len);
+    ssize_t ret = write(con_socket, out_buf, len);
+    if(!ret || ret == EINTR) {
+        send_socket(out_buf);
+    } else if((size_t)ret < len) {
+        send_socket(out_buf + ret + 1);
+    }
 }
 
 MsgHistoryList createMsgHistoryList() {
