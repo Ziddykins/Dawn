@@ -162,7 +162,7 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
     if(cmhlist->head == 0)
         return;
     time_t curTime = time(0);
-    while(cmhlist->head != 0 && cmhlist->head->date <= curTime - SENDQ_INTERVAL) {
+    while(cmhlist->head != 0 && SENDQ_INTERVAL - curTime - cmhlist->head->date <= 0) {
         cmhlist->byteSize -= cmhlist->head->len;
         cmhlist->msgs--;
         struct msgHistoryNode * newHead = cmhlist->head->next;
