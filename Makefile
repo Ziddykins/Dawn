@@ -1,4 +1,4 @@
-CC=clang
+CC=gcc
 CFLAGS=-c -Wall -O3 -std=gnu11
 LDFLAGS=-lpcre -lm -lssl -lcrypto
 SRCDIR=src
