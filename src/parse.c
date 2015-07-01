@@ -20,20 +20,30 @@ char *xor_flip (char * password) { //password -> 64
     return password;
 }
 
-uint64_t hashPwd(char const * username, char const * password) {
-    return hash(username) + hash(password);
+void genSalt(char * salt, size_t len) {
+    size_t pos;
+    for(pos = 0; pos < len-1; pos++) {
+        salt[pos] = (char)(rand() % 256 - 128); //char -> (-128...127); mod 2^x does not skew random distribution
+    }
+    salt[pos] = '\0';
 }
 
-uint64_t hash(char const * password) {
+uint64_t hashPwd(char const * salt, char const * password) {
+    char * concat = malloc(strnlen(salt, 64) + strnlen(salt, 24) + 1);
+    snprintf(concat, 64+64+2, "!%s%s", password, salt);
+    return hash(concat);
+}
+
+uint64_t hash(char const * str) {
     uint64_t prime = 13835058055282163729ull;
     uint64_t calc = 1;
-    size_t len = strnlen(password, 64);
+    size_t len = strnlen(str, 64);
     for(size_t i = 0; i < len; i++) {
-        calc *= (unsigned char)password[i]; //mod 2^64
+        calc *= (unsigned char)str[i]; //mod 2^64
     }
     for(size_t i = 0; i < len; i++) {
         calc <<= 8;
-        calc += (unsigned char)password[i];
+        calc += (unsigned char)str[i];
         calc %= prime;
     }
     return calc;
@@ -111,13 +121,13 @@ void parse_private_message (struct Bot *b, struct Message *message) {
 
     if (check_if_matches_regex(message->message, ";set password (\\w+)")) {
         if (strcmp(message->sender_hostmask, b->players[pindex].hostmask) == 0) {
-            b->players[pindex].password = hashPwd(b->players[pindex].username, regex_group[1]);
+            b->players[pindex].password = hashPwd(b->players[pindex].salt, regex_group[1]);
             sprintf(out, "PRIVMSG %s :Your password has been set\r\n", message->sender_nick);
         }
         addMsg(out, strlen(out));
     } else if (check_if_matches_regex(message->message, ";login (\\w+)")) {
         if (strcmp(b->players[pindex].hostmask, message->sender_hostmask) != 0) {
-            if (hashPwd(b->players[pindex].username, regex_group[1]) == b->players[pindex].password) {
+            if (hashPwd(b->players[pindex].salt, regex_group[1]) == b->players[pindex].password) {
                 strcpy(b->players[pindex].hostmask, message->sender_hostmask);
                 sprintf(out, "PRIVMSG %s :%s has been verified\r\n", b->active_room, message->sender_nick);
                 addMsg(out, strlen(out));

@@ -22,6 +22,7 @@ char *nultrm   (char str[]);
 char *to_lower (char str[]);
 char *xor_flip (char str[]); //!DEPRECATED
 
+void genSalt(char * salt, size_t len);
 uint64_t hashPwd(char const * username, char const * password);
 uint64_t hash(char const *);
 
