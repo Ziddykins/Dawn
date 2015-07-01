@@ -363,9 +363,10 @@ void save_events(char const * fn) {
 }
 void load_events(char const * fn) {
     FILE * file;
+    size_t len = 0;
     if(!(file = fopen(fn, "rb"))) {
         selectList(createEventList());
-        perror("WARN: STATUS: fopen");
+        perror("WARN: STATUS: load_events: fopen");
         errno = 0;
     } else {
         assert(elist == 0 && !eventQ_singleton);
@@ -380,26 +381,27 @@ void load_events(char const * fn) {
             return;
         }
 
-        fread(&tmpT, sizeof tmpT, 1, file);
+        len += sizeof tmpT * fread(&tmpT, sizeof tmpT, 1, file);
         if(feof(file) || ferror(file)) {
-            perror("ERR: STATUS: fread");
+            perror("ERR: STATUS: load_events: fread(0)");
             fclose(file);
             return;
         }
 
-        fread(&tmpE, sizeof tmpE, 1, file);
+        len += sizeof tmpE * fread(&tmpE, sizeof tmpE, 1, file);
         if(feof(file) || ferror(file)) {
-            perror("ERR: STATUS: fread");
+            perror("ERR: STATUS: load_events: fread(1)");
             fclose(file);
             return;
         }
 
-        fread(&tmpD, sizeof tmpD, 1, file);
+        len += sizeof tmpD * fread(&tmpD, sizeof tmpD, 1, file);
         if(ferror(file)) {
-            perror("ERR: STATUS: fread");
+            perror("ERR: STATUS: load_events: fread(2)");
             fclose(file);
             return;
         }
+        celist->len++;
 
         struct eventNode * tmp = celist->head = malloc(sizeof *celist->head);
         while(!feof(file)) {
@@ -408,26 +410,28 @@ void load_events(char const * fn) {
             tmp->elem->event = tmpE;
             tmp->elem->data = tmpD;
 
-            fread(&tmpT, sizeof tmpT, 1, file);
+            len += sizeof tmpT * fread(&tmpT, sizeof tmpT, 1, file);
             if(feof(file)) {
                 break;
             }
             if(ferror(file)) {
-                perror("ERR: STATUS: fread");
+                perror("ERR: STATUS: load_events: fread(0)");
                 break;
             }
 
-            fread(&tmpE, sizeof tmpE, 1, file);
+            len += sizeof tmpE * fread(&tmpE, sizeof tmpE, 1, file);
             if(feof(file) || ferror(file)) {
-                perror("ERR: STATUS: fread");
+                perror("ERR: STATUS: load_events: fread(1)");
                 break;
             }
 
-            fread(&tmpD, sizeof tmpD, 1, file);
+            len += sizeof tmpD * fread(&tmpD, sizeof tmpD, 1, file);
             if(ferror(file)) {
-                perror("ERR: STATUS: fread");
+                perror("ERR: STATUS: load_events: fread(2)");
                 break;
             }
+
+            celist->len++;
 
             tmp->next = malloc(sizeof *tmp);
             tmp = tmp->next;
@@ -435,4 +439,5 @@ void load_events(char const * fn) {
         fclose(file);
         updateAlarm();
     }
+    printf("Read %zu Eventbytes\n", len);
 }
