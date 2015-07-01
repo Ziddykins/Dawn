@@ -1,5 +1,6 @@
 #ifndef PLAYER_H_INCLUDED
 #define PLAYER_H_INCLUDED
+#include <openssl/sha.h>
 #include "status.h"
 #include "network.h"
 #include "map.h"
@@ -25,7 +26,7 @@ int get_bindex (struct Bot *, const char [], const char []);
 struct Player {
     char username[64], hostmask[128]; //limits used in parse.c
     char salt[16]; //limits used in parse.c and player.c
-    uint64_t password;
+    unsigned char pwd[SHA256_DIGEST_LENGTH];
     char first_class[64], second_class[64], title[64];
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
     struct Monsters personal_monster;

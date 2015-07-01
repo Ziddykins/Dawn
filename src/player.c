@@ -44,7 +44,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
 
     strcpy(np.username, nultrm(message->sender_nick));
     genSalt(np.salt, 16);
-    np.password = hashPwd(np.salt, tmp_pwd);
+    hashPwd(np.pwd, np.salt, tmp_pwd);
     strcpy(np.hostmask, message->sender_hostmask);
     strcpy(np.first_class, "None");
     strcpy(np.second_class, "None");

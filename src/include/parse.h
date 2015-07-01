@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <openssl/sha.h>
 #include "network.h"
 #include "status.h"
 #include "player.h"
@@ -23,8 +24,8 @@ char *to_lower (char str[]);
 char *xor_flip (char str[]); //!DEPRECATED
 
 void genSalt(char * salt, size_t len);
-uint64_t hashPwd(char const * username, char const * password);
-uint64_t hash(char const *);
+void hashPwd(unsigned char * digest, char const * salt, char const * password);
+int hashcmp(unsigned char const * s1, unsigned char const * s2);
 
 extern char regex_group[15][2048];
 
