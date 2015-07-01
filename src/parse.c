@@ -23,7 +23,9 @@ char *xor_flip (char * password) { //password -> 64
 void genSalt(char * salt, size_t len) {
     size_t pos;
     for(pos = 0; pos < len-1; pos++) {
-        salt[pos] = (char)(rand() % 256 - 128); //char -> (-128...127); mod 2^x does not skew random distribution
+        do {
+            salt[pos] = (char)(rand() % 256 - 128); //char -> (-128...127); mod 2^x does not skew random distribution
+        } while(salt[pos] != 0);
     }
     salt[pos] = '\0';
 }

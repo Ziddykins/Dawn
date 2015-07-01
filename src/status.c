@@ -255,11 +255,11 @@ void eventHandler(int sig) {
             case HEALING:
             {
                 int j;
-                for (j=0; j< dawn->player_count; j++) {
-                    if ((dawn->players[e->event].health + 5) <= dawn->players[e->event].max_health) {
-                        dawn->players[e->event].health += 5;
+                for (j=0; j < dawn->player_count; j++) {
+                    if ((dawn->players[j].health + 5) <= dawn->players[j].max_health) {
+                        dawn->players[j].health += 5;
                     } else {
-                        dawn->players[e->event].health = dawn->players[e->event].max_health;
+                        dawn->players[j].health = dawn->players[j].max_health;
                     }
                 }
                 addEvent(HEALING, 0, HEALING_INTERVAL, 0);
