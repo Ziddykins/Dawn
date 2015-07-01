@@ -29,21 +29,18 @@ void genSalt(char * salt, size_t len) {
 }
 
 uint64_t hashPwd(char const * salt, char const * password) {
-    char * concat = malloc(strnlen(salt, 64) + strnlen(salt, 24) + 1);
-    snprintf(concat, 64+64+2, "!%s%s", password, salt);
+    char * concat = malloc(strnlen(salt, 64) + strnlen(salt, 16) + 1);
+    snprintf(concat, 64+16+2, "!%s%s", salt, password);
     return hash(concat);
 }
 
 uint64_t hash(char const * str) {
     uint64_t prime = 13835058055282163729ull;
     uint64_t calc = 1;
-    size_t len = strnlen(str, 64);
+    size_t len = strnlen(str, 64+16+2);
     for(size_t i = 0; i < len; i++) {
-        calc *= (unsigned char)str[i]; //mod 2^64
-    }
-    for(size_t i = 0; i < len; i++) {
-        calc <<= 8;
-        calc += (unsigned char)str[i];
+        calc <<= 1;
+        calc *= (unsigned char)str[i];
         calc %= prime;
     }
     return calc;

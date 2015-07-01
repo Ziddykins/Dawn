@@ -24,7 +24,7 @@ int get_bindex (struct Bot *, const char [], const char []);
 
 struct Player {
     char username[64], hostmask[128]; //limits used in parse.c
-    char salt[24]; //limits used in parse.c, main.c and player.c
+    char salt[16]; //limits used in parse.c and player.c
     uint64_t password;
     char first_class[64], second_class[64], title[64];
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
