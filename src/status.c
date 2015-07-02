@@ -19,9 +19,9 @@ void init_timers (struct Bot *b, char const * fn) {
 
     load_events(fn);
     dawn = b;
-    addEvent(HEALING, 0, HEALING_INTERVAL, 1);
-    addEvent(SAVING, 0, SAVING_INTERVAL, 1);
-    addEvent(HOURLY, 0, 3600, 1);
+    addEvent(HEALING, 0, HEALING_INTERVAL, UNIQUE | KEEP);
+    addEvent(SAVING, 0, SAVING_INTERVAL, UNIQUE | KEEP);
+    addEvent(HOURLY, 0, 3600, UNIQUE | KEEP);
     printf("Timers started\n");
 }
 
@@ -111,14 +111,14 @@ void removeEvent(struct eventNode * prev) {
     }
 }
 
-void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
+void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //flags -> enum eventMode (status.h)
     if(elist == 0)
         return;
     struct eventList * celist = (struct eventList *)elist;
 
     time_t newtime = time(0) + offset;
     struct eventNode * tmp = celist->head, * prev = 0;
-    if(unique) {
+    if(flags & UNIQUE) {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
             if((unsigned)tmp->elem->event == event && tmp->elem->data == eData) {
                 tmp = prev;
@@ -127,6 +127,12 @@ void addEvent(enum Events event, int eData, unsigned int offset, int unique) {
             prev = tmp;
             if(tmp != 0)
                 tmp = tmp->next;
+        }
+        if(flags & KEEP) {
+            printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
+            printNextEvent();
+            putchar('\n');
+            return;
         }
         struct eventNode * scanner = tmp, * prevScanner = prev;
         while(scanner != 0) {
@@ -262,19 +268,19 @@ void eventHandler(int sig) {
                         dawn->players[j].health = dawn->players[j].max_health;
                     }
                 }
-                addEvent(HEALING, 0, HEALING_INTERVAL, 0);
+                addEvent(HEALING, 0, HEALING_INTERVAL, NORMAL);
                 break;
             }
             case SAVING:
             {
                 persistent_save(dawn);
-                addEvent(SAVING, 0, SAVING_INTERVAL, 0);
+                addEvent(SAVING, 0, SAVING_INTERVAL, NORMAL);
                 break;
             }
             case HOURLY:
             {
                 hourly_events(dawn);
-                addEvent(HOURLY, 0, 3600, 0);
+                addEvent(HOURLY, 0, 3600, NORMAL);
                 break;
             }
             case TRAVEL:

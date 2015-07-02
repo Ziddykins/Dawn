@@ -70,7 +70,7 @@ void addMsgHistory(size_t len) {
 
     time_t curTime = time(0);
     if(cmhlist->head == 0) {
-        addEvent(MSGSEND, 0, SENDQ_INTERVAL, 0); //should be unique, though there should also never be multiple MSGSEND events in the queue
+        addEvent(MSGSEND, 0, SENDQ_INTERVAL, NORMAL); //should be unique, though there should also never be multiple MSGSEND events in the queue
         if(!(cmhlist->head = cmhlist->tail = calloc(1, sizeof *cmhlist->head))) {
             perror("malloc");
             exit(1);
@@ -165,7 +165,7 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
         cmhlist->head = newHead;
     }
     if(cmhlist->head != 0) {
-        addEvent(MSGSEND, 1, (unsigned int)(SENDQ_INTERVAL - (curTime - cmhlist->head->date)), 0);
+        addEvent(MSGSEND, 1, (unsigned int)(SENDQ_INTERVAL - (curTime - cmhlist->head->date)), NORMAL);
     }
     processMessages();
 }

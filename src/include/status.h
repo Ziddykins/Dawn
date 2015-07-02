@@ -57,13 +57,19 @@ struct eventList {
     size_t len;
 };
 
+enum eventMode {
+    NORMAL = 0,
+    UNIQUE = 1<<0,
+    KEEP  = 1<<1
+};
+
 char * eventToStr(enum Events x);
 
 typedef void * EventList;
 
 EventList createEventList(void);
 void deleteEventList(void);
-void addEvent(enum Events event, int eData, unsigned int offset, int unique);
+void addEvent(enum Events event, int eData, unsigned int offset, int flags);
 void removeEvent(struct eventNode * prev);
 void selectList(EventList);
 void printNextEvent(void);
