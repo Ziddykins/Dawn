@@ -122,22 +122,29 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
             if((unsigned)tmp->elem->event == event && tmp->elem->data == eData) {
                 tmp = prev;
-                removeEvent(prev);
+                if(flags & KEEP) {
+                    printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
+                    printNextEvent();
+                    putchar('\n');
+                } else {
+                    removeEvent(prev);
+                }
             }
             prev = tmp;
             if(tmp != 0)
                 tmp = tmp->next;
         }
-        if(flags & KEEP) {
-            printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
-            printNextEvent();
-            putchar('\n');
-            return;
-        }
+
         struct eventNode * scanner = tmp, * prevScanner = prev;
         while(scanner != 0) {
             if((unsigned)tmp->elem->event == event && tmp->elem->data == eData) {
-                removeEvent(prevScanner);
+                if(flags & KEEP) {
+                    printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
+                    printNextEvent();
+                    putchar('\n');
+                } else {
+                    removeEvent(prevScanner);
+                }
                 scanner = prevScanner;
             }
             prevScanner = scanner;
