@@ -120,13 +120,13 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
     struct eventNode * tmp = celist->head, * prev = 0;
     if(flags & UNIQUE) {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
-            if((unsigned)tmp->elem->event == event && tmp->elem->data == eData) {
-                tmp = prev;
+            if(tmp->elem->event == event && tmp->elem->data == eData) {
                 if(flags & KEEP) {
                     printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
                     printNextEvent();
                     putchar('\n');
                 } else {
+                    tmp = prev;
                     removeEvent(prev);
                 }
             }
@@ -137,15 +137,15 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
 
         struct eventNode * scanner = tmp, * prevScanner = prev;
         while(scanner != 0) {
-            if((unsigned)tmp->elem->event == event && tmp->elem->data == eData) {
+            if(tmp->elem->event == event && tmp->elem->data == eData) {
                 if(flags & KEEP) {
                     printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
                     printNextEvent();
                     putchar('\n');
                 } else {
+                    scanner = prevScanner;
                     removeEvent(prevScanner);
                 }
-                scanner = prevScanner;
             }
             prevScanner = scanner;
             if(scanner != 0)
