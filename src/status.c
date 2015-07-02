@@ -19,9 +19,9 @@ void init_timers (struct Bot *b, char const * fn) {
 
     load_events(fn);
     dawn = b;
-    addEvent(HEALING, 0, HEALING_INTERVAL, 0);
-    addEvent(SAVING, 0, SAVING_INTERVAL, 0);
-    addEvent(HOURLY, 0, 3600, 0);
+    addEvent(HEALING, 0, HEALING_INTERVAL, 1);
+    addEvent(SAVING, 0, SAVING_INTERVAL, 1);
+    addEvent(HOURLY, 0, 3600, 1);
     printf("Timers started\n");
 }
 
