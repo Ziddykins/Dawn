@@ -125,6 +125,7 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
                     printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
                     printNextEvent();
                     putchar('\n');
+                    return;
                 } else {
                     tmp = prev;
                     removeEvent(prev);
@@ -142,6 +143,7 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
                     printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
                     printNextEvent();
                     putchar('\n');
+                    return;
                 } else {
                     scanner = prevScanner;
                     removeEvent(prevScanner);
