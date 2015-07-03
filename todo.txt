@@ -1,5 +1,6 @@
-send queue (p512, 90%, needs more testing)
+send queue - done.
 command register system
+update map
 update item and drop system
 concatenate similar events
 fluctuating marketplace
