@@ -94,7 +94,7 @@ void printNextEvent() {
         : "NONE");
 }
 
-void removeEvent(struct eventNode * prev) {
+void removeEvent(struct eventNode * prev) { //requires the /PREVIOUS/ node or 0 for head
     struct eventList * celist = (struct eventList *)elist;
     if(elist == 0)
         return;
@@ -110,6 +110,20 @@ void removeEvent(struct eventNode * prev) {
         free(toFree);
     }
 }
+
+/*void debugPrint() {
+    if(!elist) {
+        printf("[NONE]\n");
+        return;
+    }
+    struct eventList * celist = (struct eventList *)elist;
+    struct eventNode * tmp = celist->head;
+    do {
+        printf("[%s]->", eventToStr(tmp ? tmp->elem->event : -1));
+        tmp = tmp ? tmp->next : 0;
+    } while(tmp);
+    printf("\n");
+}*/
 
 void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //flags -> enum eventMode (status.h)
     if(elist == 0)
@@ -127,15 +141,14 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
                     putchar('\n');
                     return;
                 } else {
-                    tmp = prev;
-                    removeEvent(prev);
+                    tmp = prev; //move to previous event
+                    removeEvent(prev); //remove next event
                 }
             }
             prev = tmp;
             if(tmp != 0)
                 tmp = tmp->next;
         }
-
         struct eventNode * scanner = tmp, * prevScanner = prev;
         while(scanner != 0) {
             if(tmp->elem->event == event && tmp->elem->data == eData) {
