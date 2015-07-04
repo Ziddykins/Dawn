@@ -37,6 +37,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
     }
 
     struct Player np;
+    bzero(&np, sizeof np);
 
     np.current_map = set_map(0);
     np.current_map.cur_x = 0;
