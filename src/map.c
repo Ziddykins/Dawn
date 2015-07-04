@@ -13,6 +13,7 @@
 
 struct Map set_map (int which) {
     struct Map return_map;
+    bzero(&return_map, sizeof return_map);
     enum BUILDINGS {SHRINE, SHOP};
     switch (which) {
         case 0:

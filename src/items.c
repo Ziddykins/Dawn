@@ -145,7 +145,7 @@ void generate_drop (struct Bot *b, struct Message *message) {
     }
 
     strcat(item_name, normal);
-    strcpy(item_name, nultrm(item_name));
+    strcpy(item_name, item_name);
     strcpy(item_dropped.name, item_name);
 
     item_dropped.attr_strength     = str;

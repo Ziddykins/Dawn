@@ -43,7 +43,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
     np.current_map.cur_x = 0;
     np.current_map.cur_y = 1;
 
-    strcpy(np.username, nultrm(message->sender_nick));
+    strncpy(np.username, message->sender_nick, MAX_NICK_LENGTH-1);
     genSalt(np.salt, 16);
     hashPwd(np.pwd, np.salt, tmp_pwd);
     strcpy(np.hostmask, message->sender_hostmask);

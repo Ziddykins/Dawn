@@ -203,7 +203,7 @@ int main (void) {
                     if (dawn->player_count == 0) {
                         struct Message temp;
                         strcpy(temp.sender_nick, to_lower(dawn->nickname));
-                        strcpy(temp.sender_hostmask, nultrm(regex_group[3]));
+                        strcpy(temp.sender_hostmask, regex_group[3]);
                         init_new_character(dawn, &temp);
                     }
                 }

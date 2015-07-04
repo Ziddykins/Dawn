@@ -50,11 +50,11 @@ int hashcmp(unsigned char const * s1, unsigned char const * s2) {
     return i == SHA256_DIGEST_LENGTH;
 }
 
-char *nultrm (char str[MAX_MESSAGE_BUFFER]) {
+/*char *nultrm (char str[MAX_MESSAGE_BUFFER]) {
     size_t len = strlen(str);
     str[len+1] = '\0';
     return str;
-}
+}*/
 
 int check_if_matches_regex (char *buf, const char *regular_expression) {
     pcre *regex_compiled;
