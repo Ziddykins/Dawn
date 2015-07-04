@@ -13,7 +13,7 @@ void init_timers (struct Bot *b, char const * fn) {
     act.sa_flags = SA_RESTART; //use SA_SIGINFO for more advanced handler
 
     if(sigaction(SIGALRM, &act, NULL) < 0) { //hook SIGALRM to call our messageHandler function
-        perror("sigaction");
+        perror("ERR: STATUS: init_timers: sigaction");
         exit(1);
     }
 
@@ -33,7 +33,7 @@ EventList createEventList() {
     eventQ_singleton++;
     struct eventList * newlist = calloc(1, sizeof *newlist);
     if(!newlist) {
-        perror("calloc createEventList");
+        perror("ERR: STATUS: createEventList: calloc");
         exit(1);
     }
     return newlist;
@@ -163,7 +163,7 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
     if(prev == 0) { //create a new node from scratch
         struct eventNode * prev_head = celist->head;
         if(!(celist->head = calloc(1, sizeof *celist->head))) {
-            perror("calloc eventNode");
+            perror("ERR: STATUS: addEvent: calloc");
             exit(1);
         }
         celist->head->next = prev_head;
@@ -171,14 +171,14 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
     } else { //or insert it where it belongs
         struct eventNode * prevnext = prev->next;
         if(!(prev->next = calloc(1, sizeof *prev))) {
-            perror("calloc eventNode");
+            perror("ERR: STATUS: addEvent: calloc");
             exit(1);
         }
         prev = prev->next;
         prev->next = prevnext;
     }
     if(!(prev->elem = malloc(sizeof *prev->elem))) {
-        perror("malloc event");
+        perror("ERR: STATUS: addEvent: malloc");
         exit(1);
     }
     prev->elem->event = event;
@@ -339,34 +339,34 @@ void save_events(char const * fn) {
     FILE * file;
     size_t len = 0, ret;
     if(!(file = fopen(fn, "wb"))) {
-        perror("ERR: STATUS: fopen");
+        perror("ERR: STATUS: save_events: fopen");
         errno = 0;
     } else {
         if(elist == 0) {
-            printf("WARN: STATUS: tried to save but there was no event list\n");
+            printf("WARN: STATUS: save_events: tried to save but there was no event list\n");
             return;
         }
         struct eventList * celist = elist;
         struct eventNode * tmp = celist->head;
         while(tmp != 0) {
             if(!(ret = fwrite(&tmp->event_time, sizeof tmp->event_time, 1, file))) {
-                perror("status fwrite");
+                perror("ERR: STATUS: save_events: fwrite");
                 errno = 0;
-                printf("ERR: STATUS: event file corrupted while saving.");
+                printf("ERR: STATUS: save_events: event file corrupted while saving.");
                 break;
             }
             len += ret * sizeof tmp->event_time;
             if(!(ret = fwrite(&tmp->elem->event, sizeof tmp->elem->event, 1, file))) {
-                perror("status fwrite");
+                perror("ERR: STATUS: save_events: fwrite");
                 errno = 0;
-                printf("ERR: STATUS: event file corrupted while saving.");
+                printf("ERR: STATUS: save_events: event file corrupted while saving.");
                 break;
             }
             len += ret * sizeof tmp->elem->event;
             if(!(ret = fwrite(&tmp->elem->data, sizeof tmp->elem->data, 1, file))) {
-                perror("status fwrite");
+                perror("ERR: STATUS: save_events: fwrite");
                 errno = 0;
-                printf("ERR: STATUS: event file corrupted while saving.");
+                printf("ERR: STATUS: save_events: event file corrupted while saving.");
                 break;
             }
             len += ret * sizeof tmp->elem->data;
@@ -418,7 +418,11 @@ void load_events(char const * fn) {
         }
         celist->len++;
 
-        struct eventNode * tmp = celist->head = malloc(sizeof *celist->head);
+        struct eventNode * tmp = 0;
+        if(!feof(file) && !(tmp = celist->head = calloc(1, sizeof *celist->head))) {
+            perror("ERR: STATUS: load_events: calloc");
+            exit(1);
+        }
         while(!feof(file)) {
             tmp->elem = malloc(sizeof *tmp->elem);
             tmp->event_time = tmpT;
