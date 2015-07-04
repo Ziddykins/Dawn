@@ -18,7 +18,6 @@ struct Map set_map (int which) {
         case 0:
         {
             strcpy(return_map.name, "The Sanctuary");
-            strcpy(return_map.name, nultrm(return_map.name));
             strcpy(return_map.buildings[SHRINE].name, "shrine");
             strcpy(return_map.buildings[SHOP].name, "shop");
 

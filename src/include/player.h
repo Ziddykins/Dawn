@@ -31,15 +31,16 @@ struct Player {
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
     struct Monsters personal_monster;
     struct Map current_map;
-    struct TravelTimer travel_timer;
-    unsigned long long experience;
     long stone, steel, wood, ore;
     long bronze, diamond, mail, leather;
     long kills, deaths, gold, health;
+    unsigned long long experience;
     int alive, available, level, contribution, max_health, max_mana;
     int available_slots, available_capacity, mana, strength;
     int intelligence, defense, m_def, alignment, attr_pts;
     short addiction, x_pos, y_pos, fullness;
+
+    struct TravelTimer travel_timer;
 };
 
 #endif

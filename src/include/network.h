@@ -32,6 +32,7 @@ struct msgHistoryList {
 typedef void * MsgHistoryList;
 
 MsgHistoryList createMsgHistoryList(void);
+void deleteMsgHistoryList(void);
 void addMsgHistory(size_t len);
 
 struct msgNode {
@@ -49,6 +50,7 @@ struct msgList {
 typedef void * MsgList;
 
 MsgList createMsgList(void);
+void deleteMsgList(void);
 void addMsg(char * msg, size_t len); //deep copies msg
 
 char * retrMsg(void); //returns pointer to msg, destroys node

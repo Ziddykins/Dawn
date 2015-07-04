@@ -96,7 +96,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
     sprintf(out, "PRIVMSG %s :Account created for user %s@%s, please set your password by sending me "
             "a private message containing: ;set password <your_password>\r\n", b->active_room,
             message->sender_nick, message->sender_hostmask);
-    save_players (b);
+    save_players(b);
     addMsg(out, strlen(out));
 }
 
@@ -104,11 +104,10 @@ void save_players (struct Bot *b) {
     if(b == 0)
         return;
     FILE *file = fopen("players.db", "wb");
-    if (file != NULL) {
+    if (file) {
         size_t len;
-        errno = 0;
         if(!(len = fwrite(b, sizeof *b, 1, file))) {
-            perror("fwrite");
+            perror("WARN: PLAYER: save_players: fwrite");
         }
         fclose(file);
         printf("Wrote %zu of %zu bytes to players.db\r\n", len*(sizeof *b), sizeof *b);
@@ -118,9 +117,12 @@ void save_players (struct Bot *b) {
 void load_players (struct Bot *b) {
     FILE *file = fopen("players.db", "rb");
     if (file != NULL) {
-        fread(b, sizeof *b, 1, file);
+        if(!fread(b, sizeof *b, 1, file)) {
+            perror("ERR: PLAYER: load_players: fread");
+            exit(1);
+        }
         fclose(file);
-        printf("loaded %zu bytes from players.db\n", sizeof *b);
+        printf("Read %zu bytes from players.db\n", sizeof *b);
     }
 }
 

@@ -54,13 +54,26 @@ void send_socket (char * out_buf) {
 MsgHistoryList createMsgHistoryList() {
     if(msgHQ_singleton)
         return 0;
-    struct msgList * newList;
+    struct msgHistoryList * newList;
     if(!(newList = calloc(1, sizeof *newList))) {
         perror("calloc");
         exit(1);
     }
     msgHQ_singleton++;
     return newList;
+}
+
+void deleteMsgHistoryList() {
+    if(!msgHQ_singleton || !mhlist)
+        return;
+    struct msgHistoryList * cmhlist = mhlist;
+    struct msgHistoryNode * tmp = cmhlist->head;
+    while(tmp) {
+        struct msgHistoryNode * next = tmp->next;
+        free(tmp);
+        tmp = next;
+    }
+    free(cmhlist);
 }
 
 void addMsgHistory(size_t len) {
@@ -99,6 +112,20 @@ MsgList createMsgList() {
     }
     msgQ_singleton++;
     return newList;
+}
+
+void deleteMsgList() {
+    if(!mlist || !msgQ_singleton)
+        return;
+    struct msgList * cmlist = mlist;
+    struct msgNode * tmp = cmlist->head;
+    while(tmp) {
+        struct msgNode * next = tmp->next;
+        free(tmp->msg);
+        free(tmp);
+        tmp = next;
+    }
+    free(cmlist);
 }
 
 void addMsg(char * msg, size_t len) {
@@ -187,7 +214,9 @@ void processMessages() {
 
     size_t len;
     while(csrc->head != 0 && cdest->msgs < MAX_MSGS_IN_INTERVAL && cdest->byteSize + (len = peekMsgSize()) < MAX_SENDQ_SIZE) {
-        send_socket(retrMsg());
+        char * msg = retrMsg();
+        send_socket(msg);
+        free(msg);
         addMsgHistory(len);
         printf("MQueue: %zu of %d (PUSH)\n", cdest->byteSize, MAX_SENDQ_SIZE);
     }

@@ -22,9 +22,12 @@ int main (void) {
     unsigned int seed;
     if (urandom == NULL) {
         fprintf (stderr, "Cannot open /dev/urandom!\n");
-        exit (1);
+        exit(1);
     }
-    fread(&seed, sizeof (seed), 1, urandom);
+    if(!fread(&seed, sizeof (seed), 1, urandom)) {
+        perror("ERR: MAIN: fread");
+        exit(1);
+    }
     srand(seed);
     fclose(urandom);
 
@@ -131,6 +134,7 @@ int main (void) {
             if (check_if_matches_regex(buffer, ":.*?\\s433\\s*\\s.*")) {
                 int rand_suffix = rand() % 5000;
                 printf("Username %s in use\n", dawn->nickname);
+                bzero(dawn->nickname, MAX_NICK_LENGTH);
                 sprintf(dawn->nickname, "%s%d", dawn->nickname, rand_suffix);
                 handle_login(dawn->nickname, dawn->password, dawn->realname, dawn->ident);
             }
@@ -228,6 +232,10 @@ int main (void) {
         return 1;
     }
     close(con_socket);
+    deleteMsgHistoryList();
+    deleteMsgList();
+    deleteEventList();
+    free(dawn);
     printf("[!] Program exiting normally\n");
     return 0;
 }

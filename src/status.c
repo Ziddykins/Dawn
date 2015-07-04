@@ -167,23 +167,23 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
             exit(1);
         }
         celist->head->next = prev_head;
-        prev = celist->head;
+        tmp = celist->head;
     } else { //or insert it where it belongs
         struct eventNode * prevnext = prev->next;
         if(!(prev->next = calloc(1, sizeof *prev))) {
             perror("ERR: STATUS: addEvent: calloc");
             exit(1);
         }
-        prev = prev->next;
-        prev->next = prevnext;
+        tmp = prev->next;
+        tmp->next = prevnext;
     }
-    if(!(prev->elem = malloc(sizeof *prev->elem))) {
+    if(!(tmp->elem = malloc(sizeof *tmp->elem))) {
         perror("ERR: STATUS: addEvent: malloc");
         exit(1);
     }
-    prev->elem->event = event;
-    prev->elem->data = eData;
-    prev->event_time = newtime;
+    tmp->elem->event = event;
+    tmp->elem->data = eData;
+    tmp->event_time = newtime;
 
     celist->len++;
     updateAlarm(); //head may have been replaced so we reset the alarm to the next event in the queue
@@ -309,6 +309,7 @@ void eventHandler(int sig) {
             default:
                 continue;
         }
+        free(e);
     } while(nextIsDue());
 }
 

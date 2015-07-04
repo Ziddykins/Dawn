@@ -32,6 +32,8 @@ struct Bot {
     struct Player players[100];
     struct Monsters monsters[MAX_MONSTERS];
     struct Monsters global_monster;
+
+    int pad; //unused padding data
 };
 
 enum Events  {
