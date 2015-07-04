@@ -147,8 +147,8 @@ void parse_private_message (struct Bot *b, struct Message *message) {
 
 int command_allowed (struct Bot *b, char * command, int pindex) { //command -> 16
     if (b->players[pindex].travel_timer.active) {
-        char disallowed[3][16] = {"melee", "gmelee"}; //remember to change array limits
-        for (int i=0; i<3; i++) {
+        char disallowed[2][16] = {"melee", "gmelee"}; //remember to change array limits
+        for (int i=0; i<2; i++) {
             printf("recv '%s' iter '%s'\n", command, disallowed[i]);
             if (strcmp(command, disallowed[i]) == 0) return 0;
         }
