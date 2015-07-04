@@ -24,12 +24,12 @@ int init_connect_server (const char *ip_addr, const char *port) {
         perror("socket");
         exit(1);
     }
-    printf("trying to connect\n");
+    printf("[!] Trying to connect\n");
     if(connect(con_socket, res->ai_addr, res->ai_addrlen) == -1) {
         perror("connect");
         exit(1);
     }
-    printf("gud\n");
+    printf("[!] Connected\n");
     freeaddrinfo(res);
     return errno;
 }

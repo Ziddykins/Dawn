@@ -132,10 +132,10 @@ int main (void) {
 
             //Nickname is in use, add a random suffix
             if (check_if_matches_regex(buffer, ":.*?\\s433\\s*\\s.*")) {
-                int rand_suffix = rand() % 5000;
+                int rand_suffix = rand() % 10;
                 printf("Username %s in use\n", dawn->nickname);
-                bzero(dawn->nickname, MAX_NICK_LENGTH);
-                sprintf(dawn->nickname, "%s%d", dawn->nickname, rand_suffix);
+                size_t nicklen = strlen(dawn->nickname);
+                snprintf(dawn->nickname+nicklen, MAX_NICK_LENGTH-nicklen, "%d", rand_suffix);
                 handle_login(dawn->nickname, dawn->password, dawn->realname, dawn->ident);
             }
 
