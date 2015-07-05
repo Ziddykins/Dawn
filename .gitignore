@@ -1,3 +1,12 @@
 *.db
 main
 dev/
+*.raw
+*.o
+dawn
+*.cbp
+*.depend
+*.layout
+*~
+obj/
+bin/
