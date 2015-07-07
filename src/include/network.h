@@ -1,5 +1,12 @@
 #ifndef NETWORK_H_INCLUDED
 #define NETWORK_H_INCLUDED
+
+/*
+ * The network header file is responsible for managing the IRC connection and
+ * handling data that is received from or sent to the IRC server.
+ * It's main task is to avoid getting kicked from the server due to spam.
+ */
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -17,6 +24,16 @@ struct Message {
     char receiver[64], message[2048];
 };
 
+//Initializes both the Message List and Message History List
+void init_send_queue(void);
+
+/*
+ * A Message History List keeps track of messages that have been sent in the past
+ * SENDQ_INTERVAL seconds. Whenever a sent message becomes older than that interval
+ * it'll be purged from the list thus making space for new sent messages. which the
+ * Message List can add to the Message History List.
+ */
+
 struct msgHistoryNode {
     size_t len;
     time_t date;
@@ -31,13 +48,21 @@ struct msgHistoryList {
 
 typedef void * MsgHistoryList;
 
+/*
+ * The Message List is responsible for keeping track of all messages that are to be
+ * send but couldn't because the Message History List did not allow for any further
+ * storage.
+ * Upon removal of an element from the Message History List it is checked whether
+ * there now is enough space to send the next message waiting in Queue.
+ */
+
 MsgHistoryList createMsgHistoryList(void);
 void deleteMsgHistoryList(void);
 void addMsgHistory(size_t len);
 
 struct msgNode {
     char * msg; //the message
-    size_t len; //the length of the message without \0
+    size_t len; //the length of the message without '\0'
     struct msgNode * next;
 };
 
@@ -49,8 +74,8 @@ struct msgList {
 
 typedef void * MsgList;
 
-MsgList createMsgList(void);
-void deleteMsgList(void);
+MsgList createMsgList(void); //allocates a new message history list
+void deleteMsgList(void); //frees all storage allocated
 void addMsg(char * msg, size_t len); //deep copies msg
 
 char * retrMsg(void); //returns pointer to msg, destroys node
@@ -58,10 +83,7 @@ char * retrMsg(void); //returns pointer to msg, destroys node
 void popMsgHist(void); //updates the message history
 size_t peekMsgSize(void); //returns size of mlist's head
 
-
 void processMessages(void); //will move messages from src to dest while allowed
-
-void init_send_queue(void);
 
 extern char buffer[MAX_RECV_BUFFER + 1];
 extern int con_socket;
