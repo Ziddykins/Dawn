@@ -33,12 +33,14 @@ int check_alive (struct Bot *b, struct Message *message) {
     if (b->players[pindex].health <= 0 || b->players[pindex].fullness <= 0) {
         if (b->players[pindex].alive) {
             char reason[32];
+            float newexp = (float)b->players[pindex].experience * 0.90f;
             strcpy(reason, b->players[pindex].health <= 0 ? "been killed" : "died from starvation");
-            sprintf(out, "PRIVMSG %s :%s has %s!\r\n",
+            sprintf(out, "PRIVMSG %s :%s has %s! 10%% experience has been lost\r\n",
                     message->receiver, message->sender_nick, reason);
             addMsg(out, strlen(out));
             b->players[pindex].deaths++;
             b->players[pindex].alive = 0;
+            b->players[pindex].experience = (int)newexp;
             return 0;
         }
     }

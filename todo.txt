@@ -10,5 +10,18 @@ concatenate similar messages
   this may require a complete redesign of the message system to be done efficiently
   could also make use of a registration system allowing for templating and extension of messages
 fluctuating marketplace
-spell system
+spell system (with spell levels)
 special monster modifiers
+player alignment
+player classes
+player titles (killbased)
+global bounty (based on special monster)
+hourly bounties (kill x amount of monster)
+PVP
+gear alignment
+enchanting of equipment (temporary effect, usable item)
+traversable dungeon
+bank (with gained interest)
+buildable properties (to be discussed)
+mount system (decreased movement speed)
+command-line arguments to set some attributes for added convenience
