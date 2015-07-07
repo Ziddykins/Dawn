@@ -26,13 +26,17 @@ struct Timers {
     time_t time_finished;
 };
 
+struct Market {
+    int materials[8];
+};
+
 struct Bot {
     char nickname[64], realname[64], ident[64], password[64], active_room[64];
     int login_sent, in_rooms, player_count, weather;
     struct Player players[100];
     struct Monsters monsters[MAX_MONSTERS];
     struct Monsters global_monster;
-
+    struct Market market;
     int pad; //unused padding data
 };
 

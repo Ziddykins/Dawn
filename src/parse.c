@@ -288,18 +288,17 @@ void parse_room_message (struct Bot *b, struct Message *message) {
     } else if (check_if_matches_regex(message->message, ";locate (\\w+)")) {
         find_building(b, message, to_lower(regex_group[1]));
     } else if (strcmp(message->message, ";materials") == 0) {
-        int pindex = get_pindex(b, message->sender_nick);
-        sprintf(out, "PRIVMSG %s :%s, [Materials: - Wood: %ld - Leather %ld - Stone: %ld - Ore: %ld - "
-               " Bronze: %ld - Mail: %ld - Steel: %ld - Diamond: %ld]\r\n",
-               message->receiver, message->sender_nick, b->players[pindex].wood,
-               b->players[pindex].leather, b->players[pindex].stone, b->players[pindex].ore,
-               b->players[pindex].bronze, b->players[pindex].mail, b->players[pindex].steel,
-               b->players[pindex].diamond);
-        addMsg(out, strlen(out));
+        print_materials(b, message);
+    } else if (check_if_matches_regex(message->message, ";market sell (\\w+) (\\d+)")) {
+        market_buysell(b, message, 0, regex_group[1], atoi(regex_group[2]));
+    } else if (check_if_matches_regex(message->message, ";market buy (\\w+) (\\d+)")) {
+        market_buysell(b, message, 1, regex_group[1], atoi(regex_group[2]));
     } else if (strcmp(message->message, ";save") == 0) {
         persistent_save(dawn);
         sprintf(out, "PRIVMSG %s :Saved.\r\n", message->receiver);
         addMsg(out, strlen(out));
+    } else if (strcmp(message->message, ";market") == 0) {
+        print_market(b);
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"

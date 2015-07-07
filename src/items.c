@@ -87,7 +87,8 @@ void generate_drop (struct Bot *b, struct Message *message) {
         amount = 1 + rand() % 4;
         amount > 1 ? strcpy(plural, "scraps") : strcpy(plural, "scrap");
         strcpy(mat_name, mat_types[type]);
-
+        b->players[p_index].materials[type] += amount;
+/*
         switch (type) {
             case WOOD:    b->players[p_index].wood    += amount; break;
             case LEATHER: b->players[p_index].leather += amount; break;
@@ -98,7 +99,7 @@ void generate_drop (struct Bot *b, struct Message *message) {
             case STEEL:   b->players[p_index].steel   += amount; break;
             case DIAMOND: b->players[p_index].diamond += amount; break;
         }
-
+*/
         sprintf(out, "PRIVMSG %s :%s finds %d %s %s\r\n",
                 message->receiver, message->sender_nick, amount, mat_name, plural);
         addMsg(out, strlen(out));

@@ -13,6 +13,7 @@
 #include "inventory.h"
 #include "combat.h"
 #include "items.h"
+#include "market.h"
 
 int check_if_matches_regex(char *, const char *);
 void handle_login(char *, char *, char *, char *);

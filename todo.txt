@@ -1,8 +1,14 @@
-send queue - done.
 command register system
+  Separate commands into functions
+  (Do a binary search on the strings)
+  Register commands at the start of the system
+  When a command is detected it is sent to a command handler which compares it to the registered commands
+  A command has a required authentication level; e.g: 0=no auth, 1=last seen with same host or identified, 2=admin
 update map
 update item and drop system
-concatenate similar events
+concatenate similar messages
+  this may require a complete redesign of the message system to be done efficiently
+  could also make use of a registration system allowing for templating and extension of messages
 fluctuating marketplace
 spell system
 special monster modifiers
