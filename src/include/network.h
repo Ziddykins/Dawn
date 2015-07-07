@@ -56,7 +56,7 @@ typedef void * MsgHistoryList;
  * there now is enough space to send the next message waiting in Queue.
  */
 
-MsgHistoryList createMsgHistoryList(void);
+MsgHistoryList createMsgHistoryList(void);2
 void deleteMsgHistoryList(void);
 void addMsgHistory(size_t len);
 

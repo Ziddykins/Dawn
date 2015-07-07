@@ -1,18 +1,31 @@
 #include "include/network.h"
 
+//! Receive buffer
 char buffer[MAX_RECV_BUFFER + 1];
+
+//! Main IRC connection of the bot
 int con_socket;
 
+//! Singleton Message List
 static MsgList mlist;
+//! Singleton Message History List
 static MsgHistoryList mhlist;
+
+//! Information whether a Message List has already been created
 static int msgQ_singleton = 0;
+
+//! Information whether a Message History List has already been created
 static int msgHQ_singleton = 0;
 
+//! Creates both a Message and a Message History List
 void init_send_queue() {
     mlist = createMsgList();
     mhlist = createMsgHistoryList();
 }
 
+/**
+ * @brief Connects to given address, file descriptor stored in con_socket
+ */
 int init_connect_server (const char *ip_addr, const char *port) {
     errno = 0;
     struct addrinfo destination, *res;
@@ -34,10 +47,20 @@ int init_connect_server (const char *ip_addr, const char *port) {
     return errno;
 }
 
+/**
+ * Close existing connection
+ */
 void close_socket (int socket) {
     close(socket);
 }
 
+/**
+ * @brief Will send a given character string to the IRC server
+ * Internal function used by Message List.
+ * @param out_buf character string to send
+ * @return void; upon write error program will terminate
+ * @see addMsg
+ */
 void send_socket (char * out_buf) {
     size_t len = strlen(out_buf);
     if(len > MAX_MESSAGE_BUFFER) {
@@ -51,6 +74,12 @@ void send_socket (char * out_buf) {
     }
 }
 
+/**
+ * @brief creates and allocates a Message History List
+ * Internal function used by init_send_queue()
+ * @see init_send_queue()
+ * @return new Message History List
+ */
 MsgHistoryList createMsgHistoryList() {
     if(msgHQ_singleton)
         return 0;
@@ -63,6 +92,10 @@ MsgHistoryList createMsgHistoryList() {
     return newList;
 }
 
+/**
+ * @brief frees all allocated storage of the Message History List
+ * @see mhlist
+ */
 void deleteMsgHistoryList() {
     if(!msgHQ_singleton || !mhlist)
         return;
@@ -76,6 +109,11 @@ void deleteMsgHistoryList() {
     free(cmhlist);
 }
 
+/**
+ * @brief Enqueues a Messages Metadata into the Message History list
+ * Internal function used by addMsg
+ * @see addMsg
+ */
 void addMsgHistory(size_t len) {
     if(mhlist == 0)
         return;
@@ -102,6 +140,12 @@ void addMsgHistory(size_t len) {
     cmhlist->msgs++;
 }
 
+/**
+ * @brief allocates and initializes a Message List if none exists ye
+ * Internal function used by init_send_queue()
+ * @return new Message List
+ * @see init_send_queue()
+ */
 MsgList createMsgList() {
     if(msgQ_singleton)
         return 0;
@@ -114,6 +158,9 @@ MsgList createMsgList() {
     return newList;
 }
 
+/**
+ * @brief frees all allocated storage of the Message List including the messages themselves
+ */
 void deleteMsgList() {
     if(!mlist || !msgQ_singleton)
         return;
@@ -128,6 +175,15 @@ void deleteMsgList() {
     free(cmlist);
 }
 
+/**
+ * @brief Enqueues a Message that is to be sent to the IRC server into the Message List
+ * Upon insertion the function will send from the oldest Message in the queue on as many
+ * Messages as it can (MAX_SENDQ_SIZE).
+ * @param msg message
+ * @param len length of given message without NUL terminator
+ * @return void
+ * @see SENDQ_INTERVAL, MAX_SENDQ_SIZE
+ */
 void addMsg(char * msg, size_t len) {
     if(mlist == 0)
         return;
@@ -156,6 +212,12 @@ void addMsg(char * msg, size_t len) {
     processMessages();
 }
 
+/**
+ * @brief will pop the Message Qeue and delete the oldest Message
+ * Internal function used by processMessages
+ * @return char* character string to be freed by the callee
+ * @see processMessages
+ */
 char * retrMsg() {
     if(mlist == 0)
         return 0;
@@ -176,7 +238,13 @@ char * retrMsg() {
     return data;
 }
 
-void popMsgHist() { //called when a history message reaches it's destruction time
+/**
+ * @brief removes all messages that are older than SENDQ_INTERVAL from the Message History List
+ * Internal function indirectly used by popMsgHist, addMsgHistory, addMsg via the Event Queue in status.h
+ * @return void
+ * @see SENDQ_INTERVAL, popMsgHist, addMsgHistory, addMsg
+ */
+void popMsgHist() {
     if(mhlist == 0)
         return;
     struct msgHistoryList * cmhlist = mhlist;
@@ -197,6 +265,12 @@ void popMsgHist() { //called when a history message reaches it's destruction tim
     processMessages();
 }
 
+/**
+ * @brief Returns the size of the oldest message (head) in the Message List without removing said message
+ * Internal function used by processMessages
+ * @return size_t size in number of bytes of the message
+ * @see processMessages
+ */
 size_t peekMsgSize() {
     if(mlist == 0)
         return 0;
@@ -206,6 +280,12 @@ size_t peekMsgSize() {
     return cmlist->head->len;
 }
 
+/**
+ * @brief Will send messages as long as the Message History List allows for it
+ * Internal function used by addMsg, popMsgHist
+ * @return void
+ * @see addMsg, popMsgHist
+ */
 void processMessages() {
     if(mlist == 0 || mhlist == 0)
         return;
