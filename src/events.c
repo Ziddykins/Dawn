@@ -136,7 +136,7 @@ static void random_punishment (struct Bot *b, char const * username) { //usernam
 //Select a random event and a random player
 //which the event is directed at, should there
 //be a receiver. If the room happens to be empty,
-//no event will be chosen
+//the bot will be chosen
 void hourly_events (struct Bot *b) {
     int event  = rand() % MAX_EVENT_TYPE;
     int player = rand() % b->player_count;
@@ -167,7 +167,7 @@ void hourly_events (struct Bot *b) {
         b->players[i].fullness--;
     }
 
-    //Sending -1 checks all users
+    //Sending -1 checks all users to see if they have starved
     check_famine(b, -1);
     fluctuate_market(b);
 }
@@ -202,6 +202,9 @@ void update_weather (struct Bot *b) {
     addMsg(out, strlen(out));
 }
 
+//When receiving -1, all users are checked for starvation
+//If a user is supplied, only that use is checked
+//Death occurs if starvation takes place
 void check_famine (struct Bot *b, int whom) {
     struct Message temp;
     if (whom == -1) {

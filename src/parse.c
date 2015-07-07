@@ -303,6 +303,9 @@ void parse_room_message (struct Bot *b, struct Message *message) {
         addMsg(out, strlen(out));
     } else if (strcmp(message->message, ";market") == 0) {
         print_market(b);
+    } else if (strcmp(message->message, ";[") == 0) {
+        sprintf(out, "PRIVMSG %s :You break down in tears\r\n", message->receiver);
+        addMsg(out, strlen(out));
     } else if (strcmp(message->message, ";gib gold") == 0) {
         int pindex = get_pindex(b, message->sender_nick);
         b->players[pindex].gold = INT_MAX;
