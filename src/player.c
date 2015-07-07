@@ -50,14 +50,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
     strcpy(np.first_class, "None");
     strcpy(np.second_class, "None");
     strcpy(np.title, "Newbie");
-    np.stone        = 0;
-    np.steel        = 0;
-    np.wood         = 0;
-    np.ore          = 0;
-    np.bronze       = 0;
-    np.diamond      = 0;
-    np.mail         = 0;
-    np.leather      = 0;
+    bzero(np.materials, sizeof np.materials);
     np.health       = 100;
     np.addiction    = 0;
     np.x_pos        = 1;

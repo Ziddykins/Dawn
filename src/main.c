@@ -99,7 +99,7 @@ int main (void) {
     }
 
     //Initial settings
-    strcpy(dawn->nickname, "Ziddy");
+    strcpy(dawn->nickname, "Dawn-18");
     strcpy(dawn->realname, "Helo");
     strcpy(dawn->ident,    "hehe");
     strcpy(dawn->password, "none");
@@ -148,6 +148,7 @@ int main (void) {
                     printf("[!] Got welcome message from server, joining rooms\n");
                     while (*n != NULL) {
                         sprintf(out, "JOIN %s\r\n", *n++);
+                        fluctuate_market(dawn);
                         addMsg(out, strlen(out));
                     }
                     n = NULL;

@@ -9,6 +9,7 @@
 #include "include/combat.h"
 #include "include/events.h"
 #include "include/monsters.h"
+#include "include/market.h"
 
 //Prototype
 void check_famine (struct Bot *, int);
@@ -165,7 +166,10 @@ void hourly_events (struct Bot *b) {
     for (int i=0; i<b->player_count; i++) {
         b->players[i].fullness--;
     }
+
+    //Sending -1 checks all users
     check_famine(b, -1);
+    fluctuate_market(b);
 }
 
 void update_weather (struct Bot *b) {
