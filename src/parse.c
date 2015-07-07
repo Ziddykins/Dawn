@@ -290,15 +290,22 @@ void parse_room_message (struct Bot *b, struct Message *message) {
     } else if (strcmp(message->message, ";materials") == 0) {
         print_materials(b, message);
     } else if (check_if_matches_regex(message->message, ";market sell (\\w+) (\\d+)")) {
-        market_buysell(b, message, 0, regex_group[1], atoi(regex_group[2]));
+        char *eptr;
+        long amount = strtol(regex_group[2], &eptr, 10);
+        market_buysell(b, message, 0, regex_group[1], amount);
     } else if (check_if_matches_regex(message->message, ";market buy (\\w+) (\\d+)")) {
-        market_buysell(b, message, 1, regex_group[1], atoi(regex_group[2]));
+        char *eptr;
+        long amount = strtol(regex_group[2], &eptr, 10);
+        market_buysell(b, message, 1, regex_group[1], amount);
     } else if (strcmp(message->message, ";save") == 0) {
         persistent_save(dawn);
         sprintf(out, "PRIVMSG %s :Saved.\r\n", message->receiver);
         addMsg(out, strlen(out));
     } else if (strcmp(message->message, ";market") == 0) {
         print_market(b);
+    } else if (strcmp(message->message, ";gib gold") == 0) {
+        int pindex = get_pindex(b, message->sender_nick);
+        b->players[pindex].gold = INT_MAX;
     } else if (strcmp(message->message, ";help") == 0) {
         sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
                 " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"

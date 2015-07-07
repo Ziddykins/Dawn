@@ -52,19 +52,24 @@ int get_itemID (char *which) {
 }
     
 
-void market_buysell (struct Bot *b, struct Message *m, int buysell, char *which, int amount) {
+void market_buysell (struct Bot *b, struct Message *m, int buysell, char *which, long amount) {
     int pindex = get_pindex(b, m->sender_nick);
     int material = get_itemID(which);
     char out[MAX_MESSAGE_BUFFER];
  
-    if (material == -1 || amount < 1 || amount >= INT_MAX) return;
+    if (material == -1 || amount < 1 || amount >= LONG_MAX) return;
 
     if (buysell == 0) {
         //sell
         if (b->players[pindex].materials[material] >= amount) {
+            if (b->players[pindex].gold + b->market.materials[material] * amount >= LONG_MAX) {
+                sprintf(out, "PRIVMSG %s :%s, you can't carry that much gold\r\n", m->receiver, m->sender_nick);
+                addMsg(out, strlen(out));
+                return;
+            }
             b->players[pindex].materials[material] -= amount;
             b->players[pindex].gold += b->market.materials[material] * amount;
-            sprintf(out, "PRIVMSG %s :%s, you have sold %d %s for %d gold\r\n",
+            sprintf(out, "PRIVMSG %s :%s, you have sold %ld %s for %ld gold\r\n",
                     m->receiver, m->sender_nick, amount, which, b->market.materials[material] * amount);
 
         } else {
@@ -73,10 +78,15 @@ void market_buysell (struct Bot *b, struct Message *m, int buysell, char *which,
         }
     } else {
         //buy
+        if (b->players[pindex].materials[material] + amount >= LONG_MAX) {
+            sprintf(out, "PRIVMSG %s :%s, you can't carry anymore %s\r\n", m->receiver, m->sender_nick, which);
+            addMsg(out, strlen(out));
+            return;
+        }
         if (b->players[pindex].gold >= b->market.materials[material] * amount) {
             b->players[pindex].gold -= b->market.materials[material] * amount;
             b->players[pindex].materials[material] += amount;
-            sprintf(out, "PRIVMSG %s :%s, you have purchased %d %s for %d gold\r\n",
+            sprintf(out, "PRIVMSG %s :%s, you have purchased %ld %s for %ld gold\r\n",
                     m->receiver, m->sender_nick, amount, which, b->market.materials[material] * amount);
         } else {
             sprintf(out, "PRIVMSG %s :%s, you do not have enough gold to purchase that much %s\r\n",
