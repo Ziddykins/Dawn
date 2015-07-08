@@ -41,6 +41,6 @@ void cmd_market(int pindex, struct Message * msg);
 void cmd_save(int pindex, struct Message * msg);
 void cmd_cry(int pindex, struct Message * msg);
 void cmd_gib(int pindex, struct Message * msg);
-
+void cmd_inv(int pindex, struct Message * msg);
 
 #endif // COMMANDS_H_INCLUDED

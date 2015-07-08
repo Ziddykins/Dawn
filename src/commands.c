@@ -31,6 +31,7 @@ void init_cmds() {
     registerCmd(0, ";save", "Save the current state of the game to disk", AL_ADMIN, cmd_save);
     registerCmd(0, ";[", "Express your pure sadness", AL_NOAUTH, cmd_cry);
     registerCmd(0, ";gib", "Cheat yourself some gold", AL_ADMIN, cmd_gib);
+    registerCmd(0, ";inv", "Displays the items currently in your inventory", AL_USER, cmd_inv);
 
     finalizeCmdSys(0);
 }
@@ -238,7 +239,6 @@ void cmd_save(int pindex __attribute__((unused)), struct Message * msg) {
     free(out);
 }
 
-
 void cmd_cry(int pindex __attribute__((unused)), struct Message * msg) {
     char * out = malloc(MAX_MESSAGE_BUFFER);
     snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You break down in tears\r\n", msg->receiver);
@@ -250,4 +250,8 @@ void cmd_gib(int pindex, struct Message * msg) {
     if (check_if_matches_regex(msg->message, CMD_LIT" gold (\\d+)")) {
         dawn->players[pindex].gold = atoi(regex_group[1]);
     }
+}
+
+void cmd_inv (int pindex __attribute__((unused)), struct Message * msg) {
+    print_inventory(dawn, msg);
 }
