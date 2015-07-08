@@ -44,14 +44,15 @@ void cmd_help(int pindex, struct Message * msg) {
     struct cmdSys * ccs = commands;
     assert(ccs);
 
-    if(check_if_matches_regex(msg->message, CMD_LIT" "CMD_LIT)) {
+    if(check_if_matches_regex(msg->message, CMD_LIT" ("CMD_LIT_MID")")) {
         invokeCmd(0, pindex, regex_group[1], msg, CMD_HELP);
     } else {
         char * out = malloc(MAX_MESSAGE_BUFFER);
-        int len = snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s : ", msg->receiver);
+        int len = snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :", msg->receiver);
         for(size_t i = 0; i < ccs->len; i++) {
-            len += snprintf(out+len+1, (size_t)(MAX_MESSAGE_BUFFER-len-1), "%s ", ccs->cmds[i]);
+            len += snprintf(out+len, (size_t)(MAX_MESSAGE_BUFFER-len), "%s ", ccs->cmds[i]);
         }
+        len += snprintf(out+len, (size_t)(MAX_MESSAGE_BUFFER-len), "\r\n");
         addMsg(out, (size_t)(len));
         free(out);
     }

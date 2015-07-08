@@ -107,7 +107,6 @@ void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode
     } else {
         if(mode == CMD_EXEC) {
             if(dawn->players[pindex].auth_level >= ccs->auth_levels[cmdID]) {
-                //TODO: Add auth_level check
                 ccs->fn[cmdID](pindex, msg);
             } else {
                 snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You are not authorized to issue this command!\r\n", msg->receiver);
@@ -218,8 +217,7 @@ size_t getCmdID(CmdSys cs, char * cmd) {
     if(valid) {
         int done = 0;
         for(size_t iter = mid; !done && iter < ccs->len && ccs->hashes[iter] == hash; iter++) {
-            if(strcmp(cmd,
-            ccs->cmds[iter]) == 0) {
+            if(strcmp(cmd, ccs->cmds[iter]) == 0) {
                 return iter;
             }
         }

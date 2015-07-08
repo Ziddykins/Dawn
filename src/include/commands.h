@@ -9,7 +9,8 @@
 #include "network.h"
 #include "cmdsys.h"
 
-#define CMD_LIT "^;\\w+"
+#define CMD_LIT "^;[\\w[]+"
+#define CMD_LIT_MID ";[\\w[]+"
 
 void init_cmds(void);
 void free_cmds(void);
