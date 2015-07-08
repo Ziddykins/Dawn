@@ -39,7 +39,7 @@ EventList createEventList() {
     return newlist;
 }
 
-void deleteEventList() {
+void freeEventList() {
     if(elist == 0)
         return;
     struct eventList * celist = (struct eventList *)elist;

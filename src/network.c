@@ -57,8 +57,8 @@ void close_socket (int socket) {
 /**
  * @brief Will send a given character string to the IRC server
  * Internal function used by Message List.
+ * upon write error program will terminate
  * @param out_buf character string to send
- * @return void; upon write error program will terminate
  * @see addMsg
  */
 void send_socket (char * out_buf) {
@@ -96,7 +96,7 @@ MsgHistoryList createMsgHistoryList() {
  * @brief frees all allocated storage of the Message History List
  * @see mhlist
  */
-void deleteMsgHistoryList() {
+void freeMsgHistList() {
     if(!msgHQ_singleton || !mhlist)
         return;
     struct msgHistoryList * cmhlist = mhlist;
@@ -161,7 +161,7 @@ MsgList createMsgList() {
 /**
  * @brief frees all allocated storage of the Message List including the messages themselves
  */
-void deleteMsgList() {
+void freeMsgList() {
     if(!mlist || !msgQ_singleton)
         return;
     struct msgList * cmlist = mlist;
@@ -181,7 +181,6 @@ void deleteMsgList() {
  * Messages as it can (MAX_SENDQ_SIZE).
  * @param msg message
  * @param len length of given message without NUL terminator
- * @return void
  * @see SENDQ_INTERVAL, MAX_SENDQ_SIZE
  */
 void addMsg(char * msg, size_t len) {
@@ -241,7 +240,6 @@ char * retrMsg() {
 /**
  * @brief removes all messages that are older than SENDQ_INTERVAL from the Message History List
  * Internal function indirectly used by popMsgHist, addMsgHistory, addMsg via the Event Queue in status.h
- * @return void
  * @see SENDQ_INTERVAL, popMsgHist, addMsgHistory, addMsg
  */
 void popMsgHist() {
@@ -283,7 +281,6 @@ size_t peekMsgSize() {
 /**
  * @brief Will send messages as long as the Message History List allows for it
  * Internal function used by addMsg, popMsgHist
- * @return void
  * @see addMsg, popMsgHist
  */
 void processMessages() {

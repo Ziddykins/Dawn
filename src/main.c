@@ -16,7 +16,6 @@
 unsigned int MAX_CHANNEL_LENGTH = 64;
 unsigned int MAX_NICK_LENGTH    = 64;
 
-
 int main (void) {
     FILE *urandom = fopen("/dev/urandom", "r");
     unsigned int seed;
@@ -233,9 +232,9 @@ int main (void) {
         return 1;
     }
     close(con_socket);
-    deleteMsgHistoryList();
-    deleteMsgList();
-    deleteEventList();
+    freeMsgHistList();
+    freeMsgList();
+    freeEventList();
     free(dawn);
     printf("[!] Program exiting normally\n");
     return 0;
