@@ -63,6 +63,11 @@ void cmd_help(int pindex, struct Message * msg) {
 void cmd_new(int pindex, struct Message * msg) {
     if(pindex == -1) {
         init_new_character(dawn, msg);
+    } else {
+        char * out = malloc(MAX_MESSAGE_BUFFER);
+        sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
+        addMsg(out, strlen(out));
+        free(out);
     }
 }
 
@@ -73,11 +78,14 @@ void cmd_auth(int pindex, struct Message * msg) {
     char * out = malloc(MAX_MESSAGE_BUFFER);
     if(check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         if(authKeyValid && strcmp(authKey, regex_group[1]) == 0) {
-            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n", dawn->active_room, dawn->players[pindex].username, authLevelToStr(AL_ROOT));
-            addMsg(out, strlen(out));
             authKeyValid = 0;
             dawn->players[pindex].auth_level = AL_ROOT;
             dawn->players[pindex].max_auth = AL_ROOT;
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
+                dawn->active_room,
+                dawn->players[pindex].username,
+                authLevelToStr(dawn->players[pindex].auth_level));
+            addMsg(out, strlen(out));
         } else {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Invalid auth_key!\r\n", dawn->active_room);
             addMsg(out, strlen(out));
