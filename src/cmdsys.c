@@ -128,7 +128,7 @@ void sortCmds(CmdSys cs) {
 
     struct cmdSys * ccs = cs ? cs : commands;
     assert(ccs);
-    assert(ccs->capacity = ccs->len);
+    assert(ccs->capacity == ccs->len);
     if(ccs->len <= 1) {
         return;
     }
