@@ -202,7 +202,7 @@ int main (void) {
                 if (check_if_matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
                     int pindex = get_pindex(dawn, regex_group[3]);
                     if (pindex != -1 && (dawn->players[pindex].auth_level < dawn->players[pindex].max_auth || dawn->players[pindex].auth_level < AL_REG)) {
-                        dawn->players[pindex].auth_level = dawn->players[pindex].max_auth < AL_REG ? AL_REG : dawn->players[pindex].auth_level;
+                        dawn->players[pindex].auth_level = dawn->players[pindex].max_auth < AL_REG ? AL_REG : dawn->players[pindex].max_auth;
                         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
                             dawn->active_room,
                             dawn->players[pindex].username,
