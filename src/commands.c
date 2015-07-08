@@ -74,13 +74,13 @@ void cmd_auth(int pindex, struct Message * msg) {
 }
 
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
-    if (strcmp(msg->message, CMD_LIT) == 0) {
-        print_sheet(dawn, msg);
-    } else if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
+    if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         strncpy(msg->sender_nick, to_lower(regex_group[1]), MAX_NICK_LENGTH);
         if (get_pindex(dawn, regex_group[1]) != -1) {
             print_sheet(dawn, msg);
         }
+    } else {
+        print_sheet(dawn, msg);
     }
 }
 
