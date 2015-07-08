@@ -21,9 +21,9 @@
 #define IRC_UNDRL   "\037"
 #define IRC_NORMAL  "\017"
 
-#define ANSI_RED    "\e[0;31m"
-#define ANSI_GREEN  "\e[0;32m"
-#define ANSI_YELLOW "\e[0;33m"
-#define ANSI_NORMAL "\e[0m"
+#define ANSI_RED    "\033[0;31m"
+#define ANSI_GREEN  "\033[0;32m"
+#define ANSI_YELLOW "\033[0;33m"
+#define ANSI_NORMAL "\033[0m"
 
 #endif
