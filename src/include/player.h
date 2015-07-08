@@ -23,6 +23,14 @@ unsigned long long get_nextlvl_exp (struct Bot *, const char []);
 int get_pindex (struct Bot *, const char []);
 int get_bindex (struct Bot *, const char [], const char []);
 
+enum authLevel {
+    AL_NOAUTH,
+    AL_USER,
+    AL_REG,
+    AL_ADMIN, //requires AL_REG
+    AL_ROOT //requires auth key
+};
+
 struct Player {
     char username[64], hostmask[128]; //limits used in parse.c
     char salt[16]; //limits used in parse.c and player.c
@@ -38,8 +46,8 @@ struct Player {
     int alive, available, level, contribution, max_health, max_mana;
     int available_slots, available_capacity, mana, strength;
     int intelligence, defense, m_def, alignment, attr_pts;
-    short identified;
-    short addiction, x_pos, y_pos, fullness;
+    short auth_level;
+    short x_pos, y_pos, fullness;
     struct TravelTimer travel_timer;
 };
 

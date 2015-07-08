@@ -175,7 +175,7 @@ void parse_room_message (struct Bot *b, struct Message *message) {
             return;
         }
 
-        if (dawn->players[pindex].identified && 
+        if (dawn->players[pindex].auth_level &&
                 strcmp(dawn->players[pindex].hostmask, message->sender_hostmask) != 0) {
             sprintf(out, "PRIVMSG %s :%s, I've updated your hostmask\r\n", message->receiver, message->sender_nick);
             strcpy(dawn->players[pindex].hostmask, message->sender_hostmask);
@@ -183,7 +183,7 @@ void parse_room_message (struct Bot *b, struct Message *message) {
         }
 
         if (strcmp(b->players[pindex].hostmask, message->sender_hostmask) != 0
-                && b->players[pindex].identified != 1) {
+                && b->players[pindex].auth_level != 1) {
             sprintf(out, "PRIVMSG %s :%s, I seem to recall you connecting from a different host. Please login "
                     "by sending me a private message containing: ;login <your_password>\r\n",
                     message->receiver, message->sender_nick);

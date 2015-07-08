@@ -52,7 +52,6 @@ void init_new_character (struct Bot *b, struct Message *message) {
     strcpy(np.title, "Newbie");
     bzero(np.materials, sizeof np.materials);
     np.health       = 100;
-    np.addiction    = 0;
     np.x_pos        = 1;
     np.y_pos        = 1;
     np.fullness     = 100;
@@ -76,7 +75,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
     np.available_slots = 23;
     np.available_capacity = 70;
     np.travel_timer.active = 0;
-    np.identified = 0;
+    np.auth_level = 0;
     memset(np.inventory, 0, sizeof np.inventory);
     struct Inventory sword  = {"Wooden Sword", 0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 1, 0, 0};
     struct Inventory shield = {"Wooden Shield", 5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 1, 0, 0, 1, 5, 0};

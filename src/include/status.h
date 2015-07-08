@@ -74,7 +74,7 @@ char * eventToStr(enum Events x);
 typedef void * EventList;
 
 EventList createEventList(void);
-void deleteEventList(void);
+void freeEventList(void);
 void addEvent(enum Events event, int eData, unsigned int offset, int flags);
 void removeEvent(struct eventNode * prev);
 void selectList(EventList);

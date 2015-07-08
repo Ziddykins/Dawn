@@ -56,8 +56,8 @@ typedef void * MsgHistoryList;
  * there now is enough space to send the next message waiting in Queue.
  */
 
-MsgHistoryList createMsgHistoryList(void);2
-void deleteMsgHistoryList(void);
+MsgHistoryList createMsgHistoryList(void);
+void freeMsgHistList(void);
 void addMsgHistory(size_t len);
 
 struct msgNode {
@@ -75,7 +75,7 @@ struct msgList {
 typedef void * MsgList;
 
 MsgList createMsgList(void); //allocates a new message history list
-void deleteMsgList(void); //frees all storage allocated
+void freeMsgList(void); //frees all storage allocated
 void addMsg(char * msg, size_t len); //deep copies msg
 
 char * retrMsg(void); //returns pointer to msg, destroys node
