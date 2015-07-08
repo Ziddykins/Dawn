@@ -40,7 +40,7 @@ int check_alive (struct Bot *b, struct Message *message) {
             addMsg(out, strlen(out));
             b->players[pindex].deaths++;
             b->players[pindex].alive = 0;
-            b->players[pindex].experience = (int)newexp;
+            b->players[pindex].experience = (unsigned long long)newexp;
             return 0;
         }
     }

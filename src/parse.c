@@ -174,13 +174,23 @@ void parse_room_message (struct Bot *b, struct Message *message) {
             addMsg(out, strlen(out));
             return;
         }
-        if (strcmp(b->players[pindex].hostmask, message->sender_hostmask) != 0) {
+
+        if (dawn->players[pindex].identified && 
+                strcmp(dawn->players[pindex].hostmask, message->sender_hostmask) != 0) {
+            sprintf(out, "PRIVMSG %s :%s, I've updated your hostmask\r\n", message->receiver, message->sender_nick);
+            strcpy(dawn->players[pindex].hostmask, message->sender_hostmask);
+            addMsg(out, strlen(out));
+        }
+
+        if (strcmp(b->players[pindex].hostmask, message->sender_hostmask) != 0
+                && b->players[pindex].identified != 1) {
             sprintf(out, "PRIVMSG %s :%s, I seem to recall you connecting from a different host. Please login "
                     "by sending me a private message containing: ;login <your_password>\r\n",
                     message->receiver, message->sender_nick);
             addMsg(out, strlen(out));
             return;
         }
+
         if (!command_allowed(b, regex_group[1], pindex)) {
             sprintf(out, "PRIVMSG %s :This command cannot be used at this time\r\n",  message->receiver);
             addMsg(out, strlen(out));

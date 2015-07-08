@@ -167,6 +167,16 @@ int main (void) {
                     MAX_NICK_LENGTH    = (unsigned int)strtoul(regex_group[2], 0, 10) + 1;
                 }
 
+                //Check if user is identified
+                //:punch.wa.us.dal.net 307 jkjff ziddy :has identified for this nick
+                if (check_if_matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
+                    int pindex = get_pindex(dawn, regex_group[3]);
+                    if (pindex != -1) {
+                        dawn->players[pindex].identified = 1;
+                        printf("whois now true\n");
+                    }
+                }
+
                 //NAMES (Status 353)
                 if (check_if_matches_regex(buffer, ":(.*?)\\s353\\s(.*?)\\s@\\s(.*?)\\s:(.*)")) {
                     char *ch_ptr;
@@ -196,6 +206,8 @@ int main (void) {
                             dawn->players[index].available = 0;
                         } else if (strcmp(regex_group[4], "JOIN") == 0) {
                             dawn->players[index].available = 1;
+                            sprintf(out, "WHOIS %s\r\n", regex_group[1]);
+                            addMsg(out, strlen(out));
                         } else if (strcmp(regex_group[4], "QUIT") == 0) {
                             dawn->players[index].available = 0;
                         }

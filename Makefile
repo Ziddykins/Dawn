@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -Wall -O3 -std=gnu11 -Wno-float-equal -Wpedantic -Wextra
+CFLAGS=-c -Wall -O3 -std=gnu11 -Wno-float-equal -Wpedantic -Wextra -g
 LDFLAGS=-lpcre -lm -lssl -lcrypto
 SRCDIR=src
 SOURCES=$(wildcard $(SRCDIR)/*.c) 

@@ -139,6 +139,7 @@ static void random_punishment (struct Bot *b, char const * username) { //usernam
 //the bot will be chosen
 void hourly_events (struct Bot *b) {
     int event  = rand() % MAX_EVENT_TYPE;
+    if (!b->player_count) return;
     int player = rand() % b->player_count;
 
     while (b->players[player].available != 1) {
