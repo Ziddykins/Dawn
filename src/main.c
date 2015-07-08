@@ -139,7 +139,7 @@ int main (void) {
 
     if (init_connect_server(dalnet, port) == 0) {
         printf("[!] Connected to server %s\n", dalnet);
-        while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
+        while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0)) != -1) {
             char out[MAX_MESSAGE_BUFFER];
             buffer[len] = '\0';
 
@@ -295,12 +295,15 @@ int main (void) {
         close(con_socket);
         return 1;
     }
-    close(con_socket);
+    if(len != -1)
+        close(con_socket);
     freeMsgHistList();
     freeMsgList();
     freeEventList();
     free_cmds();
     free(dawn);
+    if(authKeyValid || authKey)
+        free(authKey);
     printf("[!] Program exiting normally\n");
     return 0;
 }

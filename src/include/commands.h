@@ -18,6 +18,7 @@ void free_cmds(void);
 void cmd_help(int pindex, struct Message * msg);
 void cmd_new(int pindex, struct Message * msg);
 void cmd_auth(int pindex, struct Message * msg);
+void cmd_stop(int pindex, struct Message * msg);
 void cmd_sheet(int pindex, struct Message * msg);
 void cmd_equip(int pindex, struct Message * msg);
 void cmd_unequip(int pindex, struct Message * msg);

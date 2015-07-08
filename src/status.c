@@ -467,7 +467,7 @@ void load_events(char const * fn) {
 
             celist->len++;
 
-            tmp->next = malloc(sizeof *tmp);
+            tmp->next = calloc(1, sizeof *tmp);
             tmp = tmp->next;
         }
         fclose(file);

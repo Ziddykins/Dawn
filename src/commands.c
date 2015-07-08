@@ -8,6 +8,7 @@ void init_cmds() {
     registerCmd(0, ";help", "[command] | Prints general help or for a specific command | [] = optional, <> = necessary", AL_NOAUTH, cmd_help);
     registerCmd(0, ";new", "Create a new account for this nick", AL_NOAUTH, cmd_new);
     registerCmd(0, ";auth", "Authenticate your account to use Dawn", AL_NOAUTH, cmd_auth);
+    registerCmd(0, ";stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
     registerCmd(0, ";sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
     registerCmd(0, ";equip", "<itemID> | Equip an item from your inventory", AL_USER, cmd_equip);
     registerCmd(0, ";unequip", "<itemID> | Unequip an item", AL_USER, cmd_unequip);
@@ -52,7 +53,9 @@ void cmd_help(int pindex, struct Message * msg) {
         char * out = malloc(MAX_MESSAGE_BUFFER);
         int len = snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :", msg->receiver);
         for(size_t i = 0; i < ccs->len; i++) {
-            len += snprintf(out+len, (size_t)(MAX_MESSAGE_BUFFER-len), "%s ", ccs->cmds[i]);
+            if(ccs->auth_levels[i] <= dawn->players[pindex].auth_level) {
+                len += snprintf(out+len, (size_t)(MAX_MESSAGE_BUFFER-len), "%s ", ccs->cmds[i]);
+            }
         }
         len += snprintf(out+len, (size_t)(MAX_MESSAGE_BUFFER-len), "\r\n");
         addMsg(out, (size_t)(len));
@@ -79,6 +82,8 @@ void cmd_auth(int pindex, struct Message * msg) {
     if(check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         if(authKeyValid && strcmp(authKey, regex_group[1]) == 0) {
             authKeyValid = 0;
+            free(authKey);
+            authKey = 0;
             dawn->players[pindex].auth_level = AL_ROOT;
             dawn->players[pindex].max_auth = AL_ROOT;
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
@@ -95,6 +100,10 @@ void cmd_auth(int pindex, struct Message * msg) {
         addMsg(out, strlen(out));
     }
     free(out);
+}
+
+void cmd_stop(int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
+    close_socket(con_socket);
 }
 
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
