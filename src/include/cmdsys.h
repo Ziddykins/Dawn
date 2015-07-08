@@ -13,7 +13,7 @@ struct cmdSys {
     char ** cmds;
     char ** helptexts;
     int * auth_levels;
-    void (*(*fn))(struct Message *msg); //array of function pointers
+    void (*(*fn))(int pindex, struct Message *msg); //array of function pointers
     size_t flags; //alignment + safety checks
 };
 
@@ -40,11 +40,11 @@ void init_cmdsys(void);
 CmdSys createCmdSys(void);
 void freeCmdSys(CmdSys);
 
-void registerCmd(CmdSys, char * cmd, char * helptext, int auth_level, void (*fn)(struct Message *msg));
+void registerCmd(CmdSys, char * cmd, char * helptext, int auth_level, void (*fn)(int pindex, struct Message *msg));
 
 void finalizeCmdSys(CmdSys);
 
-void invokeCmd(CmdSys, char * cmd, struct Message * msg, int mode);
+void invokeCmd(CmdSys, int pindex, char * cmd, struct Message * msg, int mode);
 
 //Internal functions
 void sortCmds(CmdSys);

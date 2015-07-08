@@ -13,7 +13,7 @@ CmdSys createCmdSys() {
 }
 
 /*
-void sample_function(struct Message *msg) {
+void sample_function(int pindex, struct Message *msg) {
     printf("YEAH BITCHES!!\n");
 }
 */
@@ -38,7 +38,7 @@ void freeCmdSys(CmdSys cs) {
     free(ccs);
 }
 
-void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(struct Message *msg)) {
+void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(int pindex, struct Message *msg)) {
     struct cmdSys * ccs = cs ? cs : commands;
     assert(ccs);
     ccs->flags = CMD_REGISTERED;
@@ -59,10 +59,14 @@ void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*
 
     ccs->hashes[ccs->len] = hashCode(cmd);
 
-    ccs->cmds[ccs->len] = malloc(strlen(cmd)+1);
+    size_t len = strlen(cmd);
+    assert(len < MAX_MESSAGE_BUFFER);
+    ccs->cmds[ccs->len] = malloc(len+1);
     strcpy(ccs->cmds[ccs->len], cmd);
 
-    ccs->helptexts[ccs->len] = malloc(strlen(helptext)+1);
+    len = strlen(cmd);
+    assert(len < MAX_MESSAGE_BUFFER);
+    ccs->helptexts[ccs->len] = malloc(len+1);
     strcpy(ccs->helptexts[ccs->len], helptext);
 
     ccs->auth_levels[ccs->len] = auth_level;
@@ -82,30 +86,36 @@ void finalizeCmdSys(CmdSys cs) {
     ccs->flags = CMD_FINALIZED;
 }
 
-void invokeCmd(CmdSys cs, char * cmd, struct Message * msg, int mode) {
+void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode) {
     struct cmdSys * ccs = cs ? cs : commands;
     assert(ccs && msg && cmd);
     assert(ccs->flags == CMD_FINALIZED);
 
     size_t cmdID = getCmdID(cs, cmd);
-    char out[MAX_MESSAGE_BUFFER];
+    char * out = malloc(MAX_MESSAGE_BUFFER);
     if(cmdID == (size_t)(-1)) {
-        if(mode == CMD_EXEC)
+        if(mode == CMD_EXEC) {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Unknown command. Please use ';help'\r\n", msg->receiver);
-        else
+        } else {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Command does not exist.\r\n", msg->receiver);
+        }
         addMsg(out, strlen(out));
         //printf("%s", out);
     } else {
         if(mode == CMD_EXEC) {
-            //TODO: Add auth_level check
-            ccs->fn[cmdID](msg);
+            if(dawn->players[pindex].auth_level >= ccs->auth_levels[cmdID]) {
+                //TODO: Add auth_level check
+                ccs->fn[cmdID](pindex, msg);
+            } else {
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You are not authorized to issue this command!\r\n", msg->receiver);
+                addMsg(out, strlen(out));
+            }
         } else if(mode == CMD_HELP) {
-            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :'%s': %s", msg->receiver, ccs->cmds[cmdID], ccs->helptexts[cmdID]);
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :'%s': %s\r\n", msg->receiver, ccs->cmds[cmdID], ccs->helptexts[cmdID]);
             addMsg(out, strlen(out));
-            //printf("%s", out);
         }
     }
+    free(out);
 }
 
 //Internal functions
@@ -158,7 +168,7 @@ void sortCmds(CmdSys cs) {
     char ** cmds = calloc(ccs->len, sizeof *ccs->cmds);
     char ** helptexts = calloc(ccs->len, sizeof *ccs->helptexts);
     int * auth_levels = calloc(ccs->len, sizeof *ccs->auth_levels);
-    void (*(*fn))(struct Message *msg) = calloc(ccs->len, sizeof *ccs->fn);
+    void (*(*fn))(int pindex, struct Message *msg) = calloc(ccs->len, sizeof *ccs->fn);
 
     for(size_t i = 0; i < ccs->len; i++) {
         hashes[i] = ccs->hashes[i];
