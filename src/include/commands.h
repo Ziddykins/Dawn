@@ -20,5 +20,22 @@ void cmd_hunt(int pindex, struct Message * msg);
 void cmd_revive(int pindex, struct Message * msg);
 void cmd_drop(int pindex, struct Message * msg);
 void cmd_info(int pindex, struct Message * msg);
+void cmd_givexp(int pindex, struct Message * msg);
+void cmd_make(int pindex, struct Message * msg);
+void cmd_location(int pindex, struct Message * msg);
+void cmd_slay(int pindex, struct Message * msg);
+void cmd_gslay(int pindex, struct Message * msg);
+void cmd_check(int pindex, struct Message * msg);
+void cmd_gcheck(int pindex, struct Message * msg);
+void cmd_assign(int pindex, struct Message * msg);
+void cmd_ap(int pindex, struct Message * msg);
+void cmd_travel(int pindex, struct Message * msg);
+void cmd_locate(int pindex, struct Message * msg);
+void cmd_materials(int pindex, struct Message * msg);
+void cmd_market(int pindex, struct Message * msg);
+void cmd_save(int pindex, struct Message * msg);
+void cmd_cry(int pindex, struct Message * msg);
+void cmd_gib(int pindex, struct Message * msg);
+
 
 #endif // COMMANDS_H_INCLUDED
