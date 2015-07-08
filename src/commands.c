@@ -60,17 +60,33 @@ void cmd_help(int pindex, struct Message * msg) {
     }
 }
 
-void cmd_new(int pindex __attribute__((unused)), struct Message * msg) {
-    init_new_character(dawn, msg);
+void cmd_new(int pindex, struct Message * msg) {
+    if(pindex == -1) {
+        init_new_character(dawn, msg);
+    }
 }
 
+char * authKey;
+int authKeyValid;
+
 void cmd_auth(int pindex, struct Message * msg) {
-    if(check_if_matches_regex(msg->message, CMD_LIT)) {
-        char * whois = malloc(MAX_MESSAGE_BUFFER);
-        sprintf(whois, "WHOIS %s\r\n", dawn->players[pindex].username);
-        addMsg(whois, strlen(whois));
-        free(whois);
+    char * out = malloc(MAX_MESSAGE_BUFFER);
+    if(check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
+        if(authKeyValid && strcmp(authKey, regex_group[1]) == 0) {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n", dawn->active_room, dawn->players[pindex].username, authLevelToStr(AL_ROOT));
+            addMsg(out, strlen(out));
+            authKeyValid = 0;
+            dawn->players[pindex].auth_level = AL_ROOT;
+            dawn->players[pindex].max_auth = AL_ROOT;
+        } else {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Invalid auth_key!\r\n", dawn->active_room);
+            addMsg(out, strlen(out));
+        }
+    } else if(check_if_matches_regex(msg->message, CMD_LIT)) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "WHOIS %s\r\n", dawn->players[pindex].username);
+        addMsg(out, strlen(out));
     }
+    free(out);
 }
 
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {

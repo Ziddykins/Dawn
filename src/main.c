@@ -16,12 +16,13 @@
 //Determined by server - if values not received on connect, default to 64
 unsigned int MAX_CHANNEL_LENGTH = 64;
 unsigned int MAX_NICK_LENGTH    = 64;
+char * authKey;
 
 int main (void) {
     FILE *urandom = fopen("/dev/urandom", "r");
     unsigned int seed;
     if (urandom == NULL) {
-        fprintf (stderr, "Cannot open /dev/urandom!\n");
+        fprintf (stderr, "[E] Cannot open /dev/urandom!\n");
         exit(1);
     }
     if(!fread(&seed, sizeof (seed), 1, urandom)) {
@@ -30,6 +31,34 @@ int main (void) {
     }
     srand(seed);
     fclose(urandom);
+
+    FILE *authFile = fopen("auth_key.txt", "w");
+    if(!authFile) {
+        perror("[E] Could not create auth_key");
+        exit(1);
+    }
+
+    authKey = calloc(AUTH_KEY_LEN+1, 1);
+    for(size_t i = 0; i < AUTH_KEY_LEN; i++) {
+        do {
+            authKey[i] = rand() % 32;
+        } while(authKey[i] >= 26);
+        if(rand()%2) {
+            authKey[i] += 'a';
+        } else {
+            authKey[i] += 'A';
+        }
+    }
+
+    if(!fwrite(authKey, AUTH_KEY_LEN, sizeof *authKey, authFile)) {
+        perror("[E] Could not write auth_key");
+        return 1;
+    }
+
+    fclose(authFile);
+
+    printf("[!] auth_key: %s\n", authKey);
+    authKeyValid = 1;
 
     int match;
     ssize_t len;
@@ -172,9 +201,19 @@ int main (void) {
                 //:punch.wa.us.dal.net 307 jkjff ziddy :has auth_level for this nick
                 if (check_if_matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
                     int pindex = get_pindex(dawn, regex_group[3]);
-                    if (pindex != -1 && dawn->players[pindex].auth_level < AL_REG) {
+                    if (pindex != -1 && dawn->players[pindex].auth_level < dawn->players[pindex].max_auth) {
+                        dawn->players[pindex].auth_level = dawn->players[pindex].max_auth;
+                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
+                            dawn->active_room,
+                            dawn->players[pindex].username,
+                            authLevelToStr(dawn->players[pindex].auth_level));
+                        addMsg(out, strlen(out));
+                    } else if(dawn->players[pindex].auth_level < AL_REG) {
                         dawn->players[pindex].auth_level = AL_REG;
-                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (REG)\r\n", dawn->active_room, dawn->players[pindex].username);
+                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
+                            dawn->active_room,
+                            dawn->players[pindex].username,
+                            authLevelToStr(dawn->players[pindex].auth_level));
                         addMsg(out, strlen(out));
                     } else {
                         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already verified. (%s)\r\n",

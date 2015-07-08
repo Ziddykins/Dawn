@@ -26,6 +26,7 @@
 #define HEALING_INTERVAL    (1800)
 #define SAVING_INTERVAL     (900)
 
+#define AUTH_KEY_LEN        (24)
 extern unsigned int MAX_NICK_LENGTH;
 extern unsigned int MAX_CHANNEL_LENGTH;
 #endif

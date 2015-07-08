@@ -32,6 +32,8 @@ enum authLevel {
 };
 
 char * authLevelToStr(enum authLevel al);
+extern char * authKey;
+extern int authKeyValid;
 
 struct Player {
     char username[64], hostmask[128]; //limits used in parse.c
@@ -48,9 +50,10 @@ struct Player {
     int alive, available, level, contribution, max_health, max_mana;
     int available_slots, available_capacity, mana, strength;
     int intelligence, defense, m_def, alignment, attr_pts;
-    short auth_level;
-    short x_pos, y_pos, fullness;
     struct TravelTimer travel_timer;
+    unsigned char auth_level, max_auth;
+    short x_pos, y_pos, fullness;
+    //char pad[6];
 };
 
 #endif
