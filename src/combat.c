@@ -121,7 +121,7 @@ void player_attacks (struct Bot *b, struct Message *message, int global) {
                     sprintf(out, "PRIVMSG %s :%s attacks the %s for %d %sCRITICAL%s damage! "
                             "Remaining (%d)\r\n",
                             message->receiver, message->sender_nick, b->global_monster.name,
-                            player_attack - monster_defense, red, normal, b->global_monster.hp);
+                            player_attack - monster_defense, IRC_RED, IRC_NORMAL, b->global_monster.hp);
                 } else {
                     sprintf(out, "PRIVMSG %s :%s attacks the %s for %d damage! (Remaining: %d)\r\n",
                             message->receiver, message->sender_nick, b->global_monster.name,

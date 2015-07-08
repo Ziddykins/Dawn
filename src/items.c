@@ -48,28 +48,28 @@ void generate_drop (struct Bot *b, struct Message *message) {
     if (rarity_chance <= COMMON) {
         item_dropped.rarity = 1;
     } else if (rarity_chance <= UNCOMMON) {
-        strcat(item_name, cyan);
+        strcat(item_name, IRC_CYAN);
         item_dropped.rarity = 2;
     } else if (rarity_chance <= RARE) {
-        strcat(item_name, orange);
+        strcat(item_name, IRC_ORANGE);
         item_dropped.rarity = 3;
     } else if (rarity_chance <= MYTHICAL) {
-        strcat(item_name, purple);
+        strcat(item_name, IRC_PURPLE);
         item_dropped.rarity = 4;
     } else if (rarity_chance <= EPIC) {
-        strcat(item_name, dblue);
+        strcat(item_name, IRC_DBLUE);
         item_dropped.rarity = 5;
     } else if (rarity_chance <= LEGENDARY) {
-        strcat(item_name, brown);
+        strcat(item_name, IRC_BROWN);
         item_dropped.rarity = 6;
     } else if (rarity_chance <= GODLY) {
-        strcat(item_name, bold);
-        strcat(item_name, pink);
+        strcat(item_name, IRC_BOLD);
+        strcat(item_name, IRC_PINK);
         item_dropped.rarity = 7;
     } else if (rarity_chance <= FORSAKEN) {
-        strcat(item_name, bold);
-        strcat(item_name, undrl);
-        strcat(item_name, red);
+        strcat(item_name, IRC_BOLD);
+        strcat(item_name, IRC_UNDRL);
+        strcat(item_name, IRC_RED);
         item_dropped.rarity = 8;
     } else {
         enum material {WOOD, LEATHER, STONE, ORE, BRONZE, MAIL, STEEL, DIAMOND};
@@ -145,7 +145,7 @@ void generate_drop (struct Bot *b, struct Message *message) {
         }
     }
 
-    strcat(item_name, normal);
+    strcat(item_name, IRC_NORMAL);
     strcpy(item_name, item_name);
     strcpy(item_dropped.name, item_name);
 

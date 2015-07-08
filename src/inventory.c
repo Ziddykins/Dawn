@@ -22,7 +22,7 @@ void print_inventory (struct Bot *b, struct Message *message) {
         }
         int equipped = b->players[i].inventory[j].equipped;
         temp[0] = '\0';
-        sprintf(temp, "[%s%d%s] - %s ", equipped ? green : red, j, normal,
+        sprintf(temp, "[%s%d%s] - %s ", equipped ? IRC_GREEN : IRC_RED, j, IRC_NORMAL,
                 b->players[i].inventory[j].name);
         strcat(out, temp);
     }

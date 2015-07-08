@@ -39,7 +39,7 @@ void call_monster (struct Bot *b, char const * username, int global) { //usernam
 
     sprintf(out, "PRIVMSG %s :Monster spawned in room%s [%s] [%d/%d %sHP%s] - [%d STR] - [%d DEF] - [%d INT] -"
                  " [%d MDEF]\r\n",
-                 b->active_room, pstring, tmp.name, tmp.hp, tmp.mhp, red, normal, tmp.str, tmp.def,
+                 b->active_room, pstring, tmp.name, tmp.hp, tmp.mhp, IRC_RED, IRC_NORMAL, tmp.str, tmp.def,
                  tmp.intel, tmp.mdef);
     addMsg(out, strlen(out));
 }

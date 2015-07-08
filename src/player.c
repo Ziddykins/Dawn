@@ -129,7 +129,7 @@ static const char *progress_bar (struct Bot *b, char const * username) { //usern
     long double temp_cyan = ((b->players[i].experience / (long double)nextlvl_exp) * 100) / 10;
     int blue_count  = 9  - (int)temp_cyan;
     int cyan_count  = 10 - blue_count;
-    sprintf(bar, "%s,10%0*d%s,02%0*d%s", cyan, cyan_count, 0, dblue, blue_count, 0, normal);
+    sprintf(bar, "%s,10%0*d%s,02%0*d%s", IRC_CYAN, cyan_count, 0, IRC_DBLUE, blue_count, 0, IRC_NORMAL);
     return bar;
 }
 
@@ -156,7 +156,7 @@ void print_sheet (struct Bot *b, struct Message *message) {
             b->players[i].level, b->players[i].health, stats[0], b->players[i].mana, stats[1],
             stats[2], stats[3], stats[4], stats[5], b->players[i].kills, b->players[i].deaths,
             b->players[i].experience, get_nextlvl_exp(b, b->players[i].username),
-            progress_bar(b, message->sender_nick), orange, b->players[i].gold, normal,
+            progress_bar(b, message->sender_nick), IRC_ORANGE, b->players[i].gold, IRC_NORMAL,
             b->players[i].fullness);
 
     addMsg(out, strlen(out));
