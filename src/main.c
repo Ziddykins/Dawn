@@ -133,7 +133,7 @@ int main (void) {
             //Nickname is in use, add a random suffix
             if (check_if_matches_regex(buffer, ":.*?\\s433\\s*\\s.*")) {
                 int rand_suffix = rand() % 10;
-                printf("Username %s in use\n", dawn->nickname);
+                printf("[!] Username %s in use\n", dawn->nickname);
                 size_t nicklen = strlen(dawn->nickname);
                 snprintf(dawn->nickname+nicklen, MAX_NICK_LENGTH-nicklen, "%d", rand_suffix);
                 handle_login(dawn->nickname, dawn->password, dawn->realname, dawn->ident);
@@ -233,10 +233,12 @@ int main (void) {
                     strncpy(message.receiver,        regex_group[5], 64);
                     strncpy(message.message,         regex_group[6], MAX_MESSAGE_BUFFER);
                     if (strcmp(regex_group[4], "PRIVMSG") == 0) {
-                        if (message.receiver[0] == '#' && check_if_matches_regex(message.message, CMD_LIT)) {
-                            invokeCmd(0, get_pindex(dawn, message.sender_nick),  regex_group[0], &message, CMD_EXEC);
-                        } else {
-                            parse_private_message(dawn, &message);
+                        if(check_if_matches_regex(message.message, CMD_LIT)) {
+                            if (message.receiver[0] == '#') {
+                                invokeCmd(0, get_pindex(dawn, message.sender_nick),  regex_group[0], &message, CMD_EXEC);
+                            } else {
+                                parse_private_message(dawn, &message);
+                            }
                         }
                     } else if (strcmp(regex_group[4], "NOTICE") == 0) {
                     //    parse_notice_message(&message);
