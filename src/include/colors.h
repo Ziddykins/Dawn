@@ -24,5 +24,6 @@
 #define ANSI_RED    "\e[0;31m"
 #define ANSI_GREEN  "\e[0;32m"
 #define ANSI_YELLOW "\e[0;33m"
+#define ANSI_NORMAL "\e[0m"
 
 #endif
