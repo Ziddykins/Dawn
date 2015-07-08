@@ -20,9 +20,7 @@ void sample_function(struct Message *msg) {
 
 void freeCmdSys(CmdSys cs) {
     struct cmdSys * ccs = cs ? cs : commands;
-    if(!cs) {
-        return;
-    }
+    assert(ccs);
 
     free(ccs->hashes);
 
@@ -42,9 +40,7 @@ void freeCmdSys(CmdSys cs) {
 
 void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(struct Message *msg)) {
     struct cmdSys * ccs = cs ? cs : commands;
-    if(!cs) {
-        return;
-    }
+    assert(ccs);
     ccs->flags = CMD_REGISTERED;
 
     if(ccs->capacity == 0) {
@@ -77,9 +73,7 @@ void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*
 
 void finalizeCmdSys(CmdSys cs) {
     struct cmdSys * ccs = cs ? cs : commands;
-    if(!ccs) {
-        return;
-    }
+    assert(ccs);
 
     ccs->capacity = ccs->len;
     trimArrays(cs);
@@ -104,16 +98,15 @@ void invokeCmd(CmdSys cs, char * cmd, struct Message * msg, int mode) {
         //printf("%s", out);
     } else {
         if(mode == CMD_EXEC) {
+            //TODO: Add auth_level check
             ccs->fn[cmdID](msg);
         } else if(mode == CMD_HELP) {
-            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Help for '%s': %s", msg->receiver, ccs->cmds[cmdID], ccs->helptexts[cmdID]);
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :'%s': %s", msg->receiver, ccs->cmds[cmdID], ccs->helptexts[cmdID]);
             addMsg(out, strlen(out));
             //printf("%s", out);
         }
     }
 }
-
-#define GET_IDX(len, x, y) (len*y+x)
 
 //Internal functions
 void sortCmds(CmdSys cs) {
@@ -150,7 +143,7 @@ void sortCmds(CmdSys cs) {
         size_t c = 0;
         for(size_t j = 0; j <= BITMASK; j++) {
             for(size_t k = 0; k < idx[j]; k++) {
-                positions[c] = buckets[GET_IDX(ccs->len, k, j)];
+                positions[c] = buckets[ccs->len * j + k];
                 c++;
             }
             idx[j] = 0;
