@@ -71,100 +71,139 @@ void cmd_info(int pindex __attribute__((unused)), struct Message * msg) {
     }
 }
 
+void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
+    if (check_if_matches_regex(msg->message, CMD_LIT"(\\w+) (\\d+)")) {
+        char * username = calloc(MAX_NICK_LENGTH, 1);
+        char *eptr;
+        int index;
+        unsigned long long amount = strtoull(regex_group[2], &eptr, 10);
 
+        strncpy(username, to_lower(regex_group[1]), MAX_NICK_LENGTH);
+        index = get_pindex(dawn, username);
+        dawn->players[index].experience += amount;
 
-/*  if (check_if_matches_regex(msg->message, ";givexp (\\w+) (\\d+)")) {
-        //Just temp so I can level people back up who don't want to start over
-        if (strcmp(msg->sender_nick, "ziddy") == 0) {
-            char * username = calloc(MAX_NICK_LENGTH, 1);
-            char *eptr;
-            int index;
-            unsigned long long amount = strtoull(regex_group[2], &eptr, 10);
+        if (index == -1) return;
 
-            strncpy(username, to_lower(regex_group[1]), MAX_NICK_LENGTH);
-            index = get_pindex(dawn, username);
-            b->players[index].experience += amount;
-
-            if (index == -1) return;
-
-            while (b->players[index].experience > get_nextlvl_exp(dawn, username)) {
-                struct Message temp;
-                strcpy(temp.sender_nick, username);
-                strcpy(temp.receiver, b->active_room);
-                check_levelup(dawn, &temp);
-            }
-        } else {
-            sprintf(out, "PRIVMSG %s :You're not my real mother!\r\n", msg->receiver);
-            addMsg(out, strlen(out));
+        while (dawn->players[index].experience > get_nextlvl_exp(dawn, username)) {
+            struct Message temp;
+            strcpy(temp.sender_nick, username);
+            strcpy(temp.receiver, dawn->active_room);
+            check_levelup(dawn, &temp);
         }
-    } else if (strcmp(msg->message, ";make snow angels") == 0) {
-        if (b->weather == SNOWING) {
-            sprintf(out, "PRIVMSG %s :%s falls to the ground and begins making snow angels!\r\n",
+        free(username);
+    }
+}
+
+void cmd_make(int pindex __attribute__((unused)), struct Message * msg) {
+    char * out = malloc(MAX_MESSAGE_BUFFER);
+    if (check_if_matches_regex(msg->message, CMD_LIT"snow angels")) {
+        if (dawn->weather == SNOWING) {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s falls to the ground and begins making snow angels!\r\n",
                     msg->receiver, msg->sender_nick);
             addMsg(out, strlen(out));
         } else {
-            sprintf(out, "PRIVMSG %s :There is no snow\r\n", msg->receiver);
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :There is no snow\r\n", msg->receiver);
             addMsg(out, strlen(out));
         }
-    } else if (strcmp(msg->message, ";location") == 0) {
-        print_location(dawn, get_pindex(dawn, msg->sender_nick));
-    } else if (strcmp(msg->message, ";slay") == 0) {
-        slay_monster(dawn, msg->sender_nick, 0, 0);
-    } else if (strcmp(msg->message, ";gslay") == 0) {
-        sprintf(out, "PRIVMSG %s :The %s will cost %d more gold to slay. Contribute to hiring a warrior "
-                "with ;gslay <amount>\r\n", msg->receiver, b->global_monster.name,
-                b->global_monster.slay_cost);
-        addMsg(out, strlen(out));
-    } else if (check_if_matches_regex(msg->message, ";gslay (\\d+)")) {
-        slay_monster(dawn, msg->sender_nick, 1, atoi(regex_group[1]));
-    } else if (strcmp(msg->message, ";check") == 0) {
-        print_monster(dawn, msg->sender_nick, 0);
-    } else if (strcmp(msg->message, ";gcheck") == 0) {
-        print_monster(dawn, msg->sender_nick, 1);
-    } else if (strcmp(msg->message, ";assign") == 0) {
-        int pindex = get_pindex(dawn, msg->sender_nick);
-        sprintf(out, "PRIVMSG %s :To assign your attribute points, use \";assign <type> <amount>\"; type can be "
-                "str, def, int or mdef. You have %d attribute points left which you can assign\r\n",
-                msg->receiver, b->players[pindex].attr_pts);
-        addMsg(out, strlen(out));
-    } else if (strcmp(msg->message, ";ap") == 0) {
-        int pindex = get_pindex(dawn, msg->sender_nick);
-        sprintf(out, "PRIVMSG %s :%s, you have %d attribute points which you can assign\r\n",
-                msg->receiver, msg->sender_nick, b->players[pindex].attr_pts);
-        addMsg(out, strlen(out));
-    } else if (check_if_matches_regex(msg->message, ";assign (\\w+) (\\d+)")) {
-        assign_attr_points(dawn, message, to_lower(regex_group[1]), atoi(regex_group[2]));
-    } else if (check_if_matches_regex(msg->message, ";travel (\\d+),(\\d+)")) {
-        move_player(dawn, message, atoi(regex_group[1]), atoi(regex_group[2]));
-    } else if (check_if_matches_regex(msg->message, ";locate (\\w+)")) {
-        find_building(dawn, message, to_lower(regex_group[1]));
-    } else if (strcmp(msg->message, ";materials") == 0) {
-        print_materials(dawn, message);
-    } else if (check_if_matches_regex(msg->message, ";market sell (\\w+) (\\d+)")) {
-        char *eptr;
-        long amount = strtol(regex_group[2], &eptr, 10);
-        market_buysell(dawn, message, 0, regex_group[1], amount);
-    } else if (check_if_matches_regex(msg->message, ";market buy (\\w+) (\\d+)")) {
-        char *eptr;
-        long amount = strtol(regex_group[2], &eptr, 10);
-        market_buysell(dawn, message, 1, regex_group[1], amount);
-    } else if (strcmp(msg->message, ";save") == 0) {
-        persistent_save(dawn);
-        sprintf(out, "PRIVMSG %s :Saved.\r\n", msg->receiver);
-        addMsg(out, strlen(out));
-    } else if (strcmp(msg->message, ";market") == 0) {
-        print_market(b);
-    } else if (strcmp(msg->message, ";[") == 0) {
-        sprintf(out, "PRIVMSG %s :You break down in tears\r\n", msg->receiver);
-        addMsg(out, strlen(out));
-    } else if (strcmp(msg->message, ";gib gold") == 0) {
-        int pindex = get_pindex(dawn, msg->sender_nick);
-        b->players[pindex].gold = INT_MAX;
-    } else if (strcmp(msg->message, ";help") == 0) {
-        sprintf(out, "PRIVMSG %s :;ghunt, ;hunt, ;gmelee, ;drop <slot>, ;inv, ;equip <slot>, ;unequip <slot>,"
-                " ;info <slot>, ;sheet, ;sheet <user>, ;location, ;make snow angels, ;slay, ;gslay, ;check,"
-                " ;gcheck, ;ap, ;assign, ;revive, ;locate <building>, ;location, ;travel <x,y>\r\n",
-                msg->receiver);
-        addMsg(out, strlen(out));
     }
-}*/
+    free(out);
+}
+void cmd_location(int pindex __attribute__((unused)), struct Message * msg) {
+    print_location(dawn, get_pindex(dawn, msg->sender_nick));
+}
+
+void cmd_slay(int pindex __attribute__((unused)), struct Message * msg) {
+    slay_monster(dawn, msg->sender_nick, 0, 0);
+}
+
+void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
+    if(check_if_matches_regex(msg->message, CMD_LIT"(\\d+)")) {
+        slay_monster(dawn, msg->sender_nick, 1, atoi(regex_group[1]));
+    } else {
+        char * out = malloc(MAX_MESSAGE_BUFFER);
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :The %s will cost %d more gold to slay. Contribute to hiring a warrior "
+                "with ;gslay <amount>\r\n", msg->receiver, dawn->global_monster.name,
+                dawn->global_monster.slay_cost);
+        addMsg(out, strlen(out));
+        free(out);
+    }
+}
+
+void cmd_check(int pindex __attribute__((unused)), struct Message * msg) {
+    print_monster(dawn, msg->sender_nick, 0);
+}
+void cmd_gcheck(int pindex __attribute__((unused)), struct Message * msg) {
+    print_monster(dawn, msg->sender_nick, 1);
+}
+void cmd_assign(int pindex, struct Message * msg) {
+    if (check_if_matches_regex(msg->message, CMD_LIT"(\\w+) (\\d+)")) {
+        assign_attr_points(dawn, msg, to_lower(regex_group[1]), atoi(regex_group[2]));
+    } else {
+        char * out = malloc(MAX_MESSAGE_BUFFER);
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :To assign your attribute points, use \";assign <type> <amount>\"; type can be "
+                "str, def, int or mdef. You have %d attribute points left which you can assign\r\n",
+                msg->receiver, dawn->players[pindex].attr_pts);
+        addMsg(out, strlen(out));
+        free(out);
+    }
+}
+
+void cmd_ap(int pindex, struct Message * msg) {
+    char * out = malloc(MAX_MESSAGE_BUFFER);
+    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you have %d attribute points which you can assign\r\n",
+            msg->receiver, msg->sender_nick, dawn->players[pindex].attr_pts);
+    addMsg(out, strlen(out));
+    free(out);
+}
+
+void cmd_travel(int pindex __attribute__((unused)), struct Message * msg) {
+    if (check_if_matches_regex(msg->message, CMD_LIT"(\\d+),(\\d+)")) {
+        move_player(dawn, msg, atoi(regex_group[1]), atoi(regex_group[2]));
+    }
+}
+
+void cmd_locate(int pindex __attribute__((unused)), struct Message * msg) {
+    if (check_if_matches_regex(msg->message, CMD_LIT"(\\w+)")) {
+        find_building(dawn, msg, to_lower(regex_group[1]));
+    }
+}
+
+void cmd_materials(int pindex __attribute__((unused)), struct Message * msg) {
+    print_materials(dawn, msg);
+}
+
+void cmd_market(int pindex __attribute__((unused)), struct Message * msg) {
+    if (check_if_matches_regex(msg->message, CMD_LIT"sell (\\w+) (\\d+)")) {
+        char *eptr;
+        long amount = strtol(regex_group[2], &eptr, 10);
+        market_buysell(dawn, msg, 0, regex_group[1], amount);
+    } else if (check_if_matches_regex(msg->message, CMD_LIT"buy (\\w+) (\\d+)")) {
+        char *eptr;
+        long amount = strtol(regex_group[2], &eptr, 10);
+        market_buysell(dawn, msg, 1, regex_group[1], amount);
+    } else {
+        print_market(dawn);
+    }
+}
+
+void cmd_save(int pindex __attribute__((unused)), struct Message * msg) {
+    char * out = malloc(MAX_MESSAGE_BUFFER);
+    persistent_save(dawn);
+    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Saved.\r\n", msg->receiver);
+    addMsg(out, strlen(out));
+    free(out);
+}
+
+
+void cmd_cry(int pindex __attribute__((unused)), struct Message * msg) {
+    char * out = malloc(MAX_MESSAGE_BUFFER);
+    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You break down in tears\r\n", msg->receiver);
+    addMsg(out, strlen(out));
+    free(out);
+}
+
+void cmd_gib(int pindex, struct Message * msg) {
+    if (check_if_matches_regex(msg->message, CMD_LIT"gold (\\d+)")) {
+        dawn->players[pindex].gold = atoi(regex_group[1]);
+    }
+}
