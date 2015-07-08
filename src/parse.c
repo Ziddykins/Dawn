@@ -127,19 +127,20 @@ void parse_private_message (struct Bot *b, struct Message *message) {
         }
         addMsg(out, strlen(out));
     } else if (check_if_matches_regex(message->message, ";login (\\w+)")) {
-        if (strcmp(b->players[pindex].hostmask, message->sender_hostmask) != 0) {
+        if (b->players[pindex].auth_level < AL_USER) {
             unsigned char hash[SHA256_DIGEST_LENGTH];
             hashPwd(hash, b->players[pindex].salt, regex_group[1]);
             if (hashcmp(hash, b->players[pindex].pwd)) {
                 strcpy(b->players[pindex].hostmask, message->sender_hostmask);
-                sprintf(out, "PRIVMSG %s :%s has been verified\r\n", b->active_room, message->sender_nick);
+                snprintf(out,  MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (USER)\r\n", b->active_room, message->sender_nick);
                 addMsg(out, strlen(out));
-                sprintf(out, "PRIVMSG %s :Password correct\r\n", message->sender_nick);
+                b->players[pindex].auth_level = AL_USER;
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Password correct\r\n", message->sender_nick);
             } else {
-                sprintf(out, "PRIVMSG %s :Incorrect password\r\n", message->sender_nick);
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Incorrect password\r\n", message->sender_nick);
             }
         } else {
-            sprintf(out, "PRIVMSG %s :I already recognize you, no need to log in\r\n", message->sender_nick);
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :I already recognize you, no need to log in\r\n", message->sender_nick);
         }
         addMsg(out, strlen(out));
     }

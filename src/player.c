@@ -233,3 +233,20 @@ void revive (struct Bot *b, struct Message *message) {
     }
     addMsg(out, strlen(out));
 }
+
+
+char * authLevelToStr(enum authLevel al) {
+    switch(al) {
+        case AL_NOAUTH:
+            return "NO AUTH";
+        case AL_USER:
+            return "USER";
+        case AL_REG:
+            return "REG";
+        case AL_ADMIN:
+            return "ADMIN";
+        case AL_ROOT:
+            return "ROOT";
+    }
+    return "INVALID AUTH";
+}

@@ -31,6 +31,8 @@ enum authLevel {
     AL_ROOT //requires auth key
 };
 
+char * authLevelToStr(enum authLevel al);
+
 struct Player {
     char username[64], hostmask[128]; //limits used in parse.c
     char salt[16]; //limits used in parse.c and player.c

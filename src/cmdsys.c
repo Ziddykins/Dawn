@@ -91,30 +91,32 @@ void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode
     assert(ccs && msg && cmd);
     assert(ccs->flags == CMD_FINALIZED);
 
-    if(pindex == -1 && strcmp(cmd, ";new") != 0)
-        return;
-
-    size_t cmdID = getCmdID(ccs, cmd);
     char * out = malloc(MAX_MESSAGE_BUFFER);
-    if(cmdID == (size_t)(-1)) {
-        if(mode == CMD_EXEC) {
-            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Unknown command. Please use ';help'\r\n", msg->receiver);
-        } else {
-            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Command does not exist.\r\n", msg->receiver);
-        }
+    if(pindex == -1 && strcmp(cmd, ";new") != 0) {
+        sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", msg->receiver);
         addMsg(out, strlen(out));
-        //printf("%s", out);
     } else {
-        if(mode == CMD_EXEC) {
-            if(dawn->players[pindex].auth_level >= ccs->auth_levels[cmdID]) {
-                ccs->fn[cmdID](pindex, msg);
+        size_t cmdID = getCmdID(ccs, cmd);
+        if(cmdID == (size_t)(-1)) {
+            if(mode == CMD_EXEC) {
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Unknown command. Please use ';help'\r\n", msg->receiver);
             } else {
-                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You are not authorized to issue this command!\r\n", msg->receiver);
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Command does not exist.\r\n", msg->receiver);
+            }
+            addMsg(out, strlen(out));
+            //printf("%s", out);
+        } else {
+            if(mode == CMD_EXEC) {
+                if(dawn->players[pindex].auth_level >= ccs->auth_levels[cmdID]) {
+                    ccs->fn[cmdID](pindex, msg);
+                } else {
+                    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You are not authorized to issue this command!\r\n", msg->receiver);
+                    addMsg(out, strlen(out));
+                }
+            } else if(mode == CMD_HELP) {
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :'%s': %s\r\n", msg->receiver, ccs->cmds[cmdID], ccs->helptexts[cmdID]);
                 addMsg(out, strlen(out));
             }
-        } else if(mode == CMD_HELP) {
-            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :'%s': %s\r\n", msg->receiver, ccs->cmds[cmdID], ccs->helptexts[cmdID]);
-            addMsg(out, strlen(out));
         }
     }
     free(out);

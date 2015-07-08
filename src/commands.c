@@ -7,6 +7,7 @@ void init_cmds() {
 
     registerCmd(0, ";help", "[command] | Prints general help or for a specific command | [] = optional, <> = necessary", AL_NOAUTH, cmd_help);
     registerCmd(0, ";new", "Create a new account for this nick", AL_NOAUTH, cmd_new);
+    registerCmd(0, ";auth", "Authenticate your account to use Dawn", AL_NOAUTH, cmd_auth);
     registerCmd(0, ";sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
     registerCmd(0, ";equip", "<itemID> | Equip an item from your inventory", AL_USER, cmd_equip);
     registerCmd(0, ";unequip", "<itemID> | Unequip an item", AL_USER, cmd_unequip);
@@ -61,6 +62,15 @@ void cmd_help(int pindex, struct Message * msg) {
 
 void cmd_new(int pindex __attribute__((unused)), struct Message * msg) {
     init_new_character(dawn, msg);
+}
+
+void cmd_auth(int pindex, struct Message * msg) {
+    if(check_if_matches_regex(msg->message, CMD_LIT)) {
+        char * whois = malloc(MAX_MESSAGE_BUFFER);
+        sprintf(whois, "WHOIS %s\r\n", dawn->players[pindex].username);
+        addMsg(whois, strlen(whois));
+        free(whois);
+    }
 }
 
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {

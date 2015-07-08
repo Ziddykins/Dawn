@@ -168,12 +168,20 @@ int main (void) {
                     MAX_NICK_LENGTH    = (unsigned int)strtoul(regex_group[2], 0, 10) + 1;
                 }
 
-                //Check if user is auth_level
+                //Check if user is identified
                 //:punch.wa.us.dal.net 307 jkjff ziddy :has auth_level for this nick
                 if (check_if_matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
                     int pindex = get_pindex(dawn, regex_group[3]);
-                    if (pindex != -1) {
-                        dawn->players[pindex].auth_level = 1;
+                    if (pindex != -1 && dawn->players[pindex].auth_level < AL_REG) {
+                        dawn->players[pindex].auth_level = AL_REG;
+                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (REG)\r\n", dawn->active_room, dawn->players[pindex].username);
+                        addMsg(out, strlen(out));
+                    } else {
+                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already verified. (%s)\r\n",
+                            dawn->active_room,
+                            dawn->players[pindex].username,
+                            authLevelToStr(dawn->players[pindex].auth_level));
+                        addMsg(out, strlen(out));
                     }
                 }
 
@@ -188,6 +196,7 @@ int main (void) {
                         int index = get_pindex(dawn, to_lower(ch_ptr));
                         if (index != -1){
                             dawn->players[index].available = 1;
+                            dawn->players[index].auth_level = AL_NOAUTH;
                         }
                         ch_ptr = strtok(NULL, " @&+\r\n");
                     }
@@ -199,22 +208,25 @@ int main (void) {
                         int index = get_pindex(dawn, to_lower(regex_group[6]));
                         if (index != -1) {
                             dawn->players[index].available = 0;
+                            dawn->players[index].auth_level = AL_NOAUTH;
                         }
                     }
                 }
 
                 //Parting and joining
                 if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)")) {
-                    int index = get_pindex(dawn, to_lower(regex_group[1]));
-                    if (index != -1) {
+                    int pindex = get_pindex(dawn, to_lower(regex_group[1]));
+                    if (pindex != -1) {
                         if (strcmp(regex_group[4], "PART") == 0) {
-                            dawn->players[index].available = 0;
+                            dawn->players[pindex].available = 0;
+                            dawn->players[pindex].auth_level = AL_NOAUTH;
                         } else if (strcmp(regex_group[4], "JOIN") == 0) {
-                            dawn->players[index].available = 1;
+                            dawn->players[pindex].available = 1;
+                            dawn->players[pindex].auth_level = AL_NOAUTH;
                             sprintf(out, "WHOIS %s\r\n", regex_group[1]);
                             addMsg(out, strlen(out));
                         } else if (strcmp(regex_group[4], "QUIT") == 0) {
-                            dawn->players[index].available = 0;
+                            dawn->players[pindex].available = 0;
                         }
                     }
                     if (dawn->player_count == 0) {
