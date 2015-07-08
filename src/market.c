@@ -1,6 +1,6 @@
 #include "include/market.h"
 
-int rrange (int min, int max) {
+static int rrange (int min, int max) {
     int rval = min + (rand() % (int)(max - min + 1));
     printf("%d (%d-%d)\n", rval, min, max);
     return rval;
@@ -30,7 +30,7 @@ void print_market (struct Bot *b) {
     addMsg(out, strlen(out));
 }
 
-int get_itemID (char *which) {
+static int get_itemID (char *which) {
     if (strcmp(which, "wood") == 0)
         return WOOD;
     else if (strcmp(which, "leather") == 0)
