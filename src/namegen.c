@@ -41,7 +41,7 @@ void genName(char * name, NameGen ng, size_t avg, double var) {
     if(!ng)
         return;
     struct namegen * cng = ng;
-    assert(name && avg >= 0 && var >= 0);
+    assert(name && avg > 0 && var >= 0);
     assert(cng->markov_tier <= avg);
     //assert((malloc_usable_size(name)/sizeof *name) >= avg + cng->markov_tier + avg*var);
     assert(cng->success);

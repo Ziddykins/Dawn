@@ -125,7 +125,7 @@ void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode
 //Internal functions
 void sortCmds(CmdSys cs) {
     size_t const SHIFT = 4;
-    int64_t const BITMASK = (1<<SHIFT)-1;
+    uint64_t const BITMASK = (1<<SHIFT)-1;
     unsigned short const HASH_BITLEN = 64;
 
     struct cmdSys * ccs = cs ? cs : commands;
