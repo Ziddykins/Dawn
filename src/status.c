@@ -390,6 +390,7 @@ void save_events(char const * fn) {
     }
     printf("Saved %zu Eventbytes\n", len);
 }
+
 void load_events(char const * fn) {
     FILE * file;
     size_t len = 0;
