@@ -2,7 +2,7 @@
 
 static int rrange (int min, int max) {
     int rval = min + (rand() % (int)(max - min + 1));
-    printf("%d (%d-%d)\n", rval, min, max);
+    //printf("%d (%d-%d)\n", rval, min, max);
     return rval;
 }
 
@@ -50,13 +50,13 @@ static int get_itemID (char *which) {
     else
         return -1;
 }
-    
+
 
 void market_buysell (struct Bot *b, struct Message *m, int buysell, char *which, long amount) {
     int pindex = get_pindex(b, m->sender_nick);
     int material = get_itemID(which);
     char out[MAX_MESSAGE_BUFFER];
- 
+
     if (material == -1 || amount < 1 || amount >= LONG_MAX) return;
 
     if (buysell == 0) {

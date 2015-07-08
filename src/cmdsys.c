@@ -54,20 +54,20 @@ void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*
 
     if(ccs->len >= ccs->capacity) {
         ccs->capacity *= 2;
-        trimArrays(cs);
+        trimArrays(ccs);
     }
 
     ccs->hashes[ccs->len] = hashCode(cmd);
 
     size_t len = strlen(cmd);
     assert(len < MAX_MESSAGE_BUFFER);
-    ccs->cmds[ccs->len] = malloc(len+1);
-    strcpy(ccs->cmds[ccs->len], cmd);
+    ccs->cmds[ccs->len] = calloc(len+1, 1);
+    strncpy(ccs->cmds[ccs->len], cmd, len);
 
-    len = strlen(cmd);
+    len = strlen(helptext);
     assert(len < MAX_MESSAGE_BUFFER);
-    ccs->helptexts[ccs->len] = malloc(len+1);
-    strcpy(ccs->helptexts[ccs->len], helptext);
+    ccs->helptexts[ccs->len] = calloc(len+1, 1);
+    strncpy(ccs->helptexts[ccs->len], helptext, len);
 
     ccs->auth_levels[ccs->len] = auth_level;
     ccs->fn[ccs->len] = fn;
@@ -80,9 +80,9 @@ void finalizeCmdSys(CmdSys cs) {
     assert(ccs);
 
     ccs->capacity = ccs->len;
-    trimArrays(cs);
+    trimArrays(ccs);
 
-    sortCmds(cs);
+    sortCmds(ccs);
     ccs->flags = CMD_FINALIZED;
 }
 
@@ -91,7 +91,10 @@ void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode
     assert(ccs && msg && cmd);
     assert(ccs->flags == CMD_FINALIZED);
 
-    size_t cmdID = getCmdID(cs, cmd);
+    if(pindex == -1 && strcmp(cmd, ";new") != 0)
+        return;
+
+    size_t cmdID = getCmdID(ccs, cmd);
     char * out = malloc(MAX_MESSAGE_BUFFER);
     if(cmdID == (size_t)(-1)) {
         if(mode == CMD_EXEC) {
@@ -215,7 +218,8 @@ size_t getCmdID(CmdSys cs, char * cmd) {
     if(valid) {
         int done = 0;
         for(size_t iter = mid; !done && iter < ccs->len && ccs->hashes[iter] == hash; iter++) {
-            if(strcmp(cmd, ccs->cmds[iter]) == 0) {
+            if(strcmp(cmd,
+            ccs->cmds[iter]) == 0) {
                 return iter;
             }
         }
@@ -232,7 +236,6 @@ void trimArrays(CmdSys cs) {
     struct cmdSys * ccs = cs;
     assert(ccs);
     assert(ccs->len != 0);
-
     ccs->hashes = realloc(ccs->hashes, ccs->capacity * sizeof *ccs->hashes);
     ccs->cmds = realloc(ccs->cmds, ccs->capacity * sizeof *ccs->cmds);
     ccs->helptexts = realloc(ccs->helptexts, ccs->capacity * sizeof *ccs->helptexts);

@@ -10,6 +10,7 @@
 #include "include/network.h"
 #include "include/limits.h"
 #include "include/parse.h"
+#include "include/commands.h"
 
 //External global defined in limit.h
 //Determined by server - if values not received on connect, default to 64
@@ -105,6 +106,7 @@ int main (void) {
     dawn->login_sent = 0;
     dawn->in_rooms   = 0;
     init_send_queue();
+    init_cmds();
 
     if (init_connect_server(dalnet, port) == 0) {
         printf("[!] Connected to server %s\n", dalnet);
@@ -231,8 +233,8 @@ int main (void) {
                     strncpy(message.receiver,        regex_group[5], 64);
                     strncpy(message.message,         regex_group[6], MAX_MESSAGE_BUFFER);
                     if (strcmp(regex_group[4], "PRIVMSG") == 0) {
-                        if (message.receiver[0] == '#') {
-                            parse_room_message(dawn, &message);
+                        if (message.receiver[0] == '#' && check_if_matches_regex(message.message, CMD_LIT)) {
+                            invokeCmd(0, get_pindex(dawn, message.sender_nick),  regex_group[0], &message, CMD_EXEC);
                         } else {
                             parse_private_message(dawn, &message);
                         }
@@ -251,6 +253,7 @@ int main (void) {
     freeMsgHistList();
     freeMsgList();
     freeEventList();
+    free_cmds();
     free(dawn);
     printf("[!] Program exiting normally\n");
     return 0;
