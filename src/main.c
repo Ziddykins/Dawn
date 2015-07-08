@@ -84,7 +84,6 @@ int main (void) {
                 dawn->monsters[count].gold   = gold;
                 dawn->monsters[count].exp    = exp;
                 dawn->monsters[count].mhp    = mhp;
-
                 dawn->monsters[count].drop_level = drop_level;
                 dawn->monsters[count].slay_cost  = gold;
                 dawn->monsters[count].active = 0;
@@ -103,10 +102,10 @@ int main (void) {
     strcpy(dawn->ident,    "hehe");
     strcpy(dawn->password, "none");
     strcpy(dawn->active_room, rooms[0]);
-
     dawn->login_sent = 0;
     dawn->in_rooms   = 0;
     init_send_queue();
+
     if (init_connect_server(dalnet, port) == 0) {
         printf("[!] Connected to server %s\n", dalnet);
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0))) {
@@ -173,31 +172,35 @@ int main (void) {
                     int pindex = get_pindex(dawn, regex_group[3]);
                     if (pindex != -1) {
                         dawn->players[pindex].auth_level = 1;
-                        printf("whois now true\n");
                     }
                 }
 
                 //NAMES (Status 353)
+                //This will split up the received users in the room and set
+                //their status availability to 1, stripping their name of status symbols
+                //and converting their username to lowercase
                 if (check_if_matches_regex(buffer, ":(.*?)\\s353\\s(.*?)\\s@\\s(.*?)\\s:(.*)")) {
                     char *ch_ptr;
                     ch_ptr = strtok(regex_group[4], " @&+");
                     while (ch_ptr != NULL) {
-                        int index = get_pindex(dawn, ch_ptr);
+                        int index = get_pindex(dawn, to_lower(ch_ptr));
                         if (index != -1){
                             dawn->players[index].available = 1;
                         }
                         ch_ptr = strtok(NULL, " @&+\r\n");
                     }
                 }
+
                 //Kicks
                 if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(\\w+)\\s(.*?)\\s(.*?)\\s:(.*)")) {
                     if (strcmp(regex_group[4], "KICK") == 0) {
-                        int index = get_pindex(dawn, regex_group[6]);
+                        int index = get_pindex(dawn, to_lower(regex_group[6]));
                         if (index != -1) {
                             dawn->players[index].available = 0;
                         }
                     }
                 }
+
                 //Parting and joining
                 if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)")) {
                     int index = get_pindex(dawn, to_lower(regex_group[1]));
@@ -219,6 +222,7 @@ int main (void) {
                         init_new_character(dawn, &temp);
                     }
                 }
+
                 //Regular messages and notices
                 if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n")) {
                     strncpy(message.sender_nick,     to_lower(regex_group[1]), 64);
