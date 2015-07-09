@@ -8,6 +8,7 @@
 #include "limits.h"
 #include "network.h"
 #include "cmdsys.h"
+#include "util.h"
 
 #define CMD_LIT "^;[\\w[]+"
 #define CMD_LIT_MID ";[\\w[]+"

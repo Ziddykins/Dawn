@@ -7,6 +7,7 @@
 #include <limits.h>
 #include "tokenlist.h"
 #include "colors.h"
+#include "util.h"
 
 #define CHAR_LEN 256
 //#define MAX_WORD_LEN 1024
@@ -30,8 +31,5 @@ int analyze(Analyzer, char const *);
 char * genToken(Analyzer, char src, int end);
 char * genStart(Analyzer);
 int hasRuleFor(Analyzer, char src);
-
-//internal functions
-double genNum(void);
 
 #endif // ANALYZER_H_INCLUDED

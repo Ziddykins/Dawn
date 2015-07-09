@@ -18,6 +18,7 @@
 #include <netdb.h>
 #include "limits.h"
 #include "status.h"
+#include "util.h"
 
 struct Message {
     char sender_nick[64], sender_ident[64], sender_hostmask[64];

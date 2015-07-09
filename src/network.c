@@ -39,10 +39,10 @@ int init_connect_server (const char *ip_addr, const char *port) {
     }
     printf(INFO "Trying to connect\n");
     if(connect(con_socket, res->ai_addr, res->ai_addrlen) == -1) {
-        perror(ERR "Connect failed");
+        PRINTERR(Connect failed)
         exit(1);
     }
-    printf(INFO "Connected\n");
+    printf(INFO "Connected to %s:%s\n", ip_addr, port);
     freeaddrinfo(res);
     return errno;
 }
@@ -84,10 +84,7 @@ MsgHistoryList createMsgHistoryList() {
     if(msgHQ_singleton)
         return 0;
     struct msgHistoryList * newList;
-    if(!(newList = calloc(1, sizeof *newList))) {
-        perror(ERR "network/createMsgHistoryList: calloc");
-        exit(1);
-    }
+    CALLEXIT(newList = calloc(1, sizeof *newList))
     msgHQ_singleton++;
     return newList;
 }
@@ -122,15 +119,9 @@ void addMsgHistory(size_t len) {
     time_t curTime = time(0);
     if(cmhlist->head == 0) {
         addEvent(MSGSEND, 0, SENDQ_INTERVAL, NORMAL); //should be unique, though there should also never be multiple MSGSEND events in the queue
-        if(!(cmhlist->head = cmhlist->tail = calloc(1, sizeof *cmhlist->head))) {
-            perror(ERR "network/addMsgHistory: calloc");
-            exit(1);
-        }
+        CALLEXIT(cmhlist->head = cmhlist->tail = calloc(1, sizeof *cmhlist->head))
     } else {
-        if(!(cmhlist->tail->next = calloc(1, sizeof *cmhlist->tail))) {
-            perror(ERR "network/addMsgHistory: calloc");
-            exit(1);
-        }
+        CALLEXIT(cmhlist->tail->next = calloc(1, sizeof *cmhlist->tail))
         cmhlist->tail = cmhlist->tail->next;
     }
     cmhlist->tail->date = curTime;
@@ -150,10 +141,7 @@ MsgList createMsgList() {
     if(msgQ_singleton)
         return 0;
     struct msgList * newList;
-    if(!(newList = calloc(1, sizeof *newList))) {
-        perror(ERR "network/createMsgList: calloc");
-        exit(1);
-    }
+    CALLEXIT(newList = calloc(1, sizeof *newList))
     msgQ_singleton++;
     return newList;
 }
@@ -189,21 +177,12 @@ void addMsg(char * msg, size_t len) {
     struct msgList * cmlist = mlist;
 
     if(cmlist->head == 0) {
-        if(!(cmlist->head = cmlist->tail = calloc(1, sizeof *cmlist->head))) {
-            perror(ERR "network/addMsg: calloc for new list");
-            exit(1);
-        }
+        CALLEXIT(cmlist->head = cmlist->tail = calloc(1, sizeof *cmlist->head))
     } else {
-        if(!(cmlist->tail->next = calloc(1, sizeof *cmlist->tail))) {
-            perror(ERR "network/addMsg: calloc for appending to list");
-            exit(1);
-        }
+        CALLEXIT((cmlist->tail->next = calloc(1, sizeof *cmlist->tail)))
         cmlist->tail = cmlist->tail->next;
     }
-    if(!(cmlist->tail->msg = malloc(len+1))) {
-        perror(ERR "network/addMsg: malloc");
-        exit(1);
-    }
+    CALLEXIT(cmlist->tail->msg = malloc(len+1))
     strcpy(cmlist->tail->msg, msg);
     cmlist->tail->len = len;
     cmlist->byteSize += len;

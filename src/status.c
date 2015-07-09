@@ -31,11 +31,8 @@ EventList createEventList() {
     if(eventQ_singleton) //if an instance already exists do not create a new one
         return 0;
     eventQ_singleton++;
-    struct eventList * newlist = calloc(1, sizeof *newlist);
-    if(!newlist) {
-        perror(ERR "status/createEventList: calloc");
-        exit(1);
-    }
+    struct eventList * newlist;
+    CALLEXIT(newlist = calloc(1, sizeof *newlist))
     return newlist;
 }
 
@@ -175,25 +172,16 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
 
     if(prev == 0) { //create a new node from scratch
         struct eventNode * prev_head = celist->head;
-        if(!(celist->head = calloc(1, sizeof *celist->head))) {
-            perror(ERR "status/addEvent: calloc");
-            exit(1);
-        }
+        CALLEXIT(celist->head = calloc(1, sizeof *celist->head))
         celist->head->next = prev_head;
         tmp = celist->head;
     } else { //or insert it where it belongs
         struct eventNode * prevnext = prev->next;
-        if(!(prev->next = calloc(1, sizeof *prev))) {
-            perror(ERR "status/addEvent: calloc");
-            exit(1);
-        }
+        CALLEXIT(prev->next = calloc(1, sizeof *prev))
         tmp = prev->next;
         tmp->next = prevnext;
     }
-    if(!(tmp->elem = malloc(sizeof *tmp->elem))) {
-        perror(ERR "status/addEvent: malloc");
-        exit(1);
-    }
+    CALLEXIT(tmp->elem = malloc(sizeof *tmp->elem))
     tmp->elem->event = event;
     tmp->elem->data = eData;
     tmp->event_time = newtime;
@@ -365,21 +353,21 @@ void save_events(char const * fn) {
         struct eventNode * tmp = celist->head;
         while(tmp != 0) {
             if(!(ret = fwrite(&tmp->event_time, sizeof tmp->event_time, 1, file))) {
-                perror(ERR "status/save_events: fwrite");
+                PRINTERR(fwrite)
                 errno = 0;
                 fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
             }
             len += ret * sizeof tmp->event_time;
             if(!(ret = fwrite(&tmp->elem->event, sizeof tmp->elem->event, 1, file))) {
-                perror(ERR "status/save_events: fwrite");
+                PRINTERR(fwrite)
                 errno = 0;
                 fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
             }
             len += ret * sizeof tmp->elem->event;
             if(!(ret = fwrite(&tmp->elem->data, sizeof tmp->elem->data, 1, file))) {
-                perror(ERR "status/save_events: write");
+                PRINTERR(fwrite)
                 errno = 0;
                 fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
@@ -397,7 +385,7 @@ void load_events(char const * fn) {
     size_t len = 0;
     if(!(file = fopen(fn, "rb"))) {
         selectList(createEventList());
-        perror(WARN "status/load_events: fopen");
+        PRINTWARN(fopen)
         errno = 0;
     } else {
         assert(elist == 0 && !eventQ_singleton);
@@ -414,70 +402,52 @@ void load_events(char const * fn) {
 
         len += sizeof tmpT * fread(&tmpT, sizeof tmpT, 1, file);
         if(feof(file) || ferror(file)) {
-            perror(ERR "status/load_events: fread(0.1)");
+            PRINTERR(fread)
             fclose(file);
             return;
         }
 
         len += sizeof tmpE * fread(&tmpE, sizeof tmpE, 1, file);
         if(feof(file) || ferror(file)) {
-            perror(ERR "status/load_events: fread(0.1)");
+            PRINTERR(fread)
             fclose(file);
             return;
         }
 
         len += sizeof tmpD * fread(&tmpD, sizeof tmpD, 1, file);
         if(ferror(file)) {
-            perror(ERR "status/load_events: fread(0.2)");
+            PRINTERR(fread)
             fclose(file);
             return;
         }
         celist->len++;
 
-        struct eventNode * tmp = 0;
-        if(!feof(file) && !(tmp = celist->head = calloc(1, sizeof *celist->head))) {
-            perror(ERR "status/load_events: calloc");
-            exit(1);
-        }
-        while(!feof(file)) {
-            tmp->elem = malloc(sizeof *tmp->elem);
-            if(!tmp->elem) {
-                perror(ERR "status/load_events: malloc");
-                exit(1);
-            }
-            tmp->event_time = tmpT;
-            tmp->elem->event = tmpE;
-            tmp->elem->data = tmpD;
+        if(!feof(file)) {
+            struct eventNode * tmp = 0;
+            CALLEXIT(tmp = celist->head = calloc(1, sizeof *celist->head))
+            while(!feof(file)) {
+                CALLEXIT(tmp->elem = malloc(sizeof *tmp->elem))
+                tmp->event_time = tmpT;
+                tmp->elem->event = tmpE;
+                tmp->elem->data = tmpD;
 
-            len += sizeof tmpT * fread(&tmpT, sizeof tmpT, 1, file);
-            if(feof(file)) {
-                break;
-            }
-            if(ferror(file)) {
-                perror(ERR "status/load_events: fread(1.0)");
-                exit(1);
-            }
+                len += sizeof tmpT * fread(&tmpT, sizeof tmpT, 1, file);
+                if(feof(file)) {
+                    break;
+                }
+                CALLEXIT(!ferror(file))
 
-            len += sizeof tmpE * fread(&tmpE, sizeof tmpE, 1, file);
-            if(feof(file) || ferror(file)) {
-                perror(ERR "status/load_events: fread(1.1)");
-                exit(1);
-            }
+                len += sizeof tmpE * fread(&tmpE, sizeof tmpE, 1, file);
+                CALLEXIT(!(feof(file) || ferror(file)))
 
-            len += sizeof tmpD * fread(&tmpD, sizeof tmpD, 1, file);
-            if(ferror(file)) {
-                perror(ERR "status/load_events: fread(2.2)");
-                exit(1);
-            }
+                len += sizeof tmpD * fread(&tmpD, sizeof tmpD, 1, file);
+                CALLEXIT(!ferror(file))
 
-            celist->len++;
+                celist->len++;
 
-            tmp->next = calloc(1, sizeof *tmp);
-            if(!tmp->next) {
-                perror(ERR "status/load_events: calloc");
-                exit(1);
+                CALLEXIT(tmp->next = calloc(1, sizeof *tmp))
+                tmp = tmp->next;
             }
-            tmp = tmp->next;
         }
         fclose(file);
         updateAlarm();

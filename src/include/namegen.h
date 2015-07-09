@@ -8,6 +8,7 @@
 #include <math.h>
 #include "analyzer.h"
 #include "colors.h"
+#include "util.h"
 
 struct namegen {
     Analyzer * tiers;
@@ -27,7 +28,5 @@ void genName(char * name, NameGen, size_t avg, double var);
 
 //internal functions
 int isProducible(NameGen ng, char src, size_t maxTier);
-double gaussrand(void);
-double ABS(double);
 
 #endif // NAMEGEN_H_INCLUDED

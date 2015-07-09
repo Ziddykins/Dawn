@@ -32,11 +32,8 @@ void genSalt(char * salt, size_t len) {
 
 void hashPwd(unsigned char * digest, char const * salt, char const * password) {
     size_t concatlen = strnlen(salt, 16) + strnlen(password, 64) + 2;
-    char * concat = malloc(concatlen);
-    if(!concat) {
-        perror(ERR "parse/hashPwd: malloc");
-        exit(1);
-    }
+    char * concat;
+    CALLEXIT(concat = malloc(concatlen))
     snprintf(concat, concatlen, "!%s%s", password, salt);
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
@@ -105,13 +102,13 @@ int check_if_matches_regex (char *buf, const char *regular_expression) {
     }
 }
 
-void handle_login (char *nick, char *pass, char *real, char *ident) {
+void handle_login (char *nick, char *pass __attribute__((unused)), char *real, char *ident) {
     char out[MAX_MESSAGE_BUFFER];
     sprintf(out, "NICK %s\r\n", nick);
     addMsg(out, strlen(out));
     sprintf(out, "USER %s * * :%s\r\n", ident, real);
     addMsg(out, strlen(out));
-    printf(INFO "Using password '%s'\n", pass); //TODO:quieting down warnings for now but this will be nickserv
+    //printf(INFO "Using password '%s'\n", pass); //TODO:quieting down warnings for now but this will be nickserv
 }
 
 void parse_private_message (struct Bot *b, struct Message *message) {

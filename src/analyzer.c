@@ -3,11 +3,9 @@
 Analyzer createAnalyzer(size_t markovTier) {
     if(markovTier == 0)
         return 0;
-    struct analyzer * a = malloc(sizeof *a);
-    if(!a) {
-        perror(ERR "analyzer/createAnalyzer: malloc");
-        exit(1);
-    }
+    struct analyzer * a;
+    CALLEXIT(a = malloc(sizeof *a))
+
     a->tlists = 0;
     a->markov_tier = markovTier;
     a->tokens = 0;
@@ -34,23 +32,13 @@ int analyze(Analyzer a, char const * fn) {
         return 0;
     struct analyzer * ca = a;
     FILE * file;
-    if(!(file = fopen(fn, "r"))) {
-        perror(ERR "analyzer/analyze: fopen");
-        exit(1);
-    }
+    CALLEXIT(file = fopen(fn, "r"))
 
     char * word = 0; //malloc(MAX_WORD_LEN)
-    char * prediction = malloc(ca->markov_tier+1); //next n characters, \0 terminated
-    if(!prediction) {
-        perror(ERR "analyzer/analyze: malloc");
-        exit(1);
-    }
+    char * prediction;
+    CALLEXIT(prediction = malloc(ca->markov_tier+1)) //next n characters, \0 terminated
     if(!ca->tlists) {
-        ca->tlists = malloc(CHAR_LEN * sizeof *ca->tlists);
-        if(!ca->tlists) {
-            perror(ERR "analyzer/analyze: malloc");
-            exit(1);
-        }
+        CALLEXIT(ca->tlists = malloc(CHAR_LEN * sizeof *ca->tlists))
         for(size_t i = 0; i < CHAR_LEN; i++) {
             ca->tlists[i] = createTokenList();
         }
@@ -59,11 +47,8 @@ int analyze(Analyzer a, char const * fn) {
         ca->start = createTokenList();
     }
     size_t len = 0;
-    char * start = calloc(1, ca->markov_tier+2);
-    if(!ca->tlists) {
-        perror(ERR "analyzer/analyze: calloc");
-        exit(1);
-    }
+    char * start;
+    CALLEXIT(start = calloc(1, ca->markov_tier+2))
     while(getline(&word, &len, file) != -1) { //fscanf(file, "%"MAX_WORD_LEN_LITERAL"s", word) != EOF
         word[strlen(word)-1] = '\0';
         char curChar = word[0];
@@ -183,8 +168,4 @@ int hasRuleFor(Analyzer a, char src) {
         return 0;
     }
     return getLen(ca->tlists[(unsigned char)src]) != 0;
-}
-
-double genNum() {
-    return ((double)(rand()))/INT_MAX;
 }

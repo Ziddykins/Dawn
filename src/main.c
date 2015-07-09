@@ -11,6 +11,7 @@
 #include "include/limits.h"
 #include "include/parse.h"
 #include "include/commands.h"
+#include "include/util.h"
 
 //External global defined in limit.h
 //Determined by server - if values not received on connect, default to 64
@@ -19,30 +20,18 @@ unsigned int MAX_NICK_LENGTH    = 64;
 char * authKey;
 
 int main (void) {
-    FILE *urandom = fopen("/dev/urandom", "r");
+    FILE *urandom;
+    CALLEXIT(urandom = fopen("/dev/urandom", "r"))
+
     unsigned int seed;
-    if (!urandom) {
-        perror(ERR "main: Cannot open /dev/urandom/");
-        return 1;
-    }
-    if(!fread(&seed, sizeof (seed), 1, urandom)) {
-        perror(ERR "main: Error while reading urandom");
-        return 1;
-    }
+    CALLEXIT(fread(&seed, sizeof (seed), 1, urandom))
     srand(seed);
     fclose(urandom);
 
-    FILE *authFile = fopen("auth_key.txt", "w");
-    if(!authFile) {
-        perror(ERR "main: Error while opening auth_key.txt");
-        return 1;
-    }
+    FILE *authFile;
+    CALLEXIT(authFile = fopen("auth_key.txt", "w"))
 
-    authKey = calloc(AUTH_KEY_LEN+1, 1);
-    if(!authKey) {
-        perror(ERR "main: calloc for authKey");
-        return 1;
-    }
+    CALLEXIT(authKey = calloc(AUTH_KEY_LEN+1, 1))
     for(size_t i = 0; i < AUTH_KEY_LEN; i++) {
         do {
             authKey[i] = rand() % 32;
@@ -54,10 +43,7 @@ int main (void) {
         }
     }
 
-    if(!fwrite(authKey, AUTH_KEY_LEN, sizeof *authKey, authFile)) {
-        perror(ERR "main: Error while writing to auth_key.txt");
-        return 1;
-    }
+    CALLEXIT(fwrite(authKey, AUTH_KEY_LEN, sizeof *authKey, authFile))
 
     fclose(authFile);
 
@@ -74,10 +60,7 @@ int main (void) {
     n = rooms;
 
     //The bot structure it self
-    if(!(dawn = calloc(1, sizeof *dawn))) {
-        perror(ERR "main: calloc for dawn");
-        return 1;
-    }
+    CALLEXIT(dawn = calloc(1, sizeof *dawn))
 
     //Load characters
 /*
@@ -144,7 +127,6 @@ int main (void) {
     init_cmds();
 
     if (init_connect_server(dalnet, port) == 0) {
-        printf(INFO "Connected to server %s\n", dalnet);
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0)) != -1) {
             char out[MAX_MESSAGE_BUFFER];
             buffer[len] = '\0';

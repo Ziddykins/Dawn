@@ -3,18 +3,11 @@
 NameGen createNameGen(unsigned int markovTier) {
     if(markovTier == 0)
         return 0;
-    struct namegen * ng = malloc(sizeof *ng);
-    if(!ng) {
-        perror(ERR "namegen/createNameGen: malloc");
-        exit(1);
-    }
+    struct namegen * ng;
+    CALLEXIT(ng = malloc(sizeof *ng))
     ng->markov_tier = markovTier;
     ng->success = 0;
-    ng->tiers = malloc(markovTier * sizeof *ng->tiers);
-    if(!ng->tiers) {
-        perror(ERR "namegen/createNameGen: malloc");
-        exit(1);
-    }
+    CALLEXIT(ng->tiers = malloc(markovTier * sizeof *ng->tiers))
     for(size_t i = 0; i < markovTier; i++) {
         ng->tiers[i] = createAnalyzer(i+1);
     }
@@ -65,7 +58,7 @@ void genName(char * name, NameGen ng, size_t avg, double var) {
     size_t len = 0;
     int ret = snprintf(name, avg*2+1, "%s", startStr);
     if(ret < 0 || ret == (int)(avg*2+1)) {
-        perror(ERR "namgen: snprintf failed");
+        perror(ERR AT "snprintf failed");
         exit(1);
     }
     len += (size_t)ret;
@@ -97,30 +90,6 @@ void genName(char * name, NameGen ng, size_t avg, double var) {
             break;
         }
     }
-}
-
-double ABS(double a) {
-    return a > -a ? a : -a;
-}
-
-double gaussrand() {
-	static double V1, V2, S;
-	static int phase = 0;
-	double X;
-
-	if(phase == 0) {
-		do {
-			V1 = 2 * genNum() - 1;
-			V2 = 2 * genNum() - 1;
-			S = V1 * V1 + V2 * V2;
-			} while(S >= 1 || S == 0);
-		X = V1 * sqrt(-2 * log(S) / S);
-	} else {
-		X = V2 * sqrt(-2 * log(S) / S);
-    }
-	phase = !phase;
-
-	return X;
 }
 
 int isProducible(NameGen ng, char src, size_t maxTier) {

@@ -13,6 +13,7 @@
 #include "inventory.h"
 #include "player.h"
 #include "persistence.h"
+#include "util.h"
 
 extern struct Bot * dawn;
 
