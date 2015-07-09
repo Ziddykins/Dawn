@@ -52,7 +52,7 @@ void cmd_help(int pindex, struct Message * msg) {
     } else {
         char * out = malloc(MAX_MESSAGE_BUFFER);
         if(!out) {
-            perror(ERR "cmd_help: malloc");
+            perror(ERR "commands/cmd_help: malloc");
             exit(1);
         }
         int len = snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :", msg->receiver);
@@ -73,7 +73,7 @@ void cmd_new(int pindex, struct Message * msg) {
     } else {
         char * out = malloc(MAX_MESSAGE_BUFFER);
         if(!out) {
-            perror(ERR "cmd_new: malloc");
+            perror(ERR "commands/cmd_new: malloc");
             exit(1);
         }
         sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
@@ -88,7 +88,7 @@ int authKeyValid;
 void cmd_auth(int pindex, struct Message * msg) {
     char * out = malloc(MAX_MESSAGE_BUFFER);
     if(!out) {
-        perror(ERR "cmd_auth: malloc");
+        perror(ERR "commands/cmd_auth: malloc");
         exit(1);
     }
     if(check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
@@ -175,7 +175,7 @@ void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
     if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
         char * username = calloc(MAX_NICK_LENGTH, 1);
         if(!username) {
-            perror(ERR "cmd_givexp: calloc");
+            perror(ERR "commands/cmd_givexp: calloc");
             exit(1);
         }
         char *eptr;
@@ -201,7 +201,7 @@ void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
 void cmd_make(int pindex __attribute__((unused)), struct Message * msg) {
     char * out = malloc(MAX_MESSAGE_BUFFER);
     if(!out) {
-        perror(ERR "cmd_make: malloc");
+        perror(ERR "commands/cmd_make: malloc");
         exit(1);
     }
     if (check_if_matches_regex(msg->message, CMD_LIT" snow angels")) {
@@ -230,7 +230,7 @@ void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
     } else {
         char * out = malloc(MAX_MESSAGE_BUFFER);
         if(!out) {
-            perror(ERR "cmd_gslay: malloc");
+            perror(ERR "commands/cmd_gslay: malloc");
             exit(1);
         }
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :The %s will cost %d more gold to slay. Contribute to hiring a warrior "
@@ -253,7 +253,7 @@ void cmd_assign(int pindex, struct Message * msg) {
     } else {
         char * out = malloc(MAX_MESSAGE_BUFFER);
         if(!out) {
-            perror(ERR "cmd_assign: malloc");
+            perror(ERR "commands/cmd_assign: malloc");
             exit(1);
         }
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :To assign your attribute points, use \";assign <type> <amount>\"; type can be "
@@ -267,7 +267,7 @@ void cmd_assign(int pindex, struct Message * msg) {
 void cmd_ap(int pindex, struct Message * msg) {
     char * out = malloc(MAX_MESSAGE_BUFFER);
     if(!out) {
-        perror(ERR "cmd_ap: malloc");
+        perror(ERR "commands/cmd_ap: malloc");
         exit(1);
     }
     snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you have %d attribute points which you can assign\r\n",
@@ -309,7 +309,7 @@ void cmd_market(int pindex __attribute__((unused)), struct Message * msg) {
 void cmd_save(int pindex __attribute__((unused)), struct Message * msg) {
     char * out = malloc(MAX_MESSAGE_BUFFER);
     if(!out) {
-        perror(ERR "cmd_save: malloc");
+        perror(ERR "commands/cmd_save: malloc");
         exit(1);
     }
     persistent_save(dawn);
@@ -321,7 +321,7 @@ void cmd_save(int pindex __attribute__((unused)), struct Message * msg) {
 void cmd_cry(int pindex __attribute__((unused)), struct Message * msg) {
     char * out = malloc(MAX_MESSAGE_BUFFER);
     if(!out) {
-        perror(ERR "cmd_cry: malloc");
+        perror(ERR "commands/cmd_cry: malloc");
         exit(1);
     }
     snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You break down in tears\r\n", msg->receiver);
