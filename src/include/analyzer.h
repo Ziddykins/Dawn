@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include "tokenlist.h"
+#include "colors.h"
 
 #define CHAR_LEN 256
 //#define MAX_WORD_LEN 1024

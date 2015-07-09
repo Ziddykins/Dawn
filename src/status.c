@@ -22,7 +22,7 @@ void init_timers (struct Bot *b, char const * fn) {
     addEvent(HEALING, 0, HEALING_INTERVAL, UNIQUE | KEEP);
     addEvent(SAVING, 0, SAVING_INTERVAL, UNIQUE | KEEP);
     addEvent(HOURLY, 0, 3600, UNIQUE | KEEP);
-    printf("Timers started\n");
+    printf(INFO "Timers started\n");
 }
 
 static int eventQ_singleton = 0; //only one instance may be created at any time
@@ -136,9 +136,9 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
             if(tmp->elem->event == event && tmp->elem->data == eData) {
                 if(flags & KEEP) {
-                    printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
+                    /*printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
                     printNextEvent();
-                    putchar('\n');
+                    putchar('\n');*/
                     return;
                 } else {
                     tmp = prev; //move to previous event
@@ -153,9 +153,9 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
         while(scanner != 0) {
             if(tmp->elem->event == event && tmp->elem->data == eData) {
                 if(flags & KEEP) {
-                    printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
+                    /*printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
                     printNextEvent();
-                    putchar('\n');
+                    putchar('\n');*/
                     return;
                 } else {
                     scanner = prevScanner;
@@ -200,12 +200,12 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
 
     celist->len++;
     updateAlarm(); //head may have been replaced so we reset the alarm to the next event in the queue
-    printf("STATUS: Added Event %s with data %d, %zu(+%u);", eventToStr(event), eData, time(0), offset);
+    /*printf("STATUS: Added Event %s with data %d, %zu(+%u);", eventToStr(event), eData, time(0), offset);
     printNextEvent();
-    putchar('\n');
+    putchar('\n');*/
     return;
 }
-
+/*
 void printFromNode(struct eventNode * x) {
     if(x == 0) {
         printf("[-]");
@@ -223,6 +223,7 @@ void printList() {
     printFromNode(celist->head);
     printf("\n");
 }
+*/
 
 struct event * retrEvent() { //callee must free the data himself
     if(elist == 0)
@@ -270,9 +271,9 @@ void eventHandler(int sig) {
     struct event * e;
     do {
         e = retrEvent(); //handle event
-        printf("STATUS: Received %s;", eventToStr(e->event));
+        /*printf("STATUS: Received %s;", eventToStr(e->event));
         printNextEvent();
-        putchar('\n');
+        putchar('\n');*/
         switch (e->event) {
             case MSGSEND:
             {
@@ -353,34 +354,34 @@ void save_events(char const * fn) {
     FILE * file;
     size_t len = 0, ret;
     if(!(file = fopen(fn, "wb"))) {
-        perror("ERR: STATUS: save_events: fopen");
+        perror(ERR "status/save_events: fopen");
         errno = 0;
     } else {
         if(elist == 0) {
-            printf("WARN: STATUS: save_events: tried to save but there was no event list\n");
+            fprintf(stderr, WARN "status/save_events: tried to save but there was no event list\n");
             return;
         }
         struct eventList * celist = elist;
         struct eventNode * tmp = celist->head;
         while(tmp != 0) {
             if(!(ret = fwrite(&tmp->event_time, sizeof tmp->event_time, 1, file))) {
-                perror("ERR: STATUS: save_events: fwrite");
+                perror(ERR "status/save_events: fwrite");
                 errno = 0;
-                printf("ERR: STATUS: save_events: event file corrupted while saving.");
+                fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
             }
             len += ret * sizeof tmp->event_time;
             if(!(ret = fwrite(&tmp->elem->event, sizeof tmp->elem->event, 1, file))) {
-                perror("ERR: STATUS: save_events: fwrite");
+                perror(ERR "status/save_events: fwrite");
                 errno = 0;
-                printf("ERR: STATUS: save_events: event file corrupted while saving.");
+                fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
             }
             len += ret * sizeof tmp->elem->event;
             if(!(ret = fwrite(&tmp->elem->data, sizeof tmp->elem->data, 1, file))) {
-                perror("ERR: STATUS: save_events: fwrite");
+                perror(ERR "status/save_events: write");
                 errno = 0;
-                printf("ERR: STATUS: save_events: event file corrupted while saving.");
+                fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
             }
             len += ret * sizeof tmp->elem->data;
@@ -388,7 +389,7 @@ void save_events(char const * fn) {
         }
         fclose(file);
     }
-    printf("Saved %zu Eventbytes\n", len);
+    printf(INFO "Saved events (%zu bytes)\n", len);
 }
 
 void load_events(char const * fn) {
@@ -396,7 +397,7 @@ void load_events(char const * fn) {
     size_t len = 0;
     if(!(file = fopen(fn, "rb"))) {
         selectList(createEventList());
-        perror("WARN: STATUS: load_events: fopen");
+        perror(WARN "status/load_events: fopen");
         errno = 0;
     } else {
         assert(elist == 0 && !eventQ_singleton);
@@ -413,21 +414,21 @@ void load_events(char const * fn) {
 
         len += sizeof tmpT * fread(&tmpT, sizeof tmpT, 1, file);
         if(feof(file) || ferror(file)) {
-            perror("ERR: STATUS: load_events: fread(0)");
+            perror(ERR "status/load_events: fread(0.1)");
             fclose(file);
             return;
         }
 
         len += sizeof tmpE * fread(&tmpE, sizeof tmpE, 1, file);
         if(feof(file) || ferror(file)) {
-            perror("ERR: STATUS: load_events: fread(1)");
+            perror(ERR "status/load_events: fread(0.1)");
             fclose(file);
             return;
         }
 
         len += sizeof tmpD * fread(&tmpD, sizeof tmpD, 1, file);
         if(ferror(file)) {
-            perror("ERR: STATUS: load_events: fread(2)");
+            perror(ERR "status/load_events: fread(0.2)");
             fclose(file);
             return;
         }
@@ -435,7 +436,7 @@ void load_events(char const * fn) {
 
         struct eventNode * tmp = 0;
         if(!feof(file) && !(tmp = celist->head = calloc(1, sizeof *celist->head))) {
-            perror("ERR: STATUS: load_events: calloc");
+            perror(ERR "status/load_events: calloc");
             exit(1);
         }
         while(!feof(file)) {
@@ -449,20 +450,20 @@ void load_events(char const * fn) {
                 break;
             }
             if(ferror(file)) {
-                perror("ERR: STATUS: load_events: fread(0)");
-                break;
+                perror(ERR "status/load_events: fread(1.0)");
+                exit(1);
             }
 
             len += sizeof tmpE * fread(&tmpE, sizeof tmpE, 1, file);
             if(feof(file) || ferror(file)) {
-                perror("ERR: STATUS: load_events: fread(1)");
-                break;
+                perror(ERR "status/load_events: fread(1.1)");
+                exit(1);
             }
 
             len += sizeof tmpD * fread(&tmpD, sizeof tmpD, 1, file);
             if(ferror(file)) {
-                perror("ERR: STATUS: load_events: fread(2)");
-                break;
+                perror(ERR "status/load_events: fread(2.2)");
+                exit(1);
             }
 
             celist->len++;
@@ -473,5 +474,5 @@ void load_events(char const * fn) {
         fclose(file);
         updateAlarm();
     }
-    printf("Read %zu Eventbytes\n", len);
+    printf(INFO "Events read (%zu bytes)\n", len);
 }

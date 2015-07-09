@@ -12,12 +12,6 @@ CmdSys createCmdSys() {
     return ccs;
 }
 
-/*
-void sample_function(int pindex, struct Message *msg) {
-    printf("YEAH BITCHES!!\n");
-}
-*/
-
 void freeCmdSys(CmdSys cs) {
     struct cmdSys * ccs = cs ? cs : commands;
     assert(ccs);

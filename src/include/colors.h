@@ -24,6 +24,11 @@
 #define ANSI_RED    "\033[0;31m"
 #define ANSI_GREEN  "\033[0;32m"
 #define ANSI_YELLOW "\033[0;33m"
+#define ANSI_BOLD "\033[1m"
 #define ANSI_NORMAL "\033[0m"
+
+#define ERR "["ANSI_RED ANSI_BOLD"!"ANSI_NORMAL"] "
+#define WARN "["ANSI_YELLOW ANSI_BOLD"?"ANSI_NORMAL"] "
+#define INFO "["ANSI_GREEN ANSI_BOLD"*"ANSI_NORMAL"] "
 
 #endif

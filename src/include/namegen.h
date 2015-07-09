@@ -1,12 +1,13 @@
 #ifndef NAMEGEN_H_INCLUDED
 #define NAMEGEN_H_INCLUDED
 
-#include "analyzer.h"
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
 #include <assert.h>
 #include <math.h>
+#include "analyzer.h"
+#include "colors.h"
 
 struct namegen {
     Analyzer * tiers;

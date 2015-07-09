@@ -21,21 +21,21 @@ char * authKey;
 int main (void) {
     FILE *urandom = fopen("/dev/urandom", "r");
     unsigned int seed;
-    if (urandom == NULL) {
-        fprintf (stderr, "[E] Cannot open /dev/urandom!\n");
-        exit(1);
+    if (!urandom) {
+        perror(ERR "main: Cannot open /dev/urandom/");
+        return 1;
     }
     if(!fread(&seed, sizeof (seed), 1, urandom)) {
-        perror("ERR: MAIN: fread");
-        exit(1);
+        perror(ERR "main: Error while reading urandom");
+        return 1;
     }
     srand(seed);
     fclose(urandom);
 
     FILE *authFile = fopen("auth_key.txt", "w");
     if(!authFile) {
-        perror("[E] Could not create auth_key");
-        exit(1);
+        perror(ERR "main: Error while opening auth_key.txt");
+        return 1;
     }
 
     authKey = calloc(AUTH_KEY_LEN+1, 1);
@@ -51,13 +51,13 @@ int main (void) {
     }
 
     if(!fwrite(authKey, AUTH_KEY_LEN, sizeof *authKey, authFile)) {
-        perror("[E] Could not write auth_key");
+        perror(ERR "main: Error while writing to auth_key.txt");
         return 1;
     }
 
     fclose(authFile);
 
-    printf("[!] auth_key: %s\n", authKey);
+    printf(INFO "auth_key: %s\n", authKey);
     authKeyValid = 1;
 
     int match;
@@ -70,7 +70,10 @@ int main (void) {
     n = rooms;
 
     //The bot structure it self
-    dawn = calloc(1, sizeof *dawn);
+    if(!(dawn = calloc(1, sizeof *dawn))) {
+        perror(ERR "main: calloc for dawn");
+        return 1;
+    }
 
     //Load characters
 /*
@@ -97,33 +100,32 @@ int main (void) {
         char name[100];
         int count = 0;
         int hp, str, def, intel, mdef, gold, exp, mhp, drop_level;
-        if (file != NULL) {
-            while (fgets(line, sizeof(line), file)) {
-                //TODO: Add ranges to raw files
-                if (sscanf(line, "%[^:]:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-                        name, &hp, &str, &def, &intel, &mdef, &gold, &exp, &mhp, &drop_level) != 10) {
-                    printf("Malformed monster file at line %d\n", count);
-                    exit(1);
-                }
-                strcpy(dawn->monsters[count].name, name);
-                dawn->monsters[count].hp     = hp;
-                dawn->monsters[count].str    = str;
-                dawn->monsters[count].def    = def;
-                dawn->monsters[count].intel  = intel;
-                dawn->monsters[count].mdef   = mdef;
-                dawn->monsters[count].gold   = gold;
-                dawn->monsters[count].exp    = exp;
-                dawn->monsters[count].mhp    = mhp;
-                dawn->monsters[count].drop_level = drop_level;
-                dawn->monsters[count].slay_cost  = gold;
-                dawn->monsters[count].active = 0;
-                count++;
-            }
-            fclose(file);
-        } else {
-            printf("Error opening raw monsters\n");
-            exit(1);
+        if (!file) {
+            fprintf(stderr, ERR "main: Error opening raw monsters\n");
+            return 1;
         }
+        while (fgets(line, sizeof(line), file)) {
+            //TODO: Add ranges to raw files
+            if (sscanf(line, "%[^:]:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                    name, &hp, &str, &def, &intel, &mdef, &gold, &exp, &mhp, &drop_level) != 10) {
+                fprintf(stderr, ERR "main: Malformed monster file at line %d\n", count);
+                return 1;
+            }
+            strcpy(dawn->monsters[count].name, name);
+            dawn->monsters[count].hp     = hp;
+            dawn->monsters[count].str    = str;
+            dawn->monsters[count].def    = def;
+            dawn->monsters[count].intel  = intel;
+            dawn->monsters[count].mdef   = mdef;
+            dawn->monsters[count].gold   = gold;
+            dawn->monsters[count].exp    = exp;
+            dawn->monsters[count].mhp    = mhp;
+            dawn->monsters[count].drop_level = drop_level;
+            dawn->monsters[count].slay_cost  = gold;
+            dawn->monsters[count].active = 0;
+            count++;
+        }
+        fclose(file);
     }
 
     //Initial settings
@@ -138,7 +140,7 @@ int main (void) {
     init_cmds();
 
     if (init_connect_server(dalnet, port) == 0) {
-        printf("[!] Connected to server %s\n", dalnet);
+        printf(INFO "Connected to server %s\n", dalnet);
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0)) != -1) {
             char out[MAX_MESSAGE_BUFFER];
             buffer[len] = '\0';
@@ -153,7 +155,7 @@ int main (void) {
             if (dawn->login_sent == 0) {
                 match = check_if_matches_regex(buffer, "AUTH");
                 if (match) {
-                    printf("[!] Server checking for AUTH, sending nick/user\n");
+                    printf(INFO "Server checking for AUTH, sending nick/user\n");
                     handle_login(dawn->nickname, dawn->password, dawn->realname, dawn->ident);
                     dawn->login_sent = 1;
                 }
@@ -162,7 +164,7 @@ int main (void) {
             //Nickname is in use, add a random suffix
             if (check_if_matches_regex(buffer, ":.*?\\s433\\s*\\s.*")) {
                 int rand_suffix = rand() % 10;
-                printf("[!] Username %s in use\n", dawn->nickname);
+                fprintf(stderr, WARN "Username %s in use\n", dawn->nickname);
                 size_t nicklen = strlen(dawn->nickname);
                 snprintf(dawn->nickname+nicklen, MAX_NICK_LENGTH-nicklen, "%d", rand_suffix);
                 handle_login(dawn->nickname, dawn->password, dawn->realname, dawn->ident);
@@ -174,7 +176,7 @@ int main (void) {
             if (!dawn->in_rooms && dawn->login_sent == 1) {
                 match = check_if_matches_regex(buffer, ":(.*?)\\s001(.*)");
                 if (match) {
-                    printf("[!] Got welcome message from server, joining rooms\n");
+                    printf(INFO "Got welcome message from server, joining rooms\n");
                     while (*n != NULL) {
                         sprintf(out, "JOIN %s\r\n", *n++);
                         fluctuate_market(dawn);
@@ -291,7 +293,7 @@ int main (void) {
             }
         }
     } else {
-        perror("Failed to connect");
+        perror(ERR "main: Failed to connect");
         close(con_socket);
         return 1;
     }
@@ -304,6 +306,6 @@ int main (void) {
     free(dawn);
     if(authKeyValid || authKey)
         free(authKey);
-    printf("[!] Program exiting normally\n");
+    printf(INFO "Program exiting normally\n");
     return 0;
 }

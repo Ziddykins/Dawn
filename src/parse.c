@@ -69,7 +69,7 @@ int check_if_matches_regex (char *buf, const char *regular_expression) {
                                   &pcre_error, &pcre_error_offset, NULL);
 
     if (regex_compiled == NULL) {
-        printf("Could not compile regular expression: %s (%s)\n",
+        fprintf(stderr, ERR "parse/check_if_matches_regex: Could not compile regular expression: %s (%s)\n",
                 regular_expression, pcre_error);
         exit(1);
     }
@@ -77,7 +77,7 @@ int check_if_matches_regex (char *buf, const char *regular_expression) {
     pcre_optimized = pcre_study(regex_compiled, 0, &pcre_error);
 
     if (pcre_error != NULL) {
-        printf("Could not optimize regular expression: %s (%s)\n", regular_expression, pcre_error);
+        fprintf(stderr, ERR "parse/check_if_matches_regex: Could not optimize regular expression: %s (%s)\n", regular_expression, pcre_error);
         exit(1);
     }
 
@@ -107,7 +107,7 @@ void handle_login (char *nick, char *pass, char *real, char *ident) {
     addMsg(out, strlen(out));
     sprintf(out, "USER %s * * :%s\r\n", ident, real);
     addMsg(out, strlen(out));
-    printf("%s\n", pass); //TODO:quieting down warnings for now but this will be nickserv
+    printf(INFO "Using password '%s'\n", pass); //TODO:quieting down warnings for now but this will be nickserv
 }
 
 void parse_private_message (struct Bot *b, struct Message *message) {
@@ -146,6 +146,7 @@ void parse_private_message (struct Bot *b, struct Message *message) {
     }
 }
 
+//DEPRECATED
 int command_allowed (struct Bot *b, char * command, int pindex) { //command -> 16
     if (b->players[pindex].travel_timer.active) {
         char disallowed[2][16] = {"melee", "gmelee"}; //remember to change array limits

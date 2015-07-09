@@ -37,12 +37,12 @@ int init_connect_server (const char *ip_addr, const char *port) {
         perror("socket");
         exit(1);
     }
-    printf("[!] Trying to connect\n");
+    printf(INFO "Trying to connect\n");
     if(connect(con_socket, res->ai_addr, res->ai_addrlen) == -1) {
-        perror("connect");
+        perror(ERR "Connect failed");
         exit(1);
     }
-    printf("[!] Connected\n");
+    printf(INFO "Connected\n");
     freeaddrinfo(res);
     return errno;
 }
@@ -64,12 +64,12 @@ void close_socket (int socket) {
 void send_socket (char * out_buf) {
     size_t len = strlen(out_buf);
     if(len > MAX_MESSAGE_BUFFER) {
-        printf("Message too long: %lu", len);
+        printf(WARN "network/send_socket: Message too long: %lu", len);
         return;
     }
 
     if(!write(con_socket, out_buf, len)) {
-        perror("write");
+        perror(ERR "network/send_socket: write");
         exit(1);
     }
 }
@@ -85,7 +85,7 @@ MsgHistoryList createMsgHistoryList() {
         return 0;
     struct msgHistoryList * newList;
     if(!(newList = calloc(1, sizeof *newList))) {
-        perror("calloc");
+        perror(ERR "network/createMsgHistoryList: calloc");
         exit(1);
     }
     msgHQ_singleton++;
@@ -123,12 +123,12 @@ void addMsgHistory(size_t len) {
     if(cmhlist->head == 0) {
         addEvent(MSGSEND, 0, SENDQ_INTERVAL, NORMAL); //should be unique, though there should also never be multiple MSGSEND events in the queue
         if(!(cmhlist->head = cmhlist->tail = calloc(1, sizeof *cmhlist->head))) {
-            perror("malloc");
+            perror(ERR "network/addMsgHistory: calloc");
             exit(1);
         }
     } else {
         if(!(cmhlist->tail->next = calloc(1, sizeof *cmhlist->tail))) {
-            perror("malloc");
+            perror(ERR "network/addMsgHistory: calloc");
             exit(1);
         }
         cmhlist->tail = cmhlist->tail->next;
@@ -151,7 +151,7 @@ MsgList createMsgList() {
         return 0;
     struct msgList * newList;
     if(!(newList = calloc(1, sizeof *newList))) {
-        perror("calloc");
+        perror(ERR "network/createMsgList: calloc");
         exit(1);
     }
     msgQ_singleton++;
@@ -190,18 +190,18 @@ void addMsg(char * msg, size_t len) {
 
     if(cmlist->head == 0) {
         if(!(cmlist->head = cmlist->tail = calloc(1, sizeof *cmlist->head))) {
-            perror("calloc");
+            perror(ERR "network/addMsg: calloc for new list");
             exit(1);
         }
     } else {
         if(!(cmlist->tail->next = calloc(1, sizeof *cmlist->tail))) {
-            perror("calloc");
+            perror(ERR "network/addMsg: calloc for appending to list");
             exit(1);
         }
         cmlist->tail = cmlist->tail->next;
     }
     if(!(cmlist->tail->msg = malloc(len+1))) {
-        perror("malloc");
+        perror(ERR "network/addMsg: malloc");
         exit(1);
     }
     strcpy(cmlist->tail->msg, msg);
@@ -251,7 +251,7 @@ void popMsgHist() {
     time_t curTime = time(0);
     while(cmhlist->head != 0 && curTime - SENDQ_INTERVAL >= cmhlist->head->date) {
         cmhlist->byteSize -= cmhlist->head->len;
-        printf("MQueue: %zu of %d (POP)\n", cmhlist->byteSize, MAX_SENDQ_SIZE);
+        //printf("MQueue: %zu of %d (POP)\n", cmhlist->byteSize, MAX_SENDQ_SIZE);
         cmhlist->msgs--;
         struct msgHistoryNode * newHead = cmhlist->head->next;
         free(cmhlist->head);
@@ -295,10 +295,10 @@ void processMessages() {
         send_socket(msg);
         free(msg);
         addMsgHistory(len);
-        printf("MQueue: %zu of %d (PUSH)\n", cdest->byteSize, MAX_SENDQ_SIZE);
+        //printf("MQueue: %zu of %d (PUSH)\n", cdest->byteSize, MAX_SENDQ_SIZE);
 
     }
     if(cdest->msgs >= MAX_MSGS_IN_INTERVAL || cdest->byteSize + peekMsgSize() >= MAX_SENDQ_SIZE) {
-        printf("MQeue: full - waiting for update.\n");
+        printf(INFO "Send queue full\n");
     }
 }

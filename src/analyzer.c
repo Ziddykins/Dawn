@@ -31,8 +31,8 @@ int analyze(Analyzer a, char const * fn) {
     struct analyzer * ca = a;
     FILE * file;
     if(!(file = fopen(fn, "r"))) {
-        perror("Analyzer: fopen");
-        return 0;
+        perror(ERR "namegen/analyzer: fopen");
+        exit(1);
     }
 
     char * word = 0; //malloc(MAX_WORD_LEN)

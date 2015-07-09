@@ -101,10 +101,10 @@ void save_players (struct Bot *b) {
     if (file) {
         size_t len;
         if(!(len = fwrite(b, sizeof *b, 1, file))) {
-            perror("WARN: PLAYER: save_players: fwrite");
+            perror(ERR "player/save_players: fwrite");
         }
         fclose(file);
-        printf("Wrote %zu of %zu bytes to players.db\r\n", len*(sizeof *b), sizeof *b);
+        printf(INFO "Saved players (%zu/%zu bytes)\n", len*(sizeof *b), sizeof *b);
     }
 }
 
@@ -112,11 +112,11 @@ void load_players (struct Bot *b) {
     FILE *file = fopen("players.db", "rb");
     if (file != NULL) {
         if(!fread(b, sizeof *b, 1, file)) {
-            perror("ERR: PLAYER: load_players: fread");
+            perror(ERR "player/load_players: fread");
             exit(1);
         }
         fclose(file);
-        printf("Read %zu bytes from players.db\n", sizeof *b);
+        printf(INFO "Players loaded (%zu bytes)\n", sizeof *b);
     }
 }
 

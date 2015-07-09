@@ -57,8 +57,8 @@ void genName(char * name, NameGen ng, size_t avg, double var) {
     size_t len = 0;
     int ret = snprintf(name, avg*2+1, "%s", startStr);
     if(ret < 0 || ret == (int)(avg*2+1)) {
-        perror("snprintf");
-        return;
+        perror(ERR "namgen: snprintf failed");
+        exit(1);
     }
     len += (size_t)ret;
 
