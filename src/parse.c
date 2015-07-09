@@ -33,6 +33,10 @@ void genSalt(char * salt, size_t len) {
 void hashPwd(unsigned char * digest, char const * salt, char const * password) {
     size_t concatlen = strnlen(salt, 16) + strnlen(password, 64) + 2;
     char * concat = malloc(concatlen);
+    if(!concat) {
+        perror(ERR "parse/hashPwd: malloc");
+        exit(1);
+    }
     snprintf(concat, concatlen, "!%s%s", password, salt);
     SHA256_CTX sha256;
     SHA256_Init(&sha256);

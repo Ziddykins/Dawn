@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
+#include "colors.h"
 
 struct tokenNode {
     struct tokenNode * next, * prev;

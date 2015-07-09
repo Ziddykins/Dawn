@@ -39,6 +39,10 @@ int main (void) {
     }
 
     authKey = calloc(AUTH_KEY_LEN+1, 1);
+    if(!authKey) {
+        perror(ERR "main: calloc for authKey");
+        return 1;
+    }
     for(size_t i = 0; i < AUTH_KEY_LEN; i++) {
         do {
             authKey[i] = rand() % 32;

@@ -4,9 +4,17 @@ NameGen createNameGen(unsigned int markovTier) {
     if(markovTier == 0)
         return 0;
     struct namegen * ng = malloc(sizeof *ng);
+    if(!ng) {
+        perror(ERR "namegen/createNameGen: malloc");
+        exit(1);
+    }
     ng->markov_tier = markovTier;
     ng->success = 0;
     ng->tiers = malloc(markovTier * sizeof *ng->tiers);
+    if(!ng->tiers) {
+        perror(ERR "namegen/createNameGen: malloc");
+        exit(1);
+    }
     for(size_t i = 0; i < markovTier; i++) {
         ng->tiers[i] = createAnalyzer(i+1);
     }

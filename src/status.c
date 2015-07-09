@@ -33,7 +33,7 @@ EventList createEventList() {
     eventQ_singleton++;
     struct eventList * newlist = calloc(1, sizeof *newlist);
     if(!newlist) {
-        perror("ERR: STATUS: createEventList: calloc");
+        perror(ERR "status/createEventList: calloc");
         exit(1);
     }
     return newlist;
@@ -176,7 +176,7 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
     if(prev == 0) { //create a new node from scratch
         struct eventNode * prev_head = celist->head;
         if(!(celist->head = calloc(1, sizeof *celist->head))) {
-            perror("ERR: STATUS: addEvent: calloc");
+            perror(ERR "status/addEvent: calloc");
             exit(1);
         }
         celist->head->next = prev_head;
@@ -184,14 +184,14 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
     } else { //or insert it where it belongs
         struct eventNode * prevnext = prev->next;
         if(!(prev->next = calloc(1, sizeof *prev))) {
-            perror("ERR: STATUS: addEvent: calloc");
+            perror(ERR "status/addEvent: calloc");
             exit(1);
         }
         tmp = prev->next;
         tmp->next = prevnext;
     }
     if(!(tmp->elem = malloc(sizeof *tmp->elem))) {
-        perror("ERR: STATUS: addEvent: malloc");
+        perror(ERR "status/addEvent: malloc");
         exit(1);
     }
     tmp->elem->event = event;
@@ -441,6 +441,10 @@ void load_events(char const * fn) {
         }
         while(!feof(file)) {
             tmp->elem = malloc(sizeof *tmp->elem);
+            if(!tmp->elem) {
+                perror(ERR "status/load_events: malloc");
+                exit(1);
+            }
             tmp->event_time = tmpT;
             tmp->elem->event = tmpE;
             tmp->elem->data = tmpD;
@@ -469,6 +473,10 @@ void load_events(char const * fn) {
             celist->len++;
 
             tmp->next = calloc(1, sizeof *tmp);
+            if(!tmp->next) {
+                perror(ERR "status/load_events: calloc");
+                exit(1);
+            }
             tmp = tmp->next;
         }
         fclose(file);
