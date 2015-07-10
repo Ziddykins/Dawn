@@ -4,7 +4,7 @@ Analyzer createAnalyzer(size_t markovTier) {
     if(markovTier == 0)
         return 0;
     struct analyzer * a;
-    CALLEXIT(a = malloc(sizeof *a))
+    CALLEXIT(!(a = malloc(sizeof *a)))
 
     a->tlists = 0;
     a->markov_tier = markovTier;
@@ -32,13 +32,13 @@ int analyze(Analyzer a, char const * fn) {
         return 0;
     struct analyzer * ca = a;
     FILE * file;
-    CALLEXIT(file = fopen(fn, "r"))
+    CALLEXIT(!(file = fopen(fn, "r")))
 
     char * word = 0; //malloc(MAX_WORD_LEN)
     char * prediction;
-    CALLEXIT(prediction = malloc(ca->markov_tier+1)) //next n characters, \0 terminated
+    CALLEXIT(!(prediction = malloc(ca->markov_tier+1))) //next n characters, \0 terminated
     if(!ca->tlists) {
-        CALLEXIT(ca->tlists = malloc(CHAR_LEN * sizeof *ca->tlists))
+        CALLEXIT(!(ca->tlists = malloc(CHAR_LEN * sizeof *ca->tlists)))
         for(size_t i = 0; i < CHAR_LEN; i++) {
             ca->tlists[i] = createTokenList();
         }
@@ -48,7 +48,7 @@ int analyze(Analyzer a, char const * fn) {
     }
     size_t len = 0;
     char * start;
-    CALLEXIT(start = calloc(1, ca->markov_tier+2))
+    CALLEXIT(!(start = calloc(1, ca->markov_tier+2)))
     while(getline(&word, &len, file) != -1) { //fscanf(file, "%"MAX_WORD_LEN_LITERAL"s", word) != EOF
         word[strlen(word)-1] = '\0';
         char curChar = word[0];

@@ -8,7 +8,7 @@ void init_cmdsys() {
 
 CmdSys createCmdSys() {
     struct cmdSys * ccs;
-    CALLEXIT(ccs = calloc(1, sizeof *ccs))
+    CALLEXIT(!(ccs = calloc(1, sizeof *ccs)))
     ccs->flags = CMD_INITIALIZED;
     return ccs;
 }
@@ -39,11 +39,11 @@ void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*
     ccs->flags = CMD_REGISTERED;
 
     if(ccs->capacity == 0) {
-        CALLEXIT(ccs->hashes = calloc(1, sizeof *ccs->hashes))
-        CALLEXIT(ccs->cmds = calloc(1, sizeof *ccs->cmds))
-        CALLEXIT(ccs->helptexts = calloc(1, sizeof *ccs->helptexts))
-        CALLEXIT(ccs->auth_levels = calloc(1, sizeof *ccs->auth_levels))
-        CALLEXIT(ccs->fn = calloc(1, sizeof *ccs->fn))
+        CALLEXIT(!(ccs->hashes = calloc(1, sizeof *ccs->hashes)))
+        CALLEXIT(!(ccs->cmds = calloc(1, sizeof *ccs->cmds)))
+        CALLEXIT(!(ccs->helptexts = calloc(1, sizeof *ccs->helptexts)))
+        CALLEXIT(!(ccs->auth_levels = calloc(1, sizeof *ccs->auth_levels)))
+        CALLEXIT(!(ccs->fn = calloc(1, sizeof *ccs->fn)))
         ccs->capacity = 1;
     }
 
@@ -56,12 +56,12 @@ void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*
 
     size_t len = strlen(cmd);
     assert(len < MAX_MESSAGE_BUFFER);
-    CALLEXIT(ccs->cmds[ccs->len] = calloc(len+1, 1))
+    CALLEXIT(!(ccs->cmds[ccs->len] = calloc(len+1, 1)))
     strncpy(ccs->cmds[ccs->len], cmd, len);
 
     len = strlen(helptext);
     assert(len < MAX_MESSAGE_BUFFER);
-    CALLEXIT(ccs->helptexts[ccs->len] = calloc(len+1, 1))
+    CALLEXIT(!(ccs->helptexts[ccs->len] = calloc(len+1, 1)))
     strncpy(ccs->helptexts[ccs->len], helptext, len);
 
     ccs->auth_levels[ccs->len] = auth_level;
@@ -87,7 +87,7 @@ void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode
     assert(ccs->flags == CMD_FINALIZED);
 
     char * out;
-    CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if(pindex == -1 && strcmp(cmd, ";new") != 0) {
         sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", msg->receiver);
         addMsg(out, strlen(out));
@@ -132,16 +132,16 @@ void sortCmds(CmdSys cs) {
     }
 
     size_t * positions;
-    CALLEXIT(positions = malloc(ccs->len * sizeof *positions))
+    CALLEXIT(!(positions = malloc(ccs->len * sizeof *positions)))
     for(size_t i = 0; i < ccs->len; i++) {
         positions[i] = i;
     }
 
     size_t * buckets;
-    CALLEXIT(buckets = malloc(ccs->len * (BITMASK+1) * sizeof *buckets)) //actually a 2d array
+    CALLEXIT(!(buckets = malloc(ccs->len * (BITMASK+1) * sizeof *buckets))) //actually a 2d array
 
     size_t * idx;
-    CALLEXIT(idx = calloc(BITMASK+1, sizeof *idx))
+    CALLEXIT(!(idx = calloc(BITMASK+1, sizeof *idx)))
 
     size_t bitmask = BITMASK;
     for(size_t i = 0; i < HASH_BITLEN / SHIFT; i++) {
@@ -169,15 +169,15 @@ void sortCmds(CmdSys cs) {
     free(idx);
 
     uint64_t * hashes;
-    CALLEXIT(hashes = calloc(ccs->len, sizeof *ccs->hashes))
+    CALLEXIT(!(hashes = calloc(ccs->len, sizeof *ccs->hashes)))
     char ** cmds;
-    CALLEXIT(cmds = calloc(ccs->len, sizeof *ccs->cmds))
+    CALLEXIT(!(cmds = calloc(ccs->len, sizeof *ccs->cmds)))
     char ** helptexts;
-    CALLEXIT(helptexts = calloc(ccs->len, sizeof *ccs->helptexts))
+    CALLEXIT(!(helptexts = calloc(ccs->len, sizeof *ccs->helptexts)))
     int * auth_levels;
-    CALLEXIT(auth_levels = calloc(ccs->len, sizeof *ccs->auth_levels))
+    CALLEXIT(!(auth_levels = calloc(ccs->len, sizeof *ccs->auth_levels)))
     void (*(*fn))(int pindex, struct Message *msg);
-    CALLEXIT(fn = calloc(ccs->len, sizeof *ccs->fn))
+    CALLEXIT(!(fn = calloc(ccs->len, sizeof *ccs->fn)))
 
     for(size_t i = 0; i < ccs->len; i++) {
         hashes[i] = ccs->hashes[i];

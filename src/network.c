@@ -33,15 +33,9 @@ int init_connect_server (const char *ip_addr, const char *port) {
     destination.ai_family = AF_INET;
     destination.ai_socktype = SOCK_STREAM;
     getaddrinfo(ip_addr, port, &destination, &res);
-    if((con_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) == -1) {
-        perror("socket");
-        exit(1);
-    }
+    CALLEXIT((con_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) == -1)
     printf(INFO "Trying to connect\n");
-    if(connect(con_socket, res->ai_addr, res->ai_addrlen) == -1) {
-        PRINTERR(Connect failed)
-        exit(1);
-    }
+    CALLEXIT(connect(con_socket, res->ai_addr, res->ai_addrlen) == -1)
     printf(INFO "Connected to %s:%s\n", ip_addr, port);
     freeaddrinfo(res);
     return errno;
@@ -68,10 +62,7 @@ void send_socket (char * out_buf) {
         return;
     }
 
-    if(!write(con_socket, out_buf, len)) {
-        perror(ERR "network/send_socket: write");
-        exit(1);
-    }
+    CALLEXIT(write(con_socket, out_buf, len) == -1)
 }
 
 /**
@@ -84,7 +75,7 @@ MsgHistoryList createMsgHistoryList() {
     if(msgHQ_singleton)
         return 0;
     struct msgHistoryList * newList;
-    CALLEXIT(newList = calloc(1, sizeof *newList))
+    CALLEXIT(!(newList = calloc(1, sizeof *newList)))
     msgHQ_singleton++;
     return newList;
 }
@@ -119,9 +110,9 @@ void addMsgHistory(size_t len) {
     time_t curTime = time(0);
     if(cmhlist->head == 0) {
         addEvent(MSGSEND, 0, SENDQ_INTERVAL, NORMAL); //should be unique, though there should also never be multiple MSGSEND events in the queue
-        CALLEXIT(cmhlist->head = cmhlist->tail = calloc(1, sizeof *cmhlist->head))
+        CALLEXIT(!(cmhlist->head = cmhlist->tail = calloc(1, sizeof *cmhlist->head)))
     } else {
-        CALLEXIT(cmhlist->tail->next = calloc(1, sizeof *cmhlist->tail))
+        CALLEXIT(!(cmhlist->tail->next = calloc(1, sizeof *cmhlist->tail)))
         cmhlist->tail = cmhlist->tail->next;
     }
     cmhlist->tail->date = curTime;
@@ -141,7 +132,7 @@ MsgList createMsgList() {
     if(msgQ_singleton)
         return 0;
     struct msgList * newList;
-    CALLEXIT(newList = calloc(1, sizeof *newList))
+    CALLEXIT(!(newList = calloc(1, sizeof *newList)))
     msgQ_singleton++;
     return newList;
 }
@@ -177,12 +168,12 @@ void addMsg(char * msg, size_t len) {
     struct msgList * cmlist = mlist;
 
     if(cmlist->head == 0) {
-        CALLEXIT(cmlist->head = cmlist->tail = calloc(1, sizeof *cmlist->head))
+        CALLEXIT(!(cmlist->head = cmlist->tail = calloc(1, sizeof *cmlist->head)))
     } else {
-        CALLEXIT((cmlist->tail->next = calloc(1, sizeof *cmlist->tail)))
+        CALLEXIT(!(cmlist->tail->next = calloc(1, sizeof *cmlist->tail)))
         cmlist->tail = cmlist->tail->next;
     }
-    CALLEXIT(cmlist->tail->msg = malloc(len+1))
+    CALLEXIT(!(cmlist->tail->msg = malloc(len+1)))
     strcpy(cmlist->tail->msg, msg);
     cmlist->tail->len = len;
     cmlist->byteSize += len;

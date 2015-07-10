@@ -98,26 +98,25 @@ void save_players (struct Bot *b) {
     if(b == 0)
         return;
     FILE *file = fopen("players.db", "wb");
-    if (file) {
-        size_t len;
-        if(!(len = fwrite(b, sizeof *b, 1, file))) {
-            perror(ERR "player/save_players: fwrite");
-        }
-        fclose(file);
-        printf(INFO "Saved players (%zu/%zu bytes)\n", len*(sizeof *b), sizeof *b);
+    if(!file) {
+        PRINTWARN("Could not save players")
+        return;
     }
+    size_t len;
+    CALLEXIT(!(len = fwrite(b, sizeof *b, 1, file)))
+    fclose(file);
+    printf(INFO "Saved players (%zu/%zu bytes)\n", len*(sizeof *b), sizeof *b);
 }
 
 void load_players (struct Bot *b) {
     FILE *file = fopen("players.db", "rb");
-    if (file != NULL) {
-        if(!fread(b, sizeof *b, 1, file)) {
-            perror(ERR "player/load_players: fread");
-            exit(1);
-        }
-        fclose(file);
-        printf(INFO "Players loaded (%zu bytes)\n", sizeof *b);
+    if (!file) {
+        PRINTWARN("Could not load players")
+        return;
     }
+    CALLEXIT(!(fread(b, sizeof *b, 1, file)))
+    fclose(file);
+    printf(INFO "Players loaded (%zu bytes)\n", sizeof *b);
 }
 
 //Lol this entire thing
