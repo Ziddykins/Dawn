@@ -51,7 +51,7 @@ void cmd_help(int pindex, struct Message * msg) {
         invokeCmd(0, pindex, regex_group[1], msg, CMD_HELP);
     } else {
         char * out;
-        CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+        CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
         int len = snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :", msg->receiver);
         for(size_t i = 0; i < ccs->len; i++) {
             if(ccs->auth_levels[i] <= dawn->players[pindex].auth_level) {
@@ -69,7 +69,7 @@ void cmd_new(int pindex, struct Message * msg) {
         init_new_character(dawn, msg);
     } else {
         char * out;
-        CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+        CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
         sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
         addMsg(out, strlen(out));
         free(out);
@@ -81,7 +81,7 @@ int authKeyValid;
 
 void cmd_auth(int pindex, struct Message * msg) {
     char * out;
-    CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if(check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         if(authKeyValid && strcmp(authKey, regex_group[1]) == 0) {
             authKeyValid = 0;
@@ -165,7 +165,7 @@ void cmd_info(int pindex __attribute__((unused)), struct Message * msg) {
 void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
     if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
         char * username;
-        CALLEXIT(username = calloc(MAX_NICK_LENGTH, 1))
+        CALLEXIT(!(username = calloc(MAX_NICK_LENGTH, 1)))
         char *eptr;
         int index;
         unsigned long long amount = strtoull(regex_group[2], &eptr, 10);
@@ -188,7 +188,7 @@ void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_make(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
-    CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if (check_if_matches_regex(msg->message, CMD_LIT" snow angels")) {
         if (dawn->weather == SNOWING) {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s falls to the ground and begins making snow angels!\r\n",
@@ -214,7 +214,7 @@ void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
         slay_monster(dawn, msg->sender_nick, 1, atoi(regex_group[1]));
     } else {
         char * out;
-        CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+        CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :The %s will cost %d more gold to slay. Contribute to hiring a warrior "
                 "with ;gslay <amount>\r\n", msg->receiver, dawn->global_monster.name,
                 dawn->global_monster.slay_cost);
@@ -234,7 +234,7 @@ void cmd_assign(int pindex, struct Message * msg) {
         assign_attr_points(dawn, msg, to_lower(regex_group[1]), atoi(regex_group[2]));
     } else {
         char * out;
-        CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+        CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :To assign your attribute points, use \";assign <type> <amount>\"; type can be "
                 "str, def, int or mdef. You have %d attribute points left which you can assign\r\n",
                 msg->receiver, dawn->players[pindex].attr_pts);
@@ -245,7 +245,7 @@ void cmd_assign(int pindex, struct Message * msg) {
 
 void cmd_ap(int pindex, struct Message * msg) {
     char * out;
-    CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you have %d attribute points which you can assign\r\n",
             msg->receiver, msg->sender_nick, dawn->players[pindex].attr_pts);
     addMsg(out, strlen(out));
@@ -284,7 +284,7 @@ void cmd_market(int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_save(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
-    CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     persistent_save(dawn);
     snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Saved.\r\n", msg->receiver);
     addMsg(out, strlen(out));
@@ -293,7 +293,7 @@ void cmd_save(int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_cry(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
-    CALLEXIT(out = malloc(MAX_MESSAGE_BUFFER))
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You break down in tears\r\n", msg->receiver);
     addMsg(out, strlen(out));
     free(out);

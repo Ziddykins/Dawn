@@ -2,7 +2,7 @@
 
 TokenList createTokenList() {
     struct tokenList * newList;
-    CALLEXIT(newList = malloc(sizeof *newList))
+    CALLEXIT(!(newList = malloc(sizeof *newList)))
     newList->head = 0;
     newList->len = 0;
     newList->totalNum = 0;
@@ -32,9 +32,9 @@ void incToken(TokenList l, char * c, int end) {
     struct tokenList * cl = l;
     struct tokenNode * tmp = cl->head;
     if(!tmp) { //list is empty
-        CALLEXIT(cl->head = calloc(1, sizeof *cl->head))
+        CALLEXIT(!(cl->head = calloc(1, sizeof *cl->head)))
         cl->head->next = cl->head->prev = 0;
-        CALLEXIT(cl->head->elem = malloc(strlen(c)+1))
+        CALLEXIT(!(cl->head->elem = malloc(strlen(c)+1)))
         strcpy(cl->head->elem, c);
         cl->head->num = 1; //c has one occurrence
         cl->head->end = end;
@@ -48,10 +48,10 @@ void incToken(TokenList l, char * c, int end) {
         }
         if(!tmp) { //c was not found, we've reached the end of the list
             //insert new element at the end of the list
-            CALLEXIT(prev->next = calloc(1, sizeof *prev));
+            CALLEXIT(!(prev->next = calloc(1, sizeof *prev)))
 
             tmp = prev->next;
-            CALLEXIT(tmp->elem = malloc(strlen(c)+1))
+            CALLEXIT(!(tmp->elem = malloc(strlen(c)+1)))
             strcpy(tmp->elem, c);
             tmp->next = 0;
             tmp->prev = prev;
@@ -90,7 +90,7 @@ TokenIterator getIterator(TokenList l) {
         return 0;
     struct tokenList * cl = l;
     struct tokenIterator * it;
-    CALLEXIT(it = malloc(sizeof *it))
+    CALLEXIT(!(it = malloc(sizeof *it)))
     it->curNode = cl->head;
     it->consumed = cl->head ? cl->head->num : 0;
     return it;

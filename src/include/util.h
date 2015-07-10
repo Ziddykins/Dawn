@@ -10,20 +10,20 @@
 #define XSTR(x) STR(x)
 #define AT __FILE__ ":" XSTR(__LINE__)
 
-#define PRINTERR(func) \
-    perror(ERR AT ": " #func);
-#define PRINTWARN(func) \
-    perror(WARN AT ": " #func);
+#define PRINTERR(str) \
+    perror(ERR AT ": " str);
+#define PRINTWARN(str) \
+    perror(WARN AT ": " str);
 
 #define CALLEXIT(func) \
-    if(!(func)) { \
-        PRINTERR(func) \
+    if((func)) { \
+        PRINTERR(#func) \
         exit(1); \
     }
 
 #define CALLRSME(func) \
-    if(!(func)) { \
-        PRINTERR(func) \
+    if(func) { \
+        PRINTERR(#func) \
     }
 
 

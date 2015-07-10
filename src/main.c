@@ -21,17 +21,17 @@ char * authKey;
 
 int main (void) {
     FILE *urandom;
-    CALLEXIT(urandom = fopen("/dev/urandom", "r"))
+    CALLEXIT(!(urandom = fopen("/dev/urandom", "r")))
 
     unsigned int seed;
-    CALLEXIT(fread(&seed, sizeof (seed), 1, urandom))
+    CALLEXIT(!(fread(&seed, sizeof (seed), 1, urandom)))
     srand(seed);
     fclose(urandom);
 
     FILE *authFile;
-    CALLEXIT(authFile = fopen("auth_key.txt", "w"))
+    CALLEXIT(!(authFile = fopen("auth_key.txt", "w")))
 
-    CALLEXIT(authKey = calloc(AUTH_KEY_LEN+1, 1))
+    CALLEXIT(!(authKey = calloc(AUTH_KEY_LEN+1, 1)))
     for(size_t i = 0; i < AUTH_KEY_LEN; i++) {
         do {
             authKey[i] = rand() % 32;
@@ -43,7 +43,7 @@ int main (void) {
         }
     }
 
-    CALLEXIT(fwrite(authKey, AUTH_KEY_LEN, sizeof *authKey, authFile))
+    CALLEXIT(!(fwrite(authKey, AUTH_KEY_LEN, sizeof *authKey, authFile)))
 
     fclose(authFile);
 
@@ -60,7 +60,7 @@ int main (void) {
     n = rooms;
 
     //The bot structure it self
-    CALLEXIT(dawn = calloc(1, sizeof *dawn))
+    CALLEXIT(!(dawn = calloc(1, sizeof *dawn)))
 
     //Load characters
 /*
