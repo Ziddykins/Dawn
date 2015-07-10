@@ -1,14 +1,8 @@
-command register system
-  Separate commands into functions
-  (Do a binary search on the strings)
-  Register commands at the start of the system
-  When a command is detected it is sent to a command handler which compares it to the registered commands
-  A command has a required authentication level; e.g: 0=no auth, 1=last seen with same host or identified, 2=admin
 update map
 update item and drop system
 concatenate similar messages
-  this may require a complete redesign of the message system to be done efficiently
-  could also make use of a registration system allowing for templating and extension of messages
+    this may require a complete redesign of the message system to be done efficiently
+    could also make use of a registration system allowing for templating and extension of messages
 fluctuating marketplace
 spell system (with spell levels)
 special monster modifiers
@@ -23,5 +17,5 @@ enchanting of equipment (temporary effect, usable item)
 traversable dungeon
 bank (with gained interest)
 buildable properties (to be discussed)
-mount system (decreased movement speed)
+mount system (increased movement speed)
 command-line arguments to set some attributes for added convenience
