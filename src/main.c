@@ -217,6 +217,8 @@ int main (void) {
                         if (index != -1){
                             dawn->players[index].available = 1;
                             dawn->players[index].auth_level = AL_NOAUTH;
+                            sprintf(out, "WHOIS %s\r\n", dawn->players[index].username);
+                            addMsg(out, strlen(out));
                         }
                         ch_ptr = strtok(NULL, " @&+\r\n");
                     }

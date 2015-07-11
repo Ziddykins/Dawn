@@ -22,14 +22,14 @@ void fluctuate_market (struct Bot *b) {
 }
 static char *get_enumID (int index) {
     switch (index) {
-        case WOOD:    return "Wood";    break;
-        case LEATHER: return "Leather"; break;
-        case ORE:     return "Ore";     break;
-        case STONE:   return "Stone";   break;
-        case BRONZE:  return "Bronze";  break;
-        case MAIL:    return "Mail";    break;
-        case STEEL:   return "Steel";   break;
-        case DIAMOND: return "Diamond"; break;
+        case WOOD:    return "Wood";
+        case LEATHER: return "Leather";
+        case ORE:     return "Ore";
+        case STONE:   return "Stone";
+        case BRONZE:  return "Bronze";
+        case MAIL:    return "Mail";
+        case STEEL:   return "Steel";
+        case DIAMOND: return "Diamond";
         default: return "Error";
     }
 }
@@ -41,7 +41,7 @@ void print_market (struct Bot *b) {
         char *temp;
         size_t len = strlen(out);
         CALLEXIT(!(temp = malloc(MAX_MESSAGE_BUFFER-len)))
-        snprintf(temp, MAX_MESSAGE_BUFFER-len, "[%s: %d (%s%s%d%s)] ", get_enumID(i), b->market.materials[i], 
+        snprintf(temp, MAX_MESSAGE_BUFFER-len, "[%s: %d (%s%s%d%s)] ", get_enumID(i), b->market.materials[i],
                 b->market.materials[i] > b->market.prevprice[i] ? IRC_RED : IRC_GREEN,
                 b->market.materials[i] > b->market.prevprice[i] ? "" : "+",
                 b->market.prevprice[i] - b->market.materials[i], IRC_NORMAL);
