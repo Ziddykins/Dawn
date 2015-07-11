@@ -37,6 +37,7 @@ void init_cmds() {
     registerCmd(0, ";unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
 
     //AL_ADMIN
+    registerCmd(0, ";fluctuate", "Forces the market prices to fluctuate", AL_ADMIN, cmd_fluctuate);
     registerCmd(0, ";gib", "Cheat yourself some gold", AL_ADMIN, cmd_gib);
     registerCmd(0, ";givexp", "<user> <amount> | Give XP points to a user", AL_ADMIN, cmd_givexp);
     registerCmd(0, ";save", "Save the current state of the game to disk", AL_ADMIN, cmd_save);
@@ -333,4 +334,8 @@ void cmd_ghunt (int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_melee (int pindex __attribute__((unused)), struct Message * msg) {
     player_attacks(dawn, msg, 0);
+}
+
+void cmd_fluctuate (int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
+    fluctuate_market(dawn);
 }

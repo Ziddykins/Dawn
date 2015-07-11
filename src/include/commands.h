@@ -47,5 +47,5 @@ void cmd_gib(int pindex, struct Message * msg);
 void cmd_inv(int pindex, struct Message * msg);
 void cmd_ghunt(int pindex, struct Message * msg);
 void cmd_melee(int pindex, struct Message * msg);
-
+void cmd_fluctuate(int pindex, struct Message * msg);
 #endif // COMMANDS_H_INCLUDED

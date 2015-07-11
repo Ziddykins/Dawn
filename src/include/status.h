@@ -28,7 +28,8 @@ struct Timers {
 };
 
 struct Market {
-    int materials[8];
+    int materials[MAX_MATERIAL_TYPE];
+    int prevprice[MAX_MATERIAL_TYPE];
 };
 
 struct Bot {

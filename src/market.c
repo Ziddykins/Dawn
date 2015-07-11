@@ -8,6 +8,7 @@ static int rrange (int min, int max) {
 
 void fluctuate_market (struct Bot *b) {
     char out[MAX_MESSAGE_BUFFER];
+    memcpy(b->market.prevprice, b->market.materials , sizeof(b->market.materials));
     b->market.materials[WOOD]    = rrange(100, 500);
     b->market.materials[LEATHER] = rrange(250, 800);
     b->market.materials[ORE]     = rrange(400, 1200);
@@ -19,14 +20,34 @@ void fluctuate_market (struct Bot *b) {
     sprintf(out, "PRIVMSG %s :Market prices have been updated\r\n", b->active_room);
     addMsg(out, strlen(out));
 }
+static char *get_enumID (int index) {
+    switch (index) {
+        case WOOD:    return "Wood";    break;
+        case LEATHER: return "Leather"; break;
+        case ORE:     return "Ore";     break;
+        case STONE:   return "Stone";   break;
+        case BRONZE:  return "Bronze";  break;
+        case MAIL:    return "Mail";    break;
+        case STEEL:   return "Steel";   break;
+        case DIAMOND: return "Diamond"; break;
+        default: return "Error";
+    }
+}
 
 void print_market (struct Bot *b) {
     char out[MAX_MESSAGE_BUFFER];
-    sprintf(out, "PRIVMSG %s :[Wood: %d] [Leather: %d] [Ore: %d] [Stone: %d] [Bronze: %d]"
-            " [Mail: %d] [Steel: %d] [Diamond: %d]\r\n", b->active_room, b->market.materials[WOOD],
-            b->market.materials[LEATHER], b->market.materials[ORE], b->market.materials[STONE],
-            b->market.materials[BRONZE], b->market.materials[MAIL], b->market.materials[STEEL],
-            b->market.materials[DIAMOND]);
+    sprintf(out, "PRIVMSG %s :", b->active_room);
+    for (int i=0; i<MAX_MATERIAL_TYPE; i++) {
+        char *temp;
+        size_t len = strlen(out);
+        CALLEXIT(!(temp = malloc(MAX_MESSAGE_BUFFER-len)))
+        snprintf(temp, MAX_MESSAGE_BUFFER-len, "[%s: %d (%s%s%d%s)] ", get_enumID(i), b->market.materials[i], 
+                b->market.materials[i] > b->market.prevprice[i] ? IRC_RED : IRC_GREEN,
+                b->market.materials[i] > b->market.prevprice[i] ? "" : "+",
+                b->market.prevprice[i] - b->market.materials[i], IRC_NORMAL);
+        strncat(out, temp, MAX_MESSAGE_BUFFER-len);
+    }
+    strncat(out, "\r\n", 3);
     addMsg(out, strlen(out));
 }
 
