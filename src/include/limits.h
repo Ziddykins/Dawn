@@ -4,9 +4,9 @@
 //networking
 #define MAX_MESSAGE_BUFFER  (400) //Max length of a single message
 #define MAX_RECV_BUFFER     (4096)
-#define MAX_SENDQ_SIZE (3600) //Max length of all messages sent in last SENDQ_INTERVAL seconds
-#define MAX_MSGS_IN_INTERVAL (200) //Max number of messages sent in last SENDQ_INTERVAL seconds
-#define SENDQ_INTERVAL (50) //Time a message lives inside the Message History List
+#define MAX_SENDQ_SIZE (600) //Max length of all messages sent in last SENDQ_INTERVAL seconds
+#define MAX_MSGS_IN_INTERVAL (10) //Max number of messages sent in last SENDQ_INTERVAL seconds
+#define SENDQ_INTERVAL (10) //Time a message lives inside the Message History List
 
 #define MAX_INVENTORY_SLOTS (25)
 #define MAX_MONSTERS        (40)
