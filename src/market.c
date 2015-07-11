@@ -46,6 +46,7 @@ void print_market (struct Bot *b) {
                 b->market.materials[i] > b->market.prevprice[i] ? "" : "+",
                 b->market.prevprice[i] - b->market.materials[i], IRC_NORMAL);
         strncat(out, temp, MAX_MESSAGE_BUFFER-len);
+        free(temp);
     }
     strncat(out, "\r\n", 3);
     addMsg(out, strlen(out));
