@@ -233,6 +233,20 @@ int main (void) {
                     }
                 }
 
+                //Nick changes
+                if (check_if_matches_regex(buffer, ":(.*?)!~?.*?@.*?\\sNICK\\s:(.*?)\r\n")) {
+                    int oldindex = get_pindex(dawn, to_lower(regex_group[1]));
+                    int newindex = get_pindex(dawn, to_lower(regex_group[2]));
+                    if (oldindex != -1) {
+                        dawn->players[oldindex].available = 0;
+                        dawn->players[oldindex].auth_level = AL_NOAUTH;
+                    }
+                    if (newindex != -1) {
+                        dawn->players[newindex].available = 1;
+                        dawn->players[newindex].auth_level = AL_NOAUTH;
+                    }
+                }
+
                 //Parting and joining
                 if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)")) {
                     int pindex = get_pindex(dawn, to_lower(regex_group[1]));
