@@ -4,7 +4,7 @@ update map
     send items or materials by mail?
     slope between two adjacent points determines the added cost for travelling
     height of a point has influence on weather
-    distance to nearest water source has influence on weather
+    distance to nearest water source has influence on weather (humidity, heat, ...) => basic survival items
 update item and drop system
 concatenate similar messages
     this may require a complete redesign of the message system to be done efficiently
