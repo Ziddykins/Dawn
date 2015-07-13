@@ -189,19 +189,24 @@ int main (void) {
                 //:punch.wa.us.dal.net 307 jkjff ziddy :has auth_level for this nick
                 if (check_if_matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
                     int pindex = get_pindex(dawn, regex_group[3]);
-                    if (pindex != -1 && (dawn->players[pindex].auth_level < dawn->players[pindex].max_auth || dawn->players[pindex].auth_level < AL_REG)) {
-                        dawn->players[pindex].auth_level = dawn->players[pindex].max_auth < AL_REG ? AL_REG : dawn->players[pindex].max_auth;
-                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
-                            dawn->active_room,
-                            dawn->players[pindex].username,
-                            authLevelToStr(dawn->players[pindex].auth_level));
-                        addMsg(out, strlen(out));
-                    } else {
-                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already verified. (%s)\r\n",
-                            dawn->active_room,
-                            dawn->players[pindex].username,
-                            authLevelToStr(dawn->players[pindex].auth_level));
-                        addMsg(out, strlen(out));
+                    if(pindex != -1 && (dawn->players[pindex].max_auth > AL_USER || dawn->players[pindex].auth_level > AL_NOAUTH)) {
+                        if(dawn->players[pindex].max_auth < AL_REG) { //upgrade
+                            dawn->players[pindex].max_auth = AL_REG;
+                        }
+                        if(dawn->players[pindex].auth_level < dawn->players[pindex].max_auth) {
+                            dawn->players[pindex].auth_level = dawn->players[pindex].max_auth;
+                            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
+                                dawn->active_room,
+                                dawn->players[pindex].username,
+                                authLevelToStr(dawn->players[pindex].auth_level));
+                            addMsg(out, strlen(out));
+                        } else {
+                            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already verified. (%s)\r\n",
+                                dawn->active_room,
+                                dawn->players[pindex].username,
+                                authLevelToStr(dawn->players[pindex].auth_level));
+                            addMsg(out, strlen(out));
+                        }
                     }
                 }
 
