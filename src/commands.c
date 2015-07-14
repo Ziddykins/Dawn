@@ -57,7 +57,8 @@ void cmd_help(int pindex, struct Message * msg) {
     struct cmdSys * ccs = commands;
     assert(ccs);
 
-    if(check_if_matches_regex(msg->message, CMD_LIT" ("CMD_LIT_MID")")) {
+    if(check_if_matches_regex(msg->message, CMD_LIT"\\s*([;\\s]"CMD_MATCH")")) {
+        regex_group[1][0] = PREFIX_C;
         invokeCmd(0, pindex, regex_group[1], msg, CMD_HELP);
     } else {
         char * out;
