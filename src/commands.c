@@ -311,8 +311,10 @@ void cmd_cry(int pindex __attribute__((unused)), struct Message * msg) {
 }
 
 void cmd_gib(int pindex, struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" gold (\\d+)")) {
+    if(check_if_matches_regex(msg->message, CMD_LIT" gold (\\d+)")) {
         dawn->players[pindex].gold += atoi(regex_group[1]);
+    } else if(check_if_matches_regex(msg->message, CMD_LIT" ap (\\d+)")) {
+        dawn->players[pindex].attr_pts += atoi(regex_group[1]);
     }
 }
 

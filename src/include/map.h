@@ -10,7 +10,7 @@ void move_player (struct Bot *, struct Message *, int, int);
 void find_building (struct Bot *, struct Message *, char []);
 void check_special_location (struct Bot *, int);
 
-struct Buildings {
+struct Building {
     char name[64];
     int x, y;
 };
@@ -25,6 +25,6 @@ struct Map {
     int cur_x, cur_y;
     int exitx, exity;
     int min_level;
-    struct Buildings buildings[MAX_BUILDINGS];
+    struct Building buildings[MAX_BUILDINGS];
 };
 #endif

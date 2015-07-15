@@ -20,7 +20,7 @@ void fluctuate_market (struct Bot *b) {
     sprintf(out, "PRIVMSG %s :Market prices have been updated\r\n", b->active_room);
     addMsg(out, strlen(out));
 }
-static char *get_enumID (int index) {
+static char *getMaterialStr (int index) {
     switch (index) {
         case WOOD:    return "Wood";
         case LEATHER: return "Leather";
@@ -41,10 +41,12 @@ void print_market (struct Bot *b) {
         char *temp;
         size_t len = strlen(out);
         CALLEXIT(!(temp = malloc(MAX_MESSAGE_BUFFER-len)))
-        snprintf(temp, MAX_MESSAGE_BUFFER-len, "[%s: %d (%s%s%d%s)] ", get_enumID(i), b->market.materials[i],
-                b->market.materials[i] > b->market.prevprice[i] ? IRC_RED : IRC_GREEN,
-                b->market.materials[i] > b->market.prevprice[i] ? "" : "+",
-                b->market.prevprice[i] - b->market.materials[i], IRC_NORMAL);
+        int difference = b->market.materials[i] - b->market.prevprice[i];
+        snprintf(temp, MAX_MESSAGE_BUFFER-len, "[%s: %d (%s%+d" IRC_NORMAL ")] ",
+                getMaterialStr(i),
+                b->market.materials[i],
+                ((difference >= 0) ? IRC_GREEN : IRC_RED),
+                difference);
         strncat(out, temp, MAX_MESSAGE_BUFFER-len);
         free(temp);
     }
