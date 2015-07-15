@@ -3,6 +3,7 @@ CFLAGS=-c -Wall -O3 -std=gnu11 -Wno-float-equal -Wpedantic -Wextra
 LDFLAGS=-lpcre -lm -lssl -lcrypto
 SRCDIR=src
 SOURCES=$(wildcard $(SRCDIR)/*.c) 
+HEADERS=$(wildcard $(SRCDIR)/include/*.h)
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=dawn
 PREFIX=/usr/bin
@@ -14,6 +15,8 @@ $(EXECUTABLE): $(OBJECTS)
 
 .c.o:
 		$(CC) $(CFLAGS) $< -o $@
+
+$(OBJECTS): $(HEADERS)
 
 clean:
 		rm -f $(SRCDIR)/*.o
