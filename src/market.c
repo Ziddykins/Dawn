@@ -1,7 +1,7 @@
 #include "include/market.h"
 
 static int rrange (int min, int max) {
-    int rval = min + (rand() % (int)(max - min + 1));
+    int rval = (int)(genNum() * (max-min) + min);
     //printf("%d (%d-%d)\n", rval, min, max);
     return rval;
 }
