@@ -224,6 +224,7 @@ void revive (struct Bot *b, struct Message *message) {
             b->players[pindex].health = b->players[pindex].max_health;
             b->players[pindex].mana = b->players[pindex].max_mana;
             b->players[pindex].alive = 1;
+            b->players[pindex].fullness = 100;
             sprintf(out, "PRIVMSG %s :%s, you have been revived!\r\n", message->receiver, message->sender_nick);
         } else {
             sprintf(out, "PRIVMSG %s :%s, you are not dead\r\n", message->receiver, message->sender_nick);
