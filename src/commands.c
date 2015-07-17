@@ -35,6 +35,7 @@ void init_cmds() {
     registerCmd(0, ";slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
     registerCmd(0, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
     registerCmd(0, ";unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
+    registerCmd(0, ";drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
 
     //AL_ADMIN
     registerCmd(0, ";fluctuate", "Forces the market prices to fluctuate", AL_ADMIN, cmd_fluctuate);
@@ -323,9 +324,10 @@ void cmd_inv (int pindex __attribute__((unused)), struct Message * msg) {
 }
 
 void cmd_ghunt (int pindex __attribute__((unused)), struct Message * msg) {
-    char *out;
-    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+
     if (dawn->global_monster.active) {
+        char *out;
+        CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You must either kill the "
                 "monster or use ;gslay!\r\n", msg->receiver);
         addMsg(out, strlen(out));
@@ -341,4 +343,20 @@ void cmd_melee (int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_fluctuate (int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
     fluctuate_market(dawn);
+}
+
+void cmd_drink(int pindex, struct Message * msg) {
+    char * out;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+    if(check_if_matches_regex(msg->message, CMD_LIT " beer")) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You help yourself to a good 'ol bottle of beer. Fullness +5\r\n", msg->receiver);
+        dawn->players[pindex].fullness+=5;
+        if(dawn->players[pindex].fullness > 100)
+            dawn->players[pindex].fullness = 100;
+
+    } else if(check_if_matches_regex(msg->message, CMD_LIT)) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You can drink some beer if you like.\r\n", msg->receiver);
+    }
+    addMsg(out, strlen(out));
+    free(out);
 }
