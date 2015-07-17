@@ -9,6 +9,7 @@ struct Message;
 void move_player (struct Bot *, struct Message *, int, int);
 void find_building (struct Bot *, struct Message *, char []);
 void check_special_location (struct Bot *, int);
+void diamondSquare(double **heightmap, int dim, double roughness, double sigma, int level);
 
 struct Building {
     char name[64];
@@ -26,5 +27,6 @@ struct Map {
     int exitx, exity;
     int min_level;
     struct Building buildings[MAX_BUILDINGS];
+    //double **heightmap;
 };
 #endif

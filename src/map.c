@@ -109,3 +109,31 @@ void check_special_location (struct Bot *b, int pindex) {
         }
     }
 }
+
+void diamondSquare(double **heightmap, int dim, double roughness, double sigma, int level) {
+    if (level < 1) return;
+
+    // diamonds
+    for (int i = level; i < dim; i += level) {
+        for (int j = level; j < dim; j += level) {
+            double a = heightmap[i - level][j - level];
+            double b = heightmap[i][j - level];
+            double c = heightmap[i - level][j];
+            double d = heightmap[i][j];
+            heightmap[i - level / 2][j - level / 2] = (a + b + c + d) / 4 + gaussrand() * sigma;
+        }
+    }
+    // squares
+    for (int i = 2 * level; i < dim; i += level) {
+        for (int j = 2 * level; j < dim; j += level) {
+            double a = heightmap[i - level][j - level];
+            double b = heightmap[i][j - level];
+            double c = heightmap[i - level][j];
+            double e = heightmap[i - level / 2][j - level / 2];
+
+            heightmap[i - level][j - level / 2] = (a + c + e + heightmap[i - 3 * level / 2][j - level / 2]) / 4 + gaussrand() * sigma;
+            heightmap[i - level / 2][j - level] = (a + b + e + heightmap[i - level / 2][j - 3 * level / 2]) / 4 + gaussrand() * sigma;
+        }
+    }
+    diamondSquare(heightmap, dim, roughness, sigma * roughness, level / 2);
+}
