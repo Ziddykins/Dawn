@@ -110,29 +110,29 @@ void check_special_location (struct Bot *b, int pindex) {
     }
 }
 
-void diamondSquare(double **heightmap, int dim, double roughness, double sigma, int level) {
+void diamondSquare(float *heightmap, unsigned dim, float roughness, float sigma, unsigned level) {
     if (level < 1) return;
 
     // diamonds
-    for (int i = level; i < dim; i += level) {
-        for (int j = level; j < dim; j += level) {
-            double a = heightmap[i - level][j - level];
-            double b = heightmap[i][j - level];
-            double c = heightmap[i - level][j];
-            double d = heightmap[i][j];
-            heightmap[i - level / 2][j - level / 2] = (a + b + c + d) / 4 + gaussrand() * sigma;
+    for (unsigned i = level; i < dim; i += level) {
+        for (unsigned j = level; j < dim; j += level) {
+            float a = heightmap[(i-level)*dim + j-level];
+            float b = heightmap[i*dim + j-level];
+            float c = heightmap[(i-level)*dim + j];
+            float d = heightmap[i*dim+j];
+            heightmap[(i-level/2)*dim + j-level/2] = (a + b + c + d) / 4 + (float)gaussrand() * sigma;
         }
     }
     // squares
-    for (int i = 2 * level; i < dim; i += level) {
-        for (int j = 2 * level; j < dim; j += level) {
-            double a = heightmap[i - level][j - level];
-            double b = heightmap[i][j - level];
-            double c = heightmap[i - level][j];
-            double e = heightmap[i - level / 2][j - level / 2];
+    for (unsigned i = 2 * level; i < dim; i += level) {
+        for (unsigned j = 2 * level; j < dim; j += level) {
+            float a = heightmap[(i-level)*dim + j-level];
+            float b = heightmap[i*dim + j-level];
+            float c = heightmap[(i-level)*dim + j];
+            float e = heightmap[(i-level/2)*dim + j-level/2];
 
-            heightmap[i - level][j - level / 2] = (a + c + e + heightmap[i - 3 * level / 2][j - level / 2]) / 4 + gaussrand() * sigma;
-            heightmap[i - level / 2][j - level] = (a + b + e + heightmap[i - level / 2][j - 3 * level / 2]) / 4 + gaussrand() * sigma;
+            heightmap[(i-level)*dim + (j-level/2)] = (a + c + e + heightmap[(i-3*level/2)*dim + (j-level/2)]) / 4 + (float)gaussrand() * sigma;
+            heightmap[(i-level/2)*dim + j-level] = (a + b + e + heightmap[(i-level/2)*dim + (j-3*level/2)]) / 4 + (float)gaussrand() * sigma;
         }
     }
     diamondSquare(heightmap, dim, roughness, sigma * roughness, level / 2);
