@@ -273,12 +273,6 @@ char * event_to_str(enum Events x) {
             return "SAVING";
         case HOURLY:
             return "HOURLY";
-        case SUNNY:
-            return "SUNNY";
-        case RAINING:
-            return "RAINING";
-        case SNOWING:
-            return "SNOWING";
         case TRAVEL:
             return "TRAVEL";
         case MSGSEND:

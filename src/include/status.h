@@ -25,12 +25,12 @@ struct Map set_map (int);
 
 struct Timers {
     time_t time_finished;
-    };
+};
 
 struct Market {
     int materials[MAX_MATERIAL_TYPE];
     int prevprice[MAX_MATERIAL_TYPE];
-    };
+};
 
 struct Bot {
     char nickname[64], realname[64], ident[64], password[64], active_room[64];
@@ -40,36 +40,39 @@ struct Bot {
     struct Monsters global_monster;
     struct Market market;
     int pad; //unused padding data
-    };
+};
 
 enum Events  {
     HEALING, SAVING, HOURLY,
-    SUNNY, RAINING, SNOWING,
     TRAVEL,
     MSGSEND,
-    };
+};
+
+enum Weather {
+    SUNNY, RAINING, SNOWING,
+};
 
 struct event {
     enum Events event;
     int data; //playerID
-    };
+};
 
 struct event_node {
     struct event_node * next;
     struct event * elem;
     time_t event_time;
-    };
+};
 
 struct event_list {
     struct event_node * head;
     size_t len;
-    };
+};
 
 enum event_mode {
     NORMAL = 0,
     UNIQUE = 1<<0,
     KEEP  = 1<<1
-    };
+};
 
 char * event_to_str(enum Events x);
 
