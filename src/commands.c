@@ -30,7 +30,7 @@ void init_cmds() {
     registerCmd(0, ";market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
     registerCmd(0, ";materials", "Discover what materials you are a proud owner of", AL_USER, cmd_materials);
     registerCmd(0, ";melee", "Performs a melee attack on a personal monster", AL_USER, cmd_melee);
-    //registerCmd(0, ";revive", "Flourish once again when you have passed", AL_USER, cmd_revive); //DEPRECATED
+    registerCmd(0, ";revive", "Flourish once again when you have passed", AL_USER, cmd_revive);
     registerCmd(0, ";sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
     registerCmd(0, ";slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
     registerCmd(0, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
@@ -155,11 +155,11 @@ void cmd_hunt(int pindex, struct Message * msg) {
         call_monster(dawn, msg->sender_nick, 0);
     }
 }
-/* DEPRECATED
+
 void cmd_revive(int pindex __attribute__((unused)), struct Message * msg) {
     revive(dawn, msg);
 }
-*/
+
 void cmd_drop(int pindex __attribute__((unused)), struct Message * msg) {
     if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);

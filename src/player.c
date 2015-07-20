@@ -208,16 +208,14 @@ void assign_attr_points (struct Bot *b, struct Message *message, char which[5], 
             message->sender_nick, which, amount, attr_pts - amount);
     addMsg(out, strlen(out));
 }
-/* DEPRECATED
+
 void revive (struct Bot *b, struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(b, message->sender_nick);
-    int bindex = get_bindex(b, message->sender_nick, "shrine");
-    int cur_x  = b->players[pindex].current_map.cur_x;
-    int cur_y  = b->players[pindex].current_map.cur_y;
+    int cur_x  = b->players[pindex].pos_x;
+    int cur_y  = b->players[pindex].pos_y;
 
-    if (b->players[pindex].current_map.buildings[bindex].x == cur_x
-            && b->players[pindex].current_map.buildings[bindex].y == cur_y) {
+    if (cur_x == 7 && cur_y == 4) {
         if (!b->players[pindex].alive) {
             b->players[pindex].health = b->players[pindex].max_health;
             b->players[pindex].mana = b->players[pindex].max_mana;
@@ -232,7 +230,7 @@ void revive (struct Bot *b, struct Message *message) {
     }
     addMsg(out, strlen(out));
 }
-*/
+
 
 char * authLevelToStr(enum authLevel al) {
     switch(al) {
