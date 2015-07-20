@@ -33,7 +33,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
 
     if (get_pindex(b, message->sender_nick) != -1) {
         sprintf(out, "PRIVMSG %s :You already have an account!\r\n", b->active_room);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
         return;
     }
 
@@ -44,8 +44,8 @@ void init_new_character (struct Bot *b, struct Message *message) {
     np.pos_y = 1;
 
     strncpy(np.username, message->sender_nick, MAX_NICK_LENGTH-1);
-    genSalt(np.salt, 16);
-    hashPwd(np.pwd, np.salt, tmp_pwd);
+    gen_salt(np.salt, 16);
+    hash_pwd(np.pwd, np.salt, tmp_pwd);
     strcpy(np.hostmask, message->sender_hostmask);
     strcpy(np.first_class, "None");
     strcpy(np.second_class, "None");
@@ -89,7 +89,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
             "a private message containing: ;set password <your_password>\r\n", b->active_room,
             message->sender_nick, message->sender_hostmask);
     save_players(b);
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 
 void save_players (struct Bot *b) {
@@ -156,7 +156,7 @@ void print_sheet (struct Bot *b, struct Message *message) {
             progress_bar(b, message->sender_nick), IRC_ORANGE, b->players[i].gold, IRC_NORMAL,
             b->players[i].fullness);
 
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
     return;
 }
 
@@ -178,7 +178,7 @@ void check_levelup (struct Bot *b, struct Message *message) {
             sprintf(out, "PRIVMSG %s :%s has achieved level %d. 20 attribute points ready for assignment, HP and MP"
                     " increased +25! Increase your attributes using the ;assign command!\r\n",
                     message->receiver, message->sender_nick, curr_level + 1);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
         }
 
     }
@@ -200,13 +200,13 @@ void assign_attr_points (struct Bot *b, struct Message *message, char which[5], 
     } else {
         sprintf(out, "PRIVMSG %s :%s, you have chosen an invalid attribute to increase or do not have the amount "
                 "of attribute points required: (%d points available)\r\n", message->receiver, message->sender_nick, attr_pts);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
         return;
     }
     b->players[pindex].attr_pts -= amount;
     sprintf(out, "PRIVMSG %s :%s has increased %s by %d, you have %d attribute points available\r\n", message->receiver,
             message->sender_nick, which, amount, attr_pts - amount);
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 
 void revive (struct Bot *b, struct Message *message) {
@@ -228,11 +228,11 @@ void revive (struct Bot *b, struct Message *message) {
     } else {
         sprintf(out, "PRIVMSG %s :%s, you must be at a shrine to revive!\r\n", message->receiver, message->sender_nick);
     }
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 
 
-char * authLevelToStr(enum authLevel al) {
+char * auth_level_to_str(enum auth_level al) {
     switch(al) {
         case AL_NOAUTH:
             return "NO AUTH";

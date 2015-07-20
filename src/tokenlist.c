@@ -1,23 +1,23 @@
 #include "include/tokenlist.h"
 
-TokenList createTokenList() {
-    struct tokenList * newList;
-    CALLEXIT(!(newList = malloc(sizeof *newList)))
-    newList->head = 0;
-    newList->len = 0;
-    newList->totalNum = 0;
-    return newList;
+TokenList init_token_list() {
+    struct token_list * new_list;
+    CALLEXIT(!(new_list = malloc(sizeof *new_list)))
+    new_list->head = 0;
+    new_list->len = 0;
+    new_list->num_total = 0;
+    return new_list;
 }
 
-void freeTokenList(TokenList l) {
+void free_token_list(TokenList l) {
     if(!l) {
         return;
     }
-    struct tokenList * cl = l;
-    struct tokenNode * tmp = cl->head;
+    struct token_list * cl = l;
+    struct token_node * tmp = cl->head;
 
     while(tmp) {
-        struct tokenNode * next = tmp->next;
+        struct token_node * next = tmp->next;
         free(tmp->elem);
         free(tmp);
         tmp = next;
@@ -25,12 +25,12 @@ void freeTokenList(TokenList l) {
     free(cl);
 }
 
-void incToken(TokenList l, char * c, int end) {
+void inc_token(TokenList l, char * c, int end) {
     if(!l) {
         return;
     }
-    struct tokenList * cl = l;
-    struct tokenNode * tmp = cl->head;
+    struct token_list * cl = l;
+    struct token_node * tmp = cl->head;
     if(!tmp) { //list is empty
         CALLEXIT(!(cl->head = calloc(1, sizeof *cl->head)))
         cl->head->next = cl->head->prev = 0;
@@ -41,7 +41,7 @@ void incToken(TokenList l, char * c, int end) {
         cl->len = 1; //and the list is now of length 1
     } else { //list is not empty
         //search for the item
-        struct tokenNode * prev = 0;
+        struct token_node * prev = 0;
         while(tmp && strcmp(tmp->elem, c) != 0) {
             prev = tmp;
             tmp = tmp->next;
@@ -68,69 +68,69 @@ void incToken(TokenList l, char * c, int end) {
             }
         }
     }
-    cl->totalNum++;
+    cl->num_total++;
 }
 
-size_t getLen(TokenList l) {
+size_t get_len(TokenList l) {
     if(!l)
         return 0;
-    struct tokenList * cl = l;
+    struct token_list * cl = l;
     return cl->len;
 }
 
-size_t getTotalNum(TokenList l) {
+size_t get_num_total(TokenList l) {
     if(!l)
         return 0;
-    struct tokenList * cl = l;
-    return cl->totalNum;
+    struct token_list * cl = l;
+    return cl->num_total;
 }
 
-TokenIterator getIterator(TokenList l) {
+TokenIterator get_iterator(TokenList l) {
     if(!l)
         return 0;
-    struct tokenList * cl = l;
-    struct tokenIterator * it;
+    struct token_list * cl = l;
+    struct token_iterator * it;
     CALLEXIT(!(it = malloc(sizeof *it)))
-    it->curNode = cl->head;
+    it->cur_node = cl->head;
     it->consumed = cl->head ? cl->head->num : 0;
     return it;
 }
 
-void freeIterator(TokenIterator it) {
+void free_iterator(TokenIterator it) {
     free(it);
 }
 
-int hasElem(TokenIterator it) {
+int has_elem(TokenIterator it) {
     if(!it)
         return 0;
-    struct tokenIterator * cit = it;
-    return cit->curNode ? 1 : 0;
+    struct token_iterator * cit = it;
+    return cit->cur_node ? 1 : 0;
 }
 
 void next(TokenIterator it) {
-    struct tokenIterator * cit = it;
-    cit->curNode = cit->curNode->next;
-    cit->consumed += cit->curNode ? cit->curNode->num : 0;
+    struct token_iterator * cit = it;
+    cit->cur_node = cit->cur_node->next;
+    cit->consumed += cit->cur_node ? cit->cur_node->num : 0;
 }
 
-char * getStr(TokenIterator it) {
-    return ((struct tokenIterator *)it)->curNode->elem;
+char * get_str(TokenIterator it) {
+    return ((struct token_iterator *)it)->cur_node->elem;
 }
 
-unsigned int getStrNum(TokenIterator it) {
-    return ((struct tokenIterator *)it)->curNode->num;
+unsigned int get_num_str(TokenIterator it) {
+    return ((struct token_iterator *)it)->cur_node->num;
 }
 
-int getIsEnd(TokenIterator it) {
-    return ((struct tokenIterator *)it)->curNode->end;
+int get_is_end(TokenIterator it) {
+    return ((struct token_iterator *)it)->cur_node->end;
 }
 
-size_t getConsumed(TokenIterator it) {
-    return ((struct tokenIterator *)it)->consumed;
+size_t get_num_consumed(TokenIterator it) {
+    return ((struct token_iterator *)it)->consumed;
 }
 
 //swaps the /data/ of two nodes
-void swap(struct tokenNode * a, struct tokenNode * b) {
+void swap(struct token_node * a, struct token_node * b) {
     assert(a && b);
 
     char * elemA = a->elem;

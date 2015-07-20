@@ -22,14 +22,14 @@ struct analyzer {
 
 typedef void * Analyzer;
 
-Analyzer createAnalyzer(size_t markovTier);
-void freeAnalyzer(Analyzer);
+Analyzer init_analyzer(size_t markov_tier);
+void free_analyzer(Analyzer);
 
 int analyze(Analyzer, char const *);
 
 //uses rand without calling srand!
-char * genToken(Analyzer, char src, int end);
-char * genStart(Analyzer);
-int hasRuleFor(Analyzer, char src);
+char * gen_token(Analyzer, char src, int end);
+char * gen_start(Analyzer);
+int has_rule_for(Analyzer, char src);
 
 #endif // ANALYZER_H_INCLUDED

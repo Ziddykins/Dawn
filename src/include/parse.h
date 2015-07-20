@@ -24,9 +24,9 @@ int command_allowed (struct Bot *b, char * command, int pindex);
 char *to_lower (char str[]);
 char *xor_flip (char str[]); //!DEPRECATED
 
-void genSalt(char * salt, size_t len);
-void hashPwd(unsigned char * digest, char const * salt, char const * password);
-int hashcmp(unsigned char const * s1, unsigned char const * s2);
+void gen_salt(char * salt, size_t len);
+void hash_pwd(unsigned char * digest, char const * salt, char const * password);
+int hash_cmp(unsigned char const * s1, unsigned char const * s2);
 
 extern char regex_group[15][2048];
 

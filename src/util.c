@@ -1,6 +1,6 @@
 #include "include/util.h"
 
-double genNum() {
+double randd() {
     return ((double)(rand()))/INT_MAX;
 }
 
@@ -11,8 +11,8 @@ double gaussrand() {
 
 	if(phase == 0) {
 		do {
-			V1 = 2 * genNum() - 1;
-			V2 = 2 * genNum() - 1;
+			V1 = 2 * randd() - 1;
+			V2 = 2 * randd() - 1;
 			S = V1 * V1 + V2 * V2;
 			} while(S >= 1 || S == 0);
 		X = V1 * sqrt(-2 * log(S) / S);

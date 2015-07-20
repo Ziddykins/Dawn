@@ -25,7 +25,7 @@ static void random_shrine (struct Bot *b, char * username) { //username -> MAX_N
             b->players[index].mana   = b->players[index].max_mana;
             sprintf(out, "PRIVMSG %s :%s has come across a spring! %s hops in and relaxes. HP/MP replenished!\r\n",
                     b->active_room, username, username);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             break;
         case 1:
         {
@@ -36,7 +36,7 @@ static void random_shrine (struct Bot *b, char * username) { //username -> MAX_N
             }
             sprintf(out, "PRIVMSG %s :%s has come across a spring! %s hops in and relaxes... A bit too much. %s"
                    " has peed in the spring! HP +%d\r\n", b->active_room, username, username, username, health_gain);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             break;
         }
         case 2:
@@ -50,7 +50,7 @@ static void random_shrine (struct Bot *b, char * username) { //username -> MAX_N
             sprintf(out, "PRIVMSG %s :%s has come across a spring! They notice etchings all around the spring."
                     " Taking the time to understand the etchings makes them feel more experienced! Exp +%d\r\n",
                     temp.receiver, username, experience_gain);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             break;
         }
     }
@@ -68,7 +68,7 @@ static void random_reward (struct Bot *b, char * username) { //username -> MAX_N
             b->players[index].gold += gold_gain;
             sprintf(out, "PRIVMSG %s :While %s was walking, they found a pouch on the ground. Upon further inspection,"
                    " the pouch contained some gold! Score! Gold +%d\r\n", b->active_room, username, gold_gain);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             break;
         }
         case 1:
@@ -78,7 +78,7 @@ static void random_reward (struct Bot *b, char * username) { //username -> MAX_N
             sprintf(out, "PRIVMSG %s :%s has tripped! As they bring their head up, a large sack is spotted behind"
                    " a rock. %s hops up and goes to inspect the sack, to discover it is full of gold! Gold +%d\r\n",
                    b->active_room, username, username, gold_gain);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             break;
         }
         case 2:
@@ -86,7 +86,7 @@ static void random_reward (struct Bot *b, char * username) { //username -> MAX_N
             if (b->players[index].fullness > 100) b->players[index].fullness = 100;
             sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to try a "
                     "wedge, and it is delicious! Fullness +5\r\n", b->active_room, username);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             break;
     }
 }
@@ -106,7 +106,7 @@ static void random_punishment (struct Bot *b, char const * username) { //usernam
             b->players[index].health -= damage_taken;
             sprintf(out, "PRIVMSG %s :A pack of wolves corner %s and munch on them a little bit. HP -%d\r\n",
                     b->active_room, username, damage_taken);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             check_alive(b, &temp);
             break;
         }
@@ -119,7 +119,7 @@ static void random_punishment (struct Bot *b, char const * username) { //usernam
             b->players[index].health -= damage_taken;
             sprintf(out, "PRIVMSG %s :While walking, %s was struck by lightning! HP -%d\r\n",
                     b->active_room, username, damage_taken);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             check_alive(b, &temp);
             break;
         }
@@ -127,7 +127,7 @@ static void random_punishment (struct Bot *b, char const * username) { //usernam
             b->players[index].fullness -= 5;
             sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to "
                     "try a wedge, and it is awful! You promptly vomit.  Fullness -5\r\n", b->active_room, username);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             check_famine(b, index);
             break;
     }
@@ -200,7 +200,7 @@ void update_weather (struct Bot *b) {
             b->weather = SNOWING;
             break;
     }
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 
 //When receiving -1, all users are checked for starvation

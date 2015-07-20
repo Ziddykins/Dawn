@@ -18,15 +18,15 @@ struct namegen {
 
 typedef void * NameGen;
 
-NameGen createNameGen(unsigned int markovTier);
-void freeNameGen(NameGen);
+NameGen init_name_gen(unsigned int markov_tier);
+void free_name_gen(NameGen);
 
-void addFile(NameGen, char const *);
+void add_file(NameGen, char const *);
 
 //name must have avg*2+markovTier+1 space
-void genName(char * name, NameGen, size_t avg, double var);
+void gen_name(char * name, NameGen, size_t avg, double var);
 
 //internal functions
-int isProducible(NameGen ng, char src, size_t maxTier);
+int is_producible(NameGen ng, char src, size_t max_tier);
 
 #endif // NAMEGEN_H_INCLUDED

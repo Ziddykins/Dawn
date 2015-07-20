@@ -38,7 +38,7 @@ void generate_drop (struct Bot *b, struct Message *message) {
     if (b->players[p_index].available_slots == 0) {
         sprintf(out, "PRIVMSG %s :%s has found an item, but has no more room in his inventory!\r\n",
                 message->receiver, message->sender_nick);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
         return;
     }
 
@@ -102,7 +102,7 @@ void generate_drop (struct Bot *b, struct Message *message) {
 */
         sprintf(out, "PRIVMSG %s :%s finds %d %s %s\r\n",
                 message->receiver, message->sender_nick, amount, mat_name, plural);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
 
         return;
     }
@@ -173,7 +173,7 @@ void generate_drop (struct Bot *b, struct Message *message) {
             } else {
                 sprintf(out, "PRIVMSG %s :%s, you have no room in your inventory!\r\n",
                         message->receiver, message->sender_nick);
-                addMsg(out, strlen(out));
+                add_msg(out, strlen(out));
                 return;
             }
         }
@@ -181,7 +181,7 @@ void generate_drop (struct Bot *b, struct Message *message) {
 
     sprintf(out, "PRIVMSG %s :%s has found a %s [S: %u - D: %u I: %u - MD: %u] on the corpse of the monster!\r\n",
             message->receiver, message->sender_nick, item_name, str, def, intel, mdef);
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 
 void drop_item (struct Bot *b, struct Message *message, int slot) {
@@ -207,7 +207,7 @@ void drop_item (struct Bot *b, struct Message *message, int slot) {
         }
         b->players[pindex].available_slots++;
         sprintf(out, "PRIVMSG %s :%s has dropped the %s\r\n", message->receiver, message->sender_nick, item_name);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
     }
 }
 
@@ -229,6 +229,6 @@ void get_item_info (struct Bot *b, struct Message *message, int slot) {
         strcpy(item_name, b->players[index].inventory[slot].name);
         sprintf(out, "PRIVMSG %s :%s - STR: %d - DEF: %d - INT: %d - MDEF: %d - HP: %d - MP: %d"
                " - Weight: %d - Req lvl: %d\r\n", message->receiver, item_name, str, def, intel, mdef, hp, mp, weight, reqlvl);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
     }
 }

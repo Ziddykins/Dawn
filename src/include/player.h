@@ -23,7 +23,7 @@ unsigned long long get_nextlvl_exp (struct Bot *, const char []);
 int get_pindex (struct Bot *, const char []);
 int get_bindex (struct Bot *, const char [], const char []);
 
-enum authLevel {
+enum auth_level {
     AL_NOAUTH,
     AL_USER,
     AL_REG,
@@ -31,10 +31,10 @@ enum authLevel {
     AL_ROOT //requires auth key
 };
 
-char * authLevelToStr(enum authLevel al);
-extern char * authKey;
-extern int authKeyValid;
-extern struct Map * curMap;
+char * auth_level_to_str(enum auth_level al);
+extern char * auth_key;
+extern int auth_key_valid;
+extern struct Map * global_map;
 
 struct Player {
     char username[64], hostmask[128]; //limits used in parse.c

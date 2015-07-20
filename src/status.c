@@ -9,38 +9,38 @@ void init_timers (struct Bot *b, char const * fn) {
     struct sigaction act;
     memset(&act, '\0', sizeof act);
 
-    act.sa_handler = eventHandler; //use simple signal handler
+    act.sa_handler = event_handler; //use simple signal handler
     act.sa_flags = SA_RESTART; //use SA_SIGINFO for more advanced handler
 
-    CALLEXIT(sigaction(SIGALRM, &act, NULL) < 0) //hook SIGALRM to call our messageHandler function
+    CALLEXIT(sigaction(SIGALRM, &act, NULL) < 0) //hook SIGALRM to call our message_handler function
 
     load_events(fn);
     dawn = b;
-    addEvent(HEALING, 0, HEALING_INTERVAL, UNIQUE | KEEP);
-    addEvent(SAVING, 0, SAVING_INTERVAL, UNIQUE | KEEP);
-    addEvent(HOURLY, 0, 3600, UNIQUE | KEEP);
+    add_event(HEALING, 0, HEALING_INTERVAL, UNIQUE | KEEP);
+    add_event(SAVING, 0, SAVING_INTERVAL, UNIQUE | KEEP);
+    add_event(HOURLY, 0, 3600, UNIQUE | KEEP);
     printf(INFO "Timers started\n");
 }
 
 static int eventQ_singleton = 0; //only one instance may be created at any time
 
-EventList createEventList() {
+EventList init_event_list() {
     if(eventQ_singleton) //if an instance already exists do not create a new one
         return 0;
     eventQ_singleton++;
-    struct eventList * newlist;
+    struct event_list * newlist;
     CALLEXIT(!(newlist = calloc(1, sizeof *newlist)))
     return newlist;
 }
 
-void freeEventList() {
+void free_event_list() {
     if(elist == 0)
         return;
-    struct eventList * celist = (struct eventList *)elist;
+    struct event_list * celist = (struct event_list *)elist;
 
-    struct eventNode * tmp = celist->head;
+    struct event_node * tmp = celist->head;
     while(tmp != 0) {
-        struct eventNode * next = tmp->next;
+        struct event_node * next = tmp->next;
         free(tmp->elem);
         free(tmp);
         tmp = next;
@@ -51,27 +51,27 @@ void freeEventList() {
 }
 
 
-void updateAlarm() {
+void update_alarm() {
     if(elist == 0)
         return;
-    struct eventList* celist = (struct eventList *)elist;
+    struct event_list* celist = (struct event_list *)elist;
     if(celist->head == 0)
         return;
 
     time_t curtime = time(0);
     time_t event = celist->head->event_time;
     if(event < curtime)
-        eventHandler(SIGALRM);
+        event_handler(SIGALRM);
     else
         alarm((unsigned int)(event - curtime));
 }
 
-void selectList(EventList x) {
+void select_list(EventList x) {
     elist = x;
 }
 
-void printNextEvent() {
-    struct eventList * celist = elist;
+void print_next_event() {
+    struct event_list * celist = elist;
     printf(" next in +%zu (%s)",
         celist != 0 ?
             celist->head != 0 ?
@@ -82,81 +82,61 @@ void printNextEvent() {
         celist != 0 ?
             celist->head != 0 ?
                 celist->head->elem != 0 ?
-                    eventToStr(celist->head->elem->event)
+                    event_to_str(celist->head->elem->event)
                 : "NONE"
             : "NONE"
         : "NONE");
 }
 
-void removeEvent(struct eventNode * prev) { //requires the /PREVIOUS/ node or 0 for head
-    struct eventList * celist = (struct eventList *)elist;
+void remove_event(struct event_node * prev) { //requires the /PREVIOUS/ node or 0 for head
+    struct event_list * celist = (struct event_list *)elist;
     if(elist == 0)
         return;
     if(prev == 0) {
-        struct eventNode * next = celist->head->next;
+        struct event_node * next = celist->head->next;
         free(celist->head->elem);
         free(celist->head);
         celist->head = next;
     } else {
-        struct eventNode * toFree = prev->next;
+        struct event_node * to_free = prev->next;
         prev->next = prev->next->next;
-        free(toFree->elem);
-        free(toFree);
+        free(to_free->elem);
+        free(to_free);
     }
 }
 
-/*void debugPrint() {
-    if(!elist) {
-        printf("[NONE]\n");
-        return;
-    }
-    struct eventList * celist = (struct eventList *)elist;
-    struct eventNode * tmp = celist->head;
-    do {
-        printf("[%s]->", eventToStr(tmp ? tmp->elem->event : -1));
-        tmp = tmp ? tmp->next : 0;
-    } while(tmp);
-    printf("\n");
-}*/
-
-void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //flags -> enum eventMode (status.h)
+void add_event(enum Events event, int e_data, unsigned int offset, int flags) { //flags -> enum event_mode (status.h)
     if(elist == 0)
         return;
-    struct eventList * celist = (struct eventList *)elist;
+    struct event_list * celist = (struct event_list *)elist;
 
     time_t newtime = time(0) + offset;
-    struct eventNode * tmp = celist->head, * prev = 0;
+    struct event_node * tmp = celist->head, * prev = 0;
     if(flags & UNIQUE) {
         while(tmp != 0 && tmp->event_time < newtime) { //go to the place where we need to insert the new event
-            if(tmp->elem->event == event && tmp->elem->data == eData) {
+            if(tmp->elem->event == event && tmp->elem->data == e_data) {
                 if(flags & KEEP) {
-                    /*printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
-                    printNextEvent();
-                    putchar('\n');*/
                     return;
                 } else {
                     tmp = prev; //move to previous event
-                    removeEvent(prev); //remove next event
+                    remove_event(prev); //remove next event
                 }
             }
             prev = tmp;
             if(tmp != 0)
                 tmp = tmp->next;
         }
-        struct eventNode * scanner = tmp, * prevScanner = prev;
+        struct event_node * scanner = tmp, * prev_scanner = prev;
         while(scanner != 0) {
-            if(tmp->elem->event == event && tmp->elem->data == eData) {
+            if(tmp->elem->event == event && tmp->elem->data == e_data) {
                 if(flags & KEEP) {
-                    /*printf("STATUS: Did not replace existing event of type %s;", eventToStr(event));
-                    printNextEvent();
-                    putchar('\n');*/
                     return;
                 } else {
-                    scanner = prevScanner;
-                    removeEvent(prevScanner);
+                    scanner = prev_scanner;
+                    remove_event(prev_scanner);
                 }
             }
-            prevScanner = scanner;
+            prev_scanner = scanner;
             if(scanner != 0)
                 scanner = scanner->next;
         }
@@ -168,102 +148,77 @@ void addEvent(enum Events event, int eData, unsigned int offset, int flags) { //
     }
 
     if(prev == 0) { //create a new node from scratch
-        struct eventNode * prev_head = celist->head;
+        struct event_node * prev_head = celist->head;
         CALLEXIT(!(celist->head = calloc(1, sizeof *celist->head)))
         celist->head->next = prev_head;
         tmp = celist->head;
     } else { //or insert it where it belongs
-        struct eventNode * prevnext = prev->next;
+        struct event_node * prevnext = prev->next;
         CALLEXIT(!(prev->next = calloc(1, sizeof *prev)))
         tmp = prev->next;
         tmp->next = prevnext;
     }
     CALLEXIT(!(tmp->elem = malloc(sizeof *tmp->elem)))
     tmp->elem->event = event;
-    tmp->elem->data = eData;
+    tmp->elem->data = e_data;
     tmp->event_time = newtime;
 
     celist->len++;
-    updateAlarm(); //head may have been replaced so we reset the alarm to the next event in the queue
-    /*printf("STATUS: Added Event %s with data %d, %zu(+%u);", eventToStr(event), eData, time(0), offset);
-    printNextEvent();
-    putchar('\n');*/
+    update_alarm(); //head may have been replaced so we reset the alarm to the next event in the queue
     return;
 }
-/*
-void printFromNode(struct eventNode * x) {
-    if(x == 0) {
-        printf("[-]");
-        return;
-    }
-    printf("[%d]->", x->elem->event);
-    printFromNode(x->next);
-}
 
-
-void printList() {
-    if(elist == 0)
-        return;
-    struct eventList * celist = (struct eventList *)elist;
-    printFromNode(celist->head);
-    printf("\n");
-}
-*/
-
-struct event * retrEvent() { //callee must free the data himself
+struct event * retr_event() { //callee must free the data himself
     if(elist == 0)
         return 0;
-    struct eventList * celist = (struct eventList *)elist;
+    struct event_list * celist = (struct event_list *)elist;
     if(celist->head == 0)
         return 0;
 
     struct event * ret = celist->head->elem;
-    struct eventNode * toFree = celist->head;
+    struct event_node * to_free = celist->head;
     celist->head = celist->head->next;
-    free(toFree);
+    free(to_free);
     celist->len--;
-    updateAlarm();
+    update_alarm();
     return ret;
 }
 
-time_t timeToNextMsg() {
+time_t time_to_next_msg() {
     if(elist == 0)
         return time(0);
-    struct eventList * celist = (struct eventList *)elist;
+    struct event_list * celist = (struct event_list *)elist;
     if(celist->head == 0)
         return time(0);
     return celist->head->event_time;
 }
 
-size_t listLen() {
+size_t event_list_len() {
     if(elist == 0)
         return 0;
-    struct eventList * celist = (struct eventList *)elist;
+    struct event_list * celist = (struct event_list *)elist;
     return celist->len;
 }
 
-int nextIsDue() {
+int is_next_due() {
     if(elist == 0)
         return 0;
-    struct eventList * celist = (struct eventList *)elist;
+    struct event_list * celist = (struct event_list *)elist;
     if(celist->head == 0)
         return 0;
     return celist->head->event_time <= time(0);
 }
 
-void eventHandler(int sig) {
+void event_handler(int sig) {
     assert(sig == SIGALRM);
     struct event * e;
     do {
-        e = retrEvent(); //handle event
-        /*printf("STATUS: Received %s;", eventToStr(e->event));
-        printNextEvent();
-        putchar('\n');*/
+        e = retr_event(); //handle event
         switch (e->event) {
             case MSGSEND:
             {
-                popMsgHist();
-                processMessages();
+                pop_hist_msg();
+                process_messages();
                 break;
             }
             case HEALING:
@@ -276,19 +231,19 @@ void eventHandler(int sig) {
                         dawn->players[j].health = dawn->players[j].max_health;
                     }
                 }
-                addEvent(HEALING, 0, HEALING_INTERVAL, NORMAL);
+                add_event(HEALING, 0, HEALING_INTERVAL, NORMAL);
                 break;
             }
             case SAVING:
             {
                 persistent_save(dawn);
-                addEvent(SAVING, 0, SAVING_INTERVAL, NORMAL);
+                add_event(SAVING, 0, SAVING_INTERVAL, NORMAL);
                 break;
             }
             case HOURLY:
             {
                 hourly_events(dawn);
-                addEvent(HOURLY, 0, 3600, NORMAL);
+                add_event(HOURLY, 0, 3600, NORMAL);
                 break;
             }
             case TRAVEL:
@@ -299,7 +254,7 @@ void eventHandler(int sig) {
                     dawn->players[e->data].pos_y = dawn->players[e->data].travel_timer.y;
                     sprintf(out, "PRIVMSG %s :%s has arrived at %d,%d\r\n", dawn->active_room, dawn->players[e->data].username,
                             dawn->players[e->data].pos_x, dawn->players[e->data].pos_y);
-                    addMsg(out, strlen(out));
+                    add_msg(out, strlen(out));
                     dawn->players[e->data].travel_timer.active = 0;
                     //check_special_location(dawn, e->data); DEPRECATED
                 }
@@ -307,10 +262,10 @@ void eventHandler(int sig) {
             }
         }
         free(e);
-    } while(nextIsDue());
+    } while(is_next_due());
 }
 
-char * eventToStr(enum Events x) {
+char * event_to_str(enum Events x) {
     switch(x) {
         case HEALING:
             return "HEALING";
@@ -344,8 +299,8 @@ void save_events(char const * fn) {
             fprintf(stderr, WARN "status/save_events: tried to save but there was no event list\n");
             return;
         }
-        struct eventList * celist = elist;
-        struct eventNode * tmp = celist->head;
+        struct event_list * celist = elist;
+        struct event_node * tmp = celist->head;
         while(tmp != 0) {
             if(!(ret = fwrite(&tmp->event_time, sizeof tmp->event_time, 1, file))) {
                 PRINTERR("fwrite")
@@ -379,13 +334,13 @@ void load_events(char const * fn) {
     FILE * file;
     size_t len = 0;
     if(!(file = fopen(fn, "rb"))) {
-        selectList(createEventList());
+        select_list(init_event_list());
         PRINTWARN("Could not load events")
         errno = 0;
     } else {
         assert(elist == 0 && !eventQ_singleton);
-        selectList(createEventList());
-        struct eventList * celist = elist;
+        select_list(init_event_list());
+        struct event_list * celist = elist;
 
         time_t tmpT;
         enum Events tmpE;
@@ -418,7 +373,7 @@ void load_events(char const * fn) {
         celist->len++;
 
         if(!feof(file)) {
-            struct eventNode * tmp = 0;
+            struct event_node * tmp = 0;
             CALLEXIT(!(tmp = celist->head = calloc(1, sizeof *celist->head)))
             while(!feof(file)) {
                 CALLEXIT(!(tmp->elem = malloc(sizeof *tmp->elem)))
@@ -445,7 +400,7 @@ void load_events(char const * fn) {
             }
         }
         fclose(file);
-        updateAlarm();
+        update_alarm();
     }
     printf(INFO "Events read (%zu bytes)\n", len);
 }

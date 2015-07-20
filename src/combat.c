@@ -37,7 +37,7 @@ int check_alive (struct Bot *b, struct Message *message) {
             strcpy(reason, b->players[pindex].health <= 0 ? "been killed" : "died from starvation");
             sprintf(out, "PRIVMSG %s :%s has %s! 10%% experience has been lost\r\n",
                     message->receiver, message->sender_nick, reason);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             b->players[pindex].deaths++;
             b->players[pindex].alive = 0;
             b->players[pindex].experience = (unsigned long long)newexp;
@@ -47,7 +47,7 @@ int check_alive (struct Bot *b, struct Message *message) {
 
     if (b->global_monster.hp <= 0 && b->global_monster.active) {
         sprintf(out, "PRIVMSG %s :The %s has been killed!\r\n", message->receiver, b->global_monster.name);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
         for (int i=0; i<b->player_count; i++) {
             if (b->players[i].contribution > 0) {
                 int drop_chance = rand()%100;
@@ -61,7 +61,7 @@ int check_alive (struct Bot *b, struct Message *message) {
                 sprintf(out, "PRIVMSG %s :%s has helped defeat the foe and receives %d experience and %d gold"
                         " for their efforts!\r\n", message->receiver, b->players[i].username, (int)expgain, (int)goldgain);
                 b->global_monster.active = 0;
-                addMsg(out, strlen(out));
+                add_msg(out, strlen(out));
                 b->players[i].kills++;
                 check_levelup(b, message);
                 if (drop_chance < 85) {
@@ -97,7 +97,7 @@ void player_attacks (struct Bot *b, struct Message *message, int global) {
     if (!b->players[pindex].alive) {
         sprintf(out, "PRIVMSG %s :%s, you are dead and can't make an attack; revive at a shrine"
                      ", use a potion, or have someone revive you!\r\n", message->receiver, message->sender_nick);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
         return;
     }
 
@@ -105,7 +105,7 @@ void player_attacks (struct Bot *b, struct Message *message, int global) {
         if (player_attack == 0) {
             sprintf(out, "PRIVMSG %s :%s trips over his shoelace and misses\r\n", message->receiver,
                          message->sender_nick);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             monster_attacks(b, message, player_defense, pindex);
         } else {
             //Avoid floating point exceptions
@@ -127,7 +127,7 @@ void player_attacks (struct Bot *b, struct Message *message, int global) {
                             message->receiver, message->sender_nick, b->global_monster.name,
                             player_attack - monster_defense, b->global_monster.hp);
                 }
-                addMsg(out, strlen(out));
+                add_msg(out, strlen(out));
                 if (check_alive(b, message)) {
                     monster_attacks(b, message, player_defense, pindex);
                 }
@@ -135,7 +135,7 @@ void player_attacks (struct Bot *b, struct Message *message, int global) {
                 sprintf(out, "PRIVMSG %s :The %s has blocked %s's attack!\r\n", message->receiver,
                         b->global_monster.name, message->sender_nick);
                 monster_attacks(b, message, player_defense, pindex);
-                addMsg(out, strlen(out));
+                add_msg(out, strlen(out));
             }
         }
     }
@@ -150,13 +150,13 @@ void monster_attacks (struct Bot *b, struct Message *message, int player_defense
         sprintf(out, "PRIVMSG %s :The %s attacks %s viciously for %d damage! (Remaining: %ld)\r\n",
                 message->receiver, b->global_monster.name, message->sender_nick,
                 monster_attack, b->players[pindex].health);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
         check_alive(b, message);
     } else {
         if (b->global_monster.hp > 0) {
             sprintf(out, "PRIVMSG %s :%s has blocked the %s's attack!\r\n",
                     message->receiver, message->sender_nick, b->global_monster.name);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
         }
     }
 }

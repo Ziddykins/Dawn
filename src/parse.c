@@ -20,7 +20,7 @@ char *xor_flip (char * password) { //password -> 64
     return password;
 }
 
-void genSalt(char * salt, size_t len) {
+void gen_salt(char * salt, size_t len) {
     size_t pos;
     for(pos = 0; pos < len-1; pos++) {
         do {
@@ -30,7 +30,7 @@ void genSalt(char * salt, size_t len) {
     salt[pos] = '\0';
 }
 
-void hashPwd(unsigned char * digest, char const * salt, char const * password) {
+void hash_pwd(unsigned char * digest, char const * salt, char const * password) {
     size_t concatlen = strnlen(salt, 16) + strnlen(password, 64) + 2;
     char * concat;
     CALLEXIT(!(concat = malloc(concatlen)))
@@ -42,7 +42,7 @@ void hashPwd(unsigned char * digest, char const * salt, char const * password) {
     free(concat);
 }
 
-int hashcmp(unsigned char const * s1, unsigned char const * s2) {
+int hash_cmp(unsigned char const * s1, unsigned char const * s2) {
     int i;
     for(i = 0; i < SHA256_DIGEST_LENGTH && s1 && *s1 && s2 && *s2 && *s1 == *s2; i++) {
         s1++;
@@ -63,7 +63,7 @@ int check_if_matches_regex (char *buf, const char *regular_expression) {
     int pcre_return;
     int pcre_error_offset;
     int substring_vec[30];
-    const char *psubStrMatchStr;
+    const char *p_sub_str_match_str;
     const char *pcre_error;
 
     regex_compiled = pcre_compile(regular_expression, PCRE_MULTILINE,
@@ -90,9 +90,9 @@ int check_if_matches_regex (char *buf, const char *regular_expression) {
     if (pcre_return > 0) {
         int j;
         for (j=0; j<pcre_return; j++) {
-            pcre_get_substring(buf, substring_vec, pcre_return, j, &(psubStrMatchStr));
-            strcpy(regex_group[j], psubStrMatchStr);
-            pcre_free_substring(psubStrMatchStr);
+            pcre_get_substring(buf, substring_vec, pcre_return, j, &(p_sub_str_match_str));
+            strcpy(regex_group[j], p_sub_str_match_str);
+            pcre_free_substring(p_sub_str_match_str);
         }
         //We've found a match
         return 1;
@@ -105,9 +105,9 @@ int check_if_matches_regex (char *buf, const char *regular_expression) {
 void handle_login (char *nick, char *pass __attribute__((unused)), char *real, char *ident) {
     char out[MAX_MESSAGE_BUFFER];
     sprintf(out, "NICK %s\r\n", nick);
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
     sprintf(out, "USER %s * * :%s\r\n", ident, real);
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
     //printf(INFO "Using password '%s'\n", pass); //TODO:quieting down warnings for now but this will be nickserv
 }
 
@@ -117,24 +117,24 @@ void parse_private_message (struct Bot *b, struct Message *message) {
 
     if (pindex == -1) {
         sprintf(out, "PRIVMSG %s :You do not have an account\r\n", message->sender_nick);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
         return;
     }
 
     if (check_if_matches_regex(message->message, ";set password (\\w+)")) {
         if (strcmp(message->sender_hostmask, b->players[pindex].hostmask) == 0) {
-            hashPwd(b->players[pindex].pwd, b->players[pindex].salt, regex_group[1]);
+            hash_pwd(b->players[pindex].pwd, b->players[pindex].salt, regex_group[1]);
             sprintf(out, "PRIVMSG %s :Your password has been set\r\n", message->sender_nick);
         }
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
     } else if (check_if_matches_regex(message->message, ";login (\\w+)")) {
         if (b->players[pindex].auth_level < AL_USER) {
             unsigned char hash[SHA256_DIGEST_LENGTH];
-            hashPwd(hash, b->players[pindex].salt, regex_group[1]);
-            if (hashcmp(hash, b->players[pindex].pwd)) {
+            hash_pwd(hash, b->players[pindex].salt, regex_group[1]);
+            if (hash_cmp(hash, b->players[pindex].pwd)) {
                 strcpy(b->players[pindex].hostmask, message->sender_hostmask);
                 snprintf(out,  MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (USER)\r\n", b->active_room, message->sender_nick);
-                addMsg(out, strlen(out));
+                add_msg(out, strlen(out));
                 b->players[pindex].auth_level = AL_USER;
                 snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Password correct\r\n", message->sender_nick);
             } else {
@@ -143,7 +143,7 @@ void parse_private_message (struct Bot *b, struct Message *message) {
         } else {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :I already recognize you, no need to log in\r\n", message->sender_nick);
         }
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
     }
 }
 
@@ -174,7 +174,7 @@ void parse_room_message (struct Bot *b, struct Message *message) {
 
         if (pindex == -1) {
             sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", message->receiver);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             return;
         }
 
@@ -182,7 +182,7 @@ void parse_room_message (struct Bot *b, struct Message *message) {
                 strcmp(dawn->players[pindex].hostmask, message->sender_hostmask) != 0) {
             sprintf(out, "PRIVMSG %s :%s, I've updated your hostmask\r\n", message->receiver, message->sender_nick);
             strcpy(dawn->players[pindex].hostmask, message->sender_hostmask);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
         }
 
         if (strcmp(b->players[pindex].hostmask, message->sender_hostmask) != 0
@@ -190,13 +190,13 @@ void parse_room_message (struct Bot *b, struct Message *message) {
             sprintf(out, "PRIVMSG %s :%s, I seem to recall you connecting from a different host. Please login "
                     "by sending me a private message containing: ;login <your_password>\r\n",
                     message->receiver, message->sender_nick);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             return;
         }
 
         if (!command_allowed(b, regex_group[1], pindex)) {
             sprintf(out, "PRIVMSG %s :This command cannot be used at this time\r\n",  message->receiver);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             return;
         }
     }

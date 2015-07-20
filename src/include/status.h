@@ -25,12 +25,12 @@ struct Map set_map (int);
 
 struct Timers {
     time_t time_finished;
-};
+    };
 
 struct Market {
     int materials[MAX_MATERIAL_TYPE];
     int prevprice[MAX_MATERIAL_TYPE];
-};
+    };
 
 struct Bot {
     char nickname[64], realname[64], ident[64], password[64], active_room[64];
@@ -40,58 +40,58 @@ struct Bot {
     struct Monsters global_monster;
     struct Market market;
     int pad; //unused padding data
-};
+    };
 
 enum Events  {
     HEALING, SAVING, HOURLY,
     SUNNY, RAINING, SNOWING,
     TRAVEL,
     MSGSEND,
-};
+    };
 
 struct event {
     enum Events event;
     int data; //playerID
-};
+    };
 
-struct eventNode {
-    struct eventNode * next;
+struct event_node {
+    struct event_node * next;
     struct event * elem;
     time_t event_time;
-};
+    };
 
-struct eventList {
-    struct eventNode * head;
+struct event_list {
+    struct event_node * head;
     size_t len;
-};
+    };
 
-enum eventMode {
+enum event_mode {
     NORMAL = 0,
     UNIQUE = 1<<0,
     KEEP  = 1<<1
-};
+    };
 
-char * eventToStr(enum Events x);
+char * event_to_str(enum Events x);
 
 typedef void * EventList;
 
-EventList createEventList(void);
-void freeEventList(void);
-void addEvent(enum Events event, int eData, unsigned int offset, int flags);
-void removeEvent(struct eventNode * prev);
-void selectList(EventList);
-void printNextEvent(void);
-void printFromNode(struct eventNode * x);
-void printList(void);
+EventList init_event_list(void);
+void free_event_list(void);
+void add_event(enum Events event, int e_data, unsigned int offset, int flags);
+void remove_event(struct event_node * prev);
+void select_list(EventList);
+void print_next_event(void);
+void print_from_node(struct event_node * x);
+void print_list(void);
 
-struct event * retrEvent(void);
-void updateAlarm(void);
-time_t timeToNextMsg(void);
+struct event * retr_event(void);
+void update_alarm(void);
+time_t time_to_next_msg(void);
 
-size_t listLen(void);
+size_t event_list_len(void);
 
-int nextIsDue(void);
-void eventHandler(int sig);
+int is_next_due(void);
+void event_handler(int sig);
 
 void save_events(char const *);
 void load_events(char const *);

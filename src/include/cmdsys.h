@@ -7,7 +7,7 @@
 #include "network.h"
 #include "player.h"
 
-struct cmdSys {
+struct cmd_sys {
     size_t len, capacity; //info for array list
     uint64_t * hashes;
     char ** cmds; //command strings e.g. ";help"
@@ -19,14 +19,14 @@ struct cmdSys {
 
 //void sample_function(struct Message *msg);
 
-enum cmdSysFlags {
+enum cmd_sys_flags {
     CMD_UNUSED = 0,
     CMD_INITIALIZED = 1<<0,
     CMD_REGISTERED = 1<<1, //required for finalizing
     CMD_FINALIZED = 1<<2 //required for use
 };
 
-enum cmdMode {
+enum cmd_mode {
     CMD_EXEC, //execute a command
     CMD_HELP //send the helptext publicly
 };
@@ -41,19 +41,19 @@ extern CmdSys commands;
  * however you can also omit a command system with any of the command functions
  * to simply select the default one
  */
-void init_cmdsys(void);
+void init_global_cmd_sys(void);
 
 /**
  * @brief returns a new command system
  * @return new command system
  * @see init_cmdsys
  */
-CmdSys createCmdSys(void);
+CmdSys init_cmd_sys(void);
 /**
  * @brief deallocate all storage of a command system
  * @param cs command system or 0 for default
  */
-void freeCmdSys(CmdSys cs);
+void free_cmd_sys(CmdSys cs);
 /**
  * @brief register a function as a command with a command system
  * @param cs command system or 0 for default
@@ -62,14 +62,14 @@ void freeCmdSys(CmdSys cs);
  * @param auth_level see player.h for authentication levels
  * @param fn the function to be called for this command
  */
-void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(int pindex, struct Message *msg));
+void register_cmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(int pindex, struct Message *msg));
 
 /**
  * @brief call this when done adding commands
  * this will sort the commands internally to allow for faster searching when invoking
  * @param cs command system or 0 for default
  */
-void finalizeCmdSys(CmdSys cs);
+void finalize_cmd_sys(CmdSys cs);
 
 /**
  * @brief call the function associated to a string or send its helptext
@@ -79,12 +79,12 @@ void finalizeCmdSys(CmdSys cs);
  * @param msg the full message that was received
  * @param mode CMD_EXEC or CMD_HELP
  */
-void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode);
+void invoke_cmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode);
 
 //Internal functions
-void sortCmds(CmdSys);
-uint64_t hashCode(char *);
-void trimArrays(CmdSys);
-size_t getCmdID(CmdSys cs, char * cmd);
+void sort_cmd_sys(CmdSys);
+uint64_t hash_code(char *);
+void trim_arrays(CmdSys);
+size_t get_cmd_id(CmdSys cs, char * cmd);
 
 #endif // CMDSYS_H_INCLUDED

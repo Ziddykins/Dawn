@@ -14,7 +14,7 @@ void call_monster (struct Bot *b, char const * username, int global) { //usernam
         if (b->global_monster.active) {
             sprintf(out, "PRIVMSG %s :The %s got bored and left town. Unfortunately his friend wandered in...\r\n",
                     b->active_room, b->global_monster.name);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             b->global_monster.slay_cost = b->global_monster.gold;
             b->global_monster.hp = b->global_monster.mhp;
         }
@@ -41,7 +41,7 @@ void call_monster (struct Bot *b, char const * username, int global) { //usernam
                  " [%d MDEF]\r\n",
                  b->active_room, pstring, tmp.name, tmp.hp, tmp.mhp, IRC_RED, IRC_NORMAL, tmp.str, tmp.def,
                  tmp.intel, tmp.mdef);
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 
 void slay_monster (struct Bot *b, char const * username, int global, int amount) { //username -> MAX_NICK_LENGTH
@@ -51,7 +51,7 @@ void slay_monster (struct Bot *b, char const * username, int global, int amount)
     if (global && b->global_monster.active) {
         if (amount < 1 || amount >= MAX_SLAY_GOLD) {
             sprintf(out, "PRIVMSG %s :Please enter an amount in between 1 - 10,000,000 gold\r\n", b->active_room);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             return;
         }
 
@@ -65,7 +65,7 @@ void slay_monster (struct Bot *b, char const * username, int global, int amount)
             sprintf(out, "PRIVMSG %s :%s, you do not have that much gold\r\n", b->active_room, username);
         }
 
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
 
         if (b->global_monster.slay_cost <= 0) {
             sprintf(out, "PRIVMSG %s :The people have raised enough money to rid their town of the horrid monster "
@@ -74,7 +74,7 @@ void slay_monster (struct Bot *b, char const * username, int global, int amount)
             b->global_monster.active = 0;
             b->global_monster.slay_cost = b->global_monster.gold;
             b->global_monster.hp = b->global_monster.mhp;
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
         }
     } else {
         pindex = get_pindex(b, username);
@@ -89,7 +89,7 @@ void slay_monster (struct Bot *b, char const * username, int global, int amount)
             sprintf(out, "PRIVMSG %s :%s, you don't have enough gold to pay a true warrior to dispose "
                     "of this monster [cost: 150 gold]\r\n", b->active_room, username);
         }
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
     }
 }
 
@@ -118,6 +118,6 @@ void print_monster (struct Bot *b, char const * username, int global) { //userna
                     b->players[pindex].personal_monster.mdef);
         }
     }
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 

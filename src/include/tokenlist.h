@@ -8,46 +8,46 @@
 #include "colors.h"
 #include "util.h"
 
-struct tokenNode {
-    struct tokenNode * next, * prev;
+struct token_node {
+    struct token_node * next, * prev;
     char * elem; //'\0' denoted string of characters
     unsigned int num; //number of occurences of the character string
     int end; //you can end with this node or not
 };
 
-struct tokenList {
-    struct tokenNode * head;
+struct token_list {
+    struct token_node * head;
     size_t len;
-    size_t totalNum;
+    size_t num_total;
 };
 
-struct tokenIterator {
-    struct tokenNode * curNode;
+struct token_iterator {
+    struct token_node * cur_node;
     size_t consumed;
 };
 
 typedef void * TokenList;
 typedef void * TokenIterator;
 
-TokenList createTokenList(void);
-void freeTokenList(TokenList l);
+TokenList init_token_list(void);
+void free_token_list(TokenList l);
 
-void incToken(TokenList l, char * c, int end);
-size_t getLen(TokenList l);
-size_t getTotalNum(TokenList l);
+void inc_token(TokenList l, char * c, int end);
+size_t get_len(TokenList l);
+size_t get_num_total(TokenList l);
 
-TokenIterator getIterator(TokenList l);
-void freeIterator(TokenIterator it);
+TokenIterator get_iterator(TokenList l);
+void free_iterator(TokenIterator it);
 
-int hasElem(TokenIterator it);
+int has_elem(TokenIterator it);
 void next(TokenIterator it);
 
-char * getStr(TokenIterator it);
-unsigned int getStrNum(TokenIterator it);
-int getIsEnd(TokenIterator it);
-size_t getConsumed(TokenIterator it);
+char * get_str(TokenIterator it);
+unsigned int get_num_str(TokenIterator it);
+int get_is_end(TokenIterator it);
+size_t get_num_consumed(TokenIterator it);
 
 //Internal functions
-void swap(struct tokenNode *, struct tokenNode *);
+void swap(struct token_node *, struct token_node *);
 
 #endif // LINKEDLIST_H_INCLUDED

@@ -1,29 +1,29 @@
 #include "include/analyzer.h"
 
-Analyzer createAnalyzer(size_t markovTier) {
-    if(markovTier == 0)
+Analyzer init_analyzer(size_t markov_tier) {
+    if(markov_tier == 0)
         return 0;
     struct analyzer * a;
     CALLEXIT(!(a = malloc(sizeof *a)))
 
     a->tlists = 0;
-    a->markov_tier = markovTier;
+    a->markov_tier = markov_tier;
     a->tokens = 0;
     a->start = 0;
     return a;
 }
 
-void freeAnalyzer(Analyzer a) {
+void free_analyzer(Analyzer a) {
     if(!a)
         return;
     struct analyzer * ca = a;
     if(ca->tlists) {
         for(size_t i = 0; i < CHAR_LEN; i++) {
-            freeTokenList(ca->tlists[i]);
+            free_token_list(ca->tlists[i]);
         }
     }
     free(ca->tlists);
-    freeTokenList(ca->start);
+    free_token_list(ca->start);
     free(ca);
 }
 
@@ -40,18 +40,18 @@ int analyze(Analyzer a, char const * fn) {
     if(!ca->tlists) {
         CALLEXIT(!(ca->tlists = malloc(CHAR_LEN * sizeof *ca->tlists)))
         for(size_t i = 0; i < CHAR_LEN; i++) {
-            ca->tlists[i] = createTokenList();
+            ca->tlists[i] = init_token_list();
         }
     }
     if(!ca->start) {
-        ca->start = createTokenList();
+        ca->start = init_token_list();
     }
     size_t len = 0;
     char * start;
     CALLEXIT(!(start = calloc(1, ca->markov_tier+2)))
     while(getline(&word, &len, file) != -1) { //fscanf(file, "%"MAX_WORD_LEN_LITERAL"s", word) != EOF
         word[strlen(word)-1] = '\0';
-        char curChar = word[0];
+        char cur_char = word[0];
 
         //initialize prediction
         size_t i;
@@ -66,16 +66,16 @@ int analyze(Analyzer a, char const * fn) {
         }
         start[0] = word[0];
         strcpy(start+1, prediction);
-        incToken(ca->start, start, 0);
+        inc_token(ca->start, start, 0);
 
-        for(i = 1; prediction[ca->markov_tier-1] != '\0' && curChar != '\0'; i++) {
+        for(i = 1; prediction[ca->markov_tier-1] != '\0' && cur_char != '\0'; i++) {
             //add markov prediction
             int end = 0;
 
             if(word[i+ca->markov_tier] == '\0') {
                 end = 1;
             }
-            incToken(ca->tlists[(unsigned char)curChar], prediction, end);
+            inc_token(ca->tlists[(unsigned char)cur_char], prediction, end);
             ca->tokens++;
             //shift prediction
             for(size_t pos = 1; pos < ca->markov_tier; pos++) {
@@ -84,7 +84,7 @@ int analyze(Analyzer a, char const * fn) {
             prediction[ca->markov_tier-1] = word[i+ca->markov_tier];
 
             //get next character
-            curChar = word[i];
+            cur_char = word[i];
         }
     }
     fclose(file);
@@ -94,7 +94,7 @@ int analyze(Analyzer a, char const * fn) {
     return 1;
 }
 
-char * genToken(Analyzer a, char src, int end) {
+char * gen_token(Analyzer a, char src, int end) {
     if(!a) {
         return 0;
     }
@@ -104,29 +104,29 @@ char * genToken(Analyzer a, char src, int end) {
         return 0;
     }
 
-    if(getLen(ca->tlists[(unsigned char)src]) == 0) {
+    if(get_len(ca->tlists[(unsigned char)src]) == 0) {
         return 0;
     }
 
-    double prob = genNum();
-    TokenIterator it = getIterator(ca->tlists[(unsigned char)src]);
+    double prob = randd();
+    TokenIterator it = get_iterator(ca->tlists[(unsigned char)src]);
 
-    while(hasElem(it) && (prob > ((double)(getConsumed(it)))/getTotalNum(ca->tlists[(unsigned char)src]) || end ? !getIsEnd(it) : 0)) {
+    while(has_elem(it) && (prob > ((double)(get_num_consumed(it)))/get_num_total(ca->tlists[(unsigned char)src]) || end ? !get_is_end(it) : 0)) {
         next(it);
     }
 
-    if(!hasElem(it) || (end && !getIsEnd(it))) {
-        freeIterator(it);
+    if(!has_elem(it) || (end && !get_is_end(it))) {
+        free_iterator(it);
         return 0;
     }
 
-    char * res = getStr(it);
-    freeIterator(it);
+    char * res = get_str(it);
+    free_iterator(it);
 
     return res;
 }
 
-char * genStart(Analyzer a) {
+char * gen_start(Analyzer a) {
     if(!a) {
         return 0;
     }
@@ -136,29 +136,29 @@ char * genStart(Analyzer a) {
         return 0;
     }
 
-    if(getLen(ca->start) == 0) {
+    if(get_len(ca->start) == 0) {
         return 0;
     }
 
-    double prob = genNum();
-    TokenIterator it = getIterator(ca->start);
+    double prob = randd();
+    TokenIterator it = get_iterator(ca->start);
 
-    while(hasElem(it) && (prob > ((double)(getConsumed(it)))/getTotalNum(ca->start))) {
+    while(has_elem(it) && (prob > ((double)(get_num_consumed(it)))/get_num_total(ca->start))) {
         next(it);
     }
 
-    if(!hasElem(it)) {
-        freeIterator(it);
+    if(!has_elem(it)) {
+        free_iterator(it);
         return 0;
     }
 
-    char * res = getStr(it);
-    freeIterator(it);
+    char * res = get_str(it);
+    free_iterator(it);
 
     return res;
 }
 
-int hasRuleFor(Analyzer a, char src) {
+int has_rule_for(Analyzer a, char src) {
     if(!a) {
         return 0;
     }
@@ -167,5 +167,5 @@ int hasRuleFor(Analyzer a, char src) {
     if(!ca->tlists) {
         return 0;
     }
-    return getLen(ca->tlists[(unsigned char)src]) != 0;
+    return get_len(ca->tlists[(unsigned char)src]) != 0;
 }

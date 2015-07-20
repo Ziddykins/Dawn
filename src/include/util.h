@@ -27,7 +27,7 @@
     }
 
 
-double genNum(void);
+double randd(void);
 double gaussrand(void);
 double ABS(double);
 

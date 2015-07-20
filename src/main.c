@@ -17,7 +17,7 @@
 //Determined by server - if values not received on connect, default to 64
 unsigned int MAX_CHANNEL_LENGTH = 64;
 unsigned int MAX_NICK_LENGTH    = 64;
-char * authKey;
+char * auth_key;
 
 int main (void) {
     FILE *urandom;
@@ -28,27 +28,27 @@ int main (void) {
     srand(seed);
     fclose(urandom);
 
-    FILE *authFile;
-    CALLEXIT(!(authFile = fopen("auth_key.txt", "w")))
+    FILE *auth_key_file;
+    CALLEXIT(!(auth_key_file = fopen("auth_key.txt", "w")))
 
-    CALLEXIT(!(authKey = calloc(AUTH_KEY_LEN+1, 1)))
+    CALLEXIT(!(auth_key = calloc(AUTH_KEY_LEN+1, 1)))
     for(size_t i = 0; i < AUTH_KEY_LEN; i++) {
         do {
-            authKey[i] = rand() % 32;
-        } while(authKey[i] >= 26);
+            auth_key[i] = rand() % 32;
+        } while(auth_key[i] >= 26);
         if(rand()%2) {
-            authKey[i] += 'a';
+            auth_key[i] += 'a';
         } else {
-            authKey[i] += 'A';
+            auth_key[i] += 'A';
         }
     }
 
-    CALLEXIT(!(fwrite(authKey, AUTH_KEY_LEN, sizeof *authKey, authFile)))
+    CALLEXIT(!(fwrite(auth_key, AUTH_KEY_LEN, sizeof *auth_key, auth_key_file)))
 
-    fclose(authFile);
+    fclose(auth_key_file);
 
-    printf(INFO "auth_key: %s\n", authKey);
-    authKeyValid = 1;
+    printf(INFO "auth_key: %s\n", auth_key);
+    auth_key_valid = 1;
 
     int match;
     ssize_t len;
@@ -136,7 +136,7 @@ int main (void) {
             //Handle keepalive pings from the server
             if (check_if_matches_regex(buffer, "PING :(.*)")) {
                 sprintf(out, "PONG :%s\r\n", regex_group[1]);
-                addMsg(out, strlen(out));
+                add_msg(out, strlen(out));
             }
 
             //Connected to the server, send nick/user details
@@ -168,7 +168,7 @@ int main (void) {
                     while (*n != NULL) {
                         sprintf(out, "JOIN %s\r\n", *n++);
                         fluctuate_market(dawn);
-                        addMsg(out, strlen(out));
+                        add_msg(out, strlen(out));
                     }
                     n = NULL;
                     dawn->in_rooms = 1;
@@ -200,14 +200,14 @@ int main (void) {
                             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
                                 dawn->active_room,
                                 dawn->players[pindex].username,
-                                authLevelToStr(dawn->players[pindex].auth_level));
-                            addMsg(out, strlen(out));
+                                auth_level_to_str(dawn->players[pindex].auth_level));
+                            add_msg(out, strlen(out));
                         } else {
                             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already verified. (%s)\r\n",
                                 dawn->active_room,
                                 dawn->players[pindex].username,
-                                authLevelToStr(dawn->players[pindex].auth_level));
-                            addMsg(out, strlen(out));
+                                auth_level_to_str(dawn->players[pindex].auth_level));
+                            add_msg(out, strlen(out));
                         }
                     }
                 }
@@ -225,7 +225,7 @@ int main (void) {
                             dawn->players[index].available = 1;
                             dawn->players[index].auth_level = AL_NOAUTH;
                             sprintf(out, "WHOIS %s\r\n", dawn->players[index].username);
-                            addMsg(out, strlen(out));
+                            add_msg(out, strlen(out));
                         }
                         ch_ptr = strtok(NULL, " @&+\r\n");
                     }
@@ -267,7 +267,7 @@ int main (void) {
                             dawn->players[pindex].available = 1;
                             dawn->players[pindex].auth_level = AL_NOAUTH;
                             sprintf(out, "WHOIS %s\r\n", regex_group[1]);
-                            addMsg(out, strlen(out));
+                            add_msg(out, strlen(out));
                         } else if (strcmp(regex_group[4], "QUIT") == 0) {
                             dawn->players[pindex].available = 0;
                         }
@@ -290,7 +290,7 @@ int main (void) {
                     if (strcmp(regex_group[4], "PRIVMSG") == 0) {
                         if(check_if_matches_regex(message.message, CMD_LIT)) {
                             if (message.receiver[0] == '#') {
-                                invokeCmd(0, get_pindex(dawn, message.sender_nick),  regex_group[0], &message, CMD_EXEC);
+                                invoke_cmd(0, get_pindex(dawn, message.sender_nick),  regex_group[0], &message, CMD_EXEC);
                             } else {
                                 parse_private_message(dawn, &message);
                             }
@@ -308,14 +308,14 @@ int main (void) {
     }
     if(len != -1)
         close(con_socket);
-    freeMsgHistList();
-    freeMsgList();
-    freeEventList();
+    free_msg_hist_list();
+    free_msg_list();
+    free_event_list();
     free_cmds();
     free_map();
     free(dawn);
-    if(authKeyValid || authKey)
-        free(authKey);
+    if(auth_key_valid || auth_key)
+        free(auth_key);
     printf(INFO "Program exiting normally\n");
     return 0;
 }

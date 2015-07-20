@@ -35,15 +35,15 @@ void init_send_queue(void);
  * Message List can add to the Message History List.
  */
 
-struct msgHistoryNode {
+struct msg_hist_node {
     size_t len;
     time_t date;
-    struct msgHistoryNode * next;
+    struct msg_hist_node * next;
 };
 
-struct msgHistoryList {
-    struct msgHistoryNode * head, * tail;
-    size_t byteSize;
+struct msg_hist_list {
+    struct msg_hist_node * head, * tail;
+    size_t byte_size;
     size_t msgs;
 };
 
@@ -57,34 +57,34 @@ typedef void * MsgHistoryList;
  * there now is enough space to send the next message waiting in Queue.
  */
 
-MsgHistoryList createMsgHistoryList(void);
-void freeMsgHistList(void);
-void addMsgHistory(size_t len);
+MsgHistoryList init_msg_hist_list(void);
+void free_msg_hist_list(void);
+void add_hist_msg(size_t len);
 
-struct msgNode {
+struct msg_node {
     char * msg; //the message
     size_t len; //the length of the message without '\0'
-    struct msgNode * next;
+    struct msg_node * next;
 };
 
-struct msgList {
-    struct msgNode * head, * tail; //start and end
-    size_t byteSize; //total size of the queue
+struct msg_list {
+    struct msg_node * head, * tail; //start and end
+    size_t byte_size; //total size of the queue
     size_t msgs; //number of messages waiting to be sent
 };
 
 typedef void * MsgList;
 
-MsgList createMsgList(void); //allocates a new message history list
-void freeMsgList(void); //frees all storage allocated
-void addMsg(char * msg, size_t len); //deep copies msg
+MsgList init_msg_list(void); //allocates a new message history list
+void free_msg_list(void); //frees all storage allocated
+void add_msg(char * msg, size_t len); //deep copies msg
 
-char * retrMsg(void); //returns pointer to msg, destroys node
+char * retr_msg(void); //returns pointer to msg, destroys node
 
-void popMsgHist(void); //updates the message history
-size_t peekMsgSize(void); //returns size of mlist's head
+void pop_hist_msg(void); //updates the message history
+size_t peek_msg_size(void); //returns size of mlist's head
 
-void processMessages(void); //will move messages from src to dest while allowed
+void process_messages(void); //will move messages from src to dest while allowed
 
 extern char buffer[MAX_RECV_BUFFER + 1];
 extern int con_socket;

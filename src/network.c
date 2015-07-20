@@ -19,8 +19,8 @@ static int msgHQ_singleton = 0;
 
 //! Creates both a Message and a Message History List
 void init_send_queue() {
-    mlist = createMsgList();
-    mhlist = createMsgHistoryList();
+    mlist = init_msg_list();
+    mhlist = init_msg_hist_list();
 }
 
 /**
@@ -53,7 +53,7 @@ void close_socket (int socket) {
  * Internal function used by Message List.
  * upon write error program will terminate
  * @param out_buf character string to send
- * @see addMsg
+ * @see add_msg
  */
 void send_socket (char * out_buf) {
     size_t len = strlen(out_buf);
@@ -71,26 +71,26 @@ void send_socket (char * out_buf) {
  * @see init_send_queue()
  * @return new Message History List
  */
-MsgHistoryList createMsgHistoryList() {
+MsgHistoryList init_msg_hist_list() {
     if(msgHQ_singleton)
         return 0;
-    struct msgHistoryList * newList;
-    CALLEXIT(!(newList = calloc(1, sizeof *newList)))
+    struct msg_hist_list * new_list;
+    CALLEXIT(!(new_list = calloc(1, sizeof *new_list)))
     msgHQ_singleton++;
-    return newList;
+    return new_list;
 }
 
 /**
  * @brief frees all allocated storage of the Message History List
  * @see mhlist
  */
-void freeMsgHistList() {
+void free_msg_hist_list() {
     if(!msgHQ_singleton || !mhlist)
         return;
-    struct msgHistoryList * cmhlist = mhlist;
-    struct msgHistoryNode * tmp = cmhlist->head;
+    struct msg_hist_list * cmhlist = mhlist;
+    struct msg_hist_node * tmp = cmhlist->head;
     while(tmp) {
-        struct msgHistoryNode * next = tmp->next;
+        struct msg_hist_node * next = tmp->next;
         free(tmp);
         tmp = next;
     }
@@ -99,26 +99,26 @@ void freeMsgHistList() {
 
 /**
  * @brief Enqueues a Messages Metadata into the Message History list
- * Internal function used by addMsg
- * @see addMsg
+ * Internal function used by add_msg
+ * @see add_msg
  */
-void addMsgHistory(size_t len) {
+void add_hist_msg(size_t len) {
     if(mhlist == 0)
         return;
-    struct msgHistoryList * cmhlist = mhlist;
+    struct msg_hist_list * cmhlist = mhlist;
 
-    time_t curTime = time(0);
+    time_t cur_time = time(0);
     if(cmhlist->head == 0) {
-        addEvent(MSGSEND, 0, SENDQ_INTERVAL, NORMAL); //should be unique, though there should also never be multiple MSGSEND events in the queue
+        add_event(MSGSEND, 0, SENDQ_INTERVAL, NORMAL); //should be unique, though there should also never be multiple MSGSEND events in the queue
         CALLEXIT(!(cmhlist->head = cmhlist->tail = calloc(1, sizeof *cmhlist->head)))
     } else {
         CALLEXIT(!(cmhlist->tail->next = calloc(1, sizeof *cmhlist->tail)))
         cmhlist->tail = cmhlist->tail->next;
     }
-    cmhlist->tail->date = curTime;
+    cmhlist->tail->date = cur_time;
     cmhlist->tail->len = len;
 
-    cmhlist->byteSize += len;
+    cmhlist->byte_size += len;
     cmhlist->msgs++;
 }
 
@@ -128,25 +128,25 @@ void addMsgHistory(size_t len) {
  * @return new Message List
  * @see init_send_queue()
  */
-MsgList createMsgList() {
+MsgList init_msg_list() {
     if(msgQ_singleton)
         return 0;
-    struct msgList * newList;
-    CALLEXIT(!(newList = calloc(1, sizeof *newList)))
+    struct msg_list * new_list;
+    CALLEXIT(!(new_list = calloc(1, sizeof *new_list)))
     msgQ_singleton++;
-    return newList;
+    return new_list;
 }
 
 /**
  * @brief frees all allocated storage of the Message List including the messages themselves
  */
-void freeMsgList() {
+void free_msg_list() {
     if(!mlist || !msgQ_singleton)
         return;
-    struct msgList * cmlist = mlist;
-    struct msgNode * tmp = cmlist->head;
+    struct msg_list * cmlist = mlist;
+    struct msg_node * tmp = cmlist->head;
     while(tmp) {
-        struct msgNode * next = tmp->next;
+        struct msg_node * next = tmp->next;
         free(tmp->msg);
         free(tmp);
         tmp = next;
@@ -162,10 +162,10 @@ void freeMsgList() {
  * @param len length of given message without NUL terminator
  * @see SENDQ_INTERVAL, MAX_SENDQ_SIZE
  */
-void addMsg(char * msg, size_t len) {
+void add_msg(char * msg, size_t len) {
     if(mlist == 0)
         return;
-    struct msgList * cmlist = mlist;
+    struct msg_list * cmlist = mlist;
 
     if(cmlist->head == 0) {
         CALLEXIT(!(cmlist->head = cmlist->tail = calloc(1, sizeof *cmlist->head)))
@@ -176,32 +176,32 @@ void addMsg(char * msg, size_t len) {
     CALLEXIT(!(cmlist->tail->msg = malloc(len+1)))
     strcpy(cmlist->tail->msg, msg);
     cmlist->tail->len = len;
-    cmlist->byteSize += len;
+    cmlist->byte_size += len;
     cmlist->msgs++;
-    processMessages();
+    process_messages();
 }
 
 /**
  * @brief will pop the Message Qeue and delete the oldest Message
- * Internal function used by processMessages
+ * Internal function used by process_messages
  * @return char* character string to be freed by the callee
- * @see processMessages
+ * @see process_messages
  */
-char * retrMsg() {
+char * retr_msg() {
     if(mlist == 0)
         return 0;
-    struct msgList * cmlist = mlist;
+    struct msg_list * cmlist = mlist;
     if(cmlist->head == 0)
         return 0;
 
     char * data = cmlist->head->msg;
 
-    cmlist->byteSize -= cmlist->head->len;
+    cmlist->byte_size -= cmlist->head->len;
     cmlist->msgs--;
 
-    struct msgNode * newHead = cmlist->head->next;
+    struct msg_node * new_head = cmlist->head->next;
     free(cmlist->head);
-    cmlist->head = newHead;
+    cmlist->head = new_head;
     if(cmlist->head == 0)
         cmlist->tail = 0;
     return data;
@@ -209,40 +209,40 @@ char * retrMsg() {
 
 /**
  * @brief removes all messages that are older than SENDQ_INTERVAL from the Message History List
- * Internal function indirectly used by popMsgHist, addMsgHistory, addMsg via the Event Queue in status.h
- * @see SENDQ_INTERVAL, popMsgHist, addMsgHistory, addMsg
+ * Internal function indirectly used by pop_hist_msg, add_hist_msg, add_msg via the Event Queue in status.h
+ * @see SENDQ_INTERVAL, pop_hist_msg, add_hist_msg, add_msg
  */
-void popMsgHist() {
+void pop_hist_msg() {
     if(mhlist == 0)
         return;
-    struct msgHistoryList * cmhlist = mhlist;
+    struct msg_hist_list * cmhlist = mhlist;
     if(cmhlist->head == 0)
         return;
-    time_t curTime = time(0);
-    while(cmhlist->head != 0 && curTime - SENDQ_INTERVAL >= cmhlist->head->date) {
-        cmhlist->byteSize -= cmhlist->head->len;
-        //printf("MQueue: %zu of %d (POP)\n", cmhlist->byteSize, MAX_SENDQ_SIZE);
+    time_t cur_time = time(0);
+    while(cmhlist->head != 0 && cur_time - SENDQ_INTERVAL >= cmhlist->head->date) {
+        cmhlist->byte_size -= cmhlist->head->len;
+        //printf("MQueue: %zu of %d (POP)\n", cmhlist->byte_size, MAX_SENDQ_SIZE);
         cmhlist->msgs--;
-        struct msgHistoryNode * newHead = cmhlist->head->next;
+        struct msg_hist_node * new_head = cmhlist->head->next;
         free(cmhlist->head);
-        cmhlist->head = newHead;
+        cmhlist->head = new_head;
     }
     if(cmhlist->head != 0) {
-        addEvent(MSGSEND, 1, (unsigned int)(SENDQ_INTERVAL - (curTime - cmhlist->head->date)), NORMAL);
+        add_event(MSGSEND, 1, (unsigned int)(SENDQ_INTERVAL - (cur_time - cmhlist->head->date)), NORMAL);
     }
-    processMessages();
+    process_messages();
 }
 
 /**
  * @brief Returns the size of the oldest message (head) in the Message List without removing said message
- * Internal function used by processMessages
+ * Internal function used by process_messages
  * @return size_t size in number of bytes of the message
- * @see processMessages
+ * @see process_messages
  */
-size_t peekMsgSize() {
+size_t peek_msg_size() {
     if(mlist == 0)
         return 0;
-    struct msgList * cmlist = mlist;
+    struct msg_list * cmlist = mlist;
     if(cmlist->head == 0)
         return 0;
     return cmlist->head->len;
@@ -250,25 +250,25 @@ size_t peekMsgSize() {
 
 /**
  * @brief Will send messages as long as the Message History List allows for it
- * Internal function used by addMsg, popMsgHist
- * @see addMsg, popMsgHist
+ * Internal function used by add_msg, pop_hist_msg
+ * @see add_msg, pop_hist_msg
  */
-void processMessages() {
+void process_messages() {
     if(mlist == 0 || mhlist == 0)
         return;
-    struct msgList * csrc = mlist;
-    struct msgHistoryList * cdest = mhlist;
+    struct msg_list * csrc = mlist;
+    struct msg_hist_list * cdest = mhlist;
 
     size_t len;
-    while(csrc->head != 0 && cdest->msgs < MAX_MSGS_IN_INTERVAL && cdest->byteSize + (len = peekMsgSize()) < MAX_SENDQ_SIZE) {
-        char * msg = retrMsg();
+    while(csrc->head != 0 && cdest->msgs < MAX_MSGS_IN_INTERVAL && cdest->byte_size + (len = peek_msg_size()) < MAX_SENDQ_SIZE) {
+        char * msg = retr_msg();
         send_socket(msg);
         free(msg);
-        addMsgHistory(len);
-        //printf("MQueue: %zu of %d (PUSH)\n", cdest->byteSize, MAX_SENDQ_SIZE);
+        add_hist_msg(len);
+        //printf("MQueue: %zu of %d (PUSH)\n", cdest->byte_size, MAX_SENDQ_SIZE);
 
     }
-    if(cdest->msgs >= MAX_MSGS_IN_INTERVAL || cdest->byteSize + peekMsgSize() >= MAX_SENDQ_SIZE) {
+    if(cdest->msgs >= MAX_MSGS_IN_INTERVAL || cdest->byte_size + peek_msg_size() >= MAX_SENDQ_SIZE) {
         printf(INFO "Send queue full\n");
     }
 }

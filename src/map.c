@@ -11,22 +11,22 @@
 
 #define TRAVEL_TIME_MULT (3.0)
 
-struct Map * curMap = 0;
+struct Map * global_map = 0;
 
 void init_map() {
-    curMap = malloc(sizeof *curMap);
-    curMap->dim = 1<<10;
+    global_map = malloc(sizeof *global_map);
+    global_map->dim = 1<<10;
 }
 
 void free_map() {
-    free(curMap);
+    free(global_map);
 }
 
 void print_location (struct Bot *b, int i) {
     char out[MAX_MESSAGE_BUFFER];
     sprintf(out, "PRIVMSG %s :%s, you are at %d,%d\r\n", b->active_room, b->players[i].username,
             b->players[i].pos_x, b->players[i].pos_y);
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 
 void move_player (struct Bot *b, struct Message *message, int x, int y) {
@@ -34,9 +34,9 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
     int pindex = get_pindex(b, message->sender_nick);
     int dx, dy, cx, cy;
     double travel_time;
-    if (x < 0 || x >= curMap->dim || y < 0 || y >= curMap->dim) {
-        sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, curMap->dim, curMap->dim);
-        addMsg(out, strlen(out));
+    if (x < 0 || x >= global_map->dim || y < 0 || y >= global_map->dim) {
+        sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, global_map->dim, global_map->dim);
+        add_msg(out, strlen(out));
         return;
     }
 
@@ -47,14 +47,14 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
     dy = abs(y - cy);
     travel_time = sqrt(dx*dx+dy*dy)*TRAVEL_TIME_MULT;
     assert(travel_time < (double)((((unsigned int)1<<(sizeof(unsigned int) * 8 - 1))-1)/TRAVEL_TIME_MULT));
-    addEvent(TRAVEL, pindex, (unsigned int)travel_time, UNIQUE);
+    add_event(TRAVEL, pindex, (unsigned int)travel_time, UNIQUE);
     b->players[pindex].travel_timer.x = x;
     b->players[pindex].travel_timer.y = y;
     b->players[pindex].travel_timer.active = 1;
 
     sprintf(out, "PRIVMSG %s :%s, you are traveling from (%d,%d) to (%d,%d). This will take %u seconds.\r\n",
             message->receiver, message->sender_nick, cx, cy, x, y, (unsigned int)travel_time);
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 /* DEPRECATED
 void find_building (struct Bot *b, struct Message *message, char location[48]) {
@@ -69,7 +69,7 @@ void find_building (struct Bot *b, struct Message *message, char location[48]) {
     } else {
         sprintf(out, "PRIVMSG %s :Unknown location '%s'\r\n", message->receiver, location);
     }
-    addMsg(out, strlen(out));
+    add_msg(out, strlen(out));
 }
 */
 /* DEPRECATED
@@ -84,12 +84,12 @@ void check_special_location (struct Bot *b, int pindex) {
             if (cur_x == 0 && cur_y == 0) continue;
             sprintf(out, "PRIVMSG %s :%s stands in front of the %s\r\n",
                     b->active_room, b->players[pindex].username, b->players[pindex].current_map.buildings[i].name);
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
         }
     }
 }
 */
-void diamondSquare(float *heightmap, int dim, float roughness, float sigma, int level) {
+void diamond_square(float *heightmap, int dim, float roughness, float sigma, int level) {
     if (level < 1) return;
 
     // diamonds
@@ -114,5 +114,5 @@ void diamondSquare(float *heightmap, int dim, float roughness, float sigma, int 
             heightmap[(i-level/2)*dim + j-level] = (a + b + e + heightmap[(i-level/2)*dim + (j-3*level/2)]) / 4 + (float)gaussrand() * sigma;
         }
     }
-    diamondSquare(heightmap, dim, roughness, sigma * roughness, level / 2);
+    diamond_square(heightmap, dim, roughness, sigma * roughness, level / 2);
 }

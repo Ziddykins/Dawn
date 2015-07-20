@@ -2,19 +2,19 @@
 
 CmdSys commands;
 
-void init_cmdsys() {
-    commands = createCmdSys();
+void init_global_cmd_sys() {
+    commands = init_cmd_sys();
 }
 
-CmdSys createCmdSys() {
-    struct cmdSys * ccs;
+CmdSys init_cmd_sys() {
+    struct cmd_sys * ccs;
     CALLEXIT(!(ccs = calloc(1, sizeof *ccs)))
     ccs->flags = CMD_INITIALIZED;
     return ccs;
 }
 
-void freeCmdSys(CmdSys cs) {
-    struct cmdSys * ccs = cs ? cs : commands;
+void free_cmd_sys(CmdSys cs) {
+    struct cmd_sys * ccs = cs ? cs : commands;
     assert(ccs);
 
     free(ccs->hashes);
@@ -33,8 +33,8 @@ void freeCmdSys(CmdSys cs) {
     free(ccs);
 }
 
-void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(int pindex, struct Message *msg)) {
-    struct cmdSys * ccs = cs ? cs : commands;
+void register_cmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(int pindex, struct Message *msg)) {
+    struct cmd_sys * ccs = cs ? cs : commands;
     assert(ccs && cmd && helptext && fn);
     ccs->flags = CMD_REGISTERED;
 
@@ -49,10 +49,10 @@ void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*
 
     if(ccs->len >= ccs->capacity) {
         ccs->capacity *= 2;
-        trimArrays(ccs);
+        trim_arrays(ccs);
     }
 
-    ccs->hashes[ccs->len] = hashCode(cmd);
+    ccs->hashes[ccs->len] = hash_code(cmd);
 
     size_t len = strlen(cmd);
     assert(len < MAX_MESSAGE_BUFFER);
@@ -70,19 +70,19 @@ void registerCmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*
     ccs->len++;
 }
 
-void finalizeCmdSys(CmdSys cs) {
-    struct cmdSys * ccs = cs ? cs : commands;
+void finalize_cmd_sys(CmdSys cs) {
+    struct cmd_sys * ccs = cs ? cs : commands;
     assert(ccs);
 
     ccs->capacity = ccs->len;
-    trimArrays(ccs);
+    trim_arrays(ccs);
 
-    sortCmds(ccs);
+    sort_cmd_sys(ccs);
     ccs->flags = CMD_FINALIZED;
 }
 
-void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode) {
-    struct cmdSys * ccs = cs ? cs : commands;
+void invoke_cmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode) {
+    struct cmd_sys * ccs = cs ? cs : commands;
     assert(ccs && msg && cmd);
     assert(ccs->flags == CMD_FINALIZED);
 
@@ -90,16 +90,16 @@ void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if(pindex == -1 && strcmp(cmd, ";new") != 0) {
         sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", msg->receiver);
-        addMsg(out, strlen(out));
+        add_msg(out, strlen(out));
     } else {
-        size_t cmdID = getCmdID(ccs, cmd);
+        size_t cmdID = get_cmd_id(ccs, cmd);
         if(cmdID == (size_t)(-1)) {
             if(mode == CMD_EXEC) {
                 snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Unknown command. Please use ';help'\r\n", msg->receiver);
             } else {
                 snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Command does not exist.\r\n", msg->receiver);
             }
-            addMsg(out, strlen(out));
+            add_msg(out, strlen(out));
             //printf("%s", out);
         } else {
             if(mode == CMD_EXEC) {
@@ -107,11 +107,11 @@ void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode
                     ccs->fn[cmdID](pindex, msg);
                 } else {
                     snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You are not authorized to issue this command!\r\n", msg->receiver);
-                    addMsg(out, strlen(out));
+                    add_msg(out, strlen(out));
                 }
             } else if(mode == CMD_HELP) {
                 snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :'%s': %s\r\n", msg->receiver, ccs->cmds[cmdID], ccs->helptexts[cmdID]);
-                addMsg(out, strlen(out));
+                add_msg(out, strlen(out));
             }
         }
     }
@@ -119,12 +119,12 @@ void invokeCmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mode
 }
 
 //Internal functions
-void sortCmds(CmdSys cs) {
+void sort_cmd_sys(CmdSys cs) {
     size_t const SHIFT = 4;
     uint64_t const BITMASK = (1<<SHIFT)-1;
     unsigned short const HASH_BITLEN = 64;
 
-    struct cmdSys * ccs = cs ? cs : commands;
+    struct cmd_sys * ccs = cs ? cs : commands;
     assert(ccs);
     assert(ccs->capacity == ccs->len);
     if(ccs->len <= 1) {
@@ -203,10 +203,10 @@ void sortCmds(CmdSys cs) {
     free(positions);
 }
 
-size_t getCmdID(CmdSys cs, char * cmd) {
-    struct cmdSys * ccs = cs;
+size_t get_cmd_id(CmdSys cs, char * cmd) {
+    struct cmd_sys * ccs = cs;
     assert(ccs);
-    uint64_t hash = hashCode(cmd);
+    uint64_t hash = hash_code(cmd);
     size_t min = 0, max = ccs->len-1, mid = (size_t)(-1);
     int valid = 0;
 
@@ -237,8 +237,8 @@ size_t getCmdID(CmdSys cs, char * cmd) {
     return (size_t)-1;
 }
 
-void trimArrays(CmdSys cs) {
-    struct cmdSys * ccs = cs;
+void trim_arrays(CmdSys cs) {
+    struct cmd_sys * ccs = cs;
     assert(ccs);
     assert(ccs->len != 0);
     ccs->hashes = realloc(ccs->hashes, ccs->capacity * sizeof *ccs->hashes);
@@ -248,7 +248,7 @@ void trimArrays(CmdSys cs) {
     ccs->fn = realloc(ccs->fn, ccs->capacity * sizeof *ccs->fn);
 }
 
-uint64_t hashCode(char * str) {
+uint64_t hash_code(char * str) {
     uint64_t hash = 1;
     uint64_t const prime = 13835058055282163729ull;
     size_t len = strlen(str);
