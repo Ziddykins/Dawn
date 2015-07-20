@@ -11,38 +11,10 @@
 
 #define TRAVEL_TIME_MULT (3.0)
 
-struct Map set_map (int which) {
-    struct Map return_map;
-    bzero(&return_map, sizeof return_map);
-    enum BUILDINGS {SHRINE, SHOP};
-    switch (which) {
-        case 0:
-        {
-            strcpy(return_map.name, "The Sanctuary");
-            strcpy(return_map.buildings[SHRINE].name, "shrine");
-            strcpy(return_map.buildings[SHOP].name, "shop");
-
-            return_map.exitx = 0;
-            return_map.exity = 0;
-            return_map.max_x = 9;
-            return_map.max_y = 9;
-
-            return_map.buildings[SHRINE].x = 7;
-            return_map.buildings[SHRINE].y = 4;
-
-            return_map.buildings[SHOP].x = 11;
-            return_map.buildings[SHOP].y = 2;
-
-        }
-    }
-    return return_map;
-}
-
 void print_location (struct Bot *b, int i) {
     char out[MAX_MESSAGE_BUFFER];
-    sprintf(out, "PRIVMSG %s :%s, you are at %d,%d in %s\r\n", b->active_room, b->players[i].username,
-            b->players[i].current_map.cur_x, b->players[i].current_map.cur_y,
-            b->players[i].current_map.name);
+    sprintf(out, "PRIVMSG %s :%s, you are at %d,%d\r\n", b->active_room, b->players[i].username,
+            b->players[i].pos_x, b->players[i].pos_y);
     addMsg(out, strlen(out));
 }
 
@@ -50,20 +22,16 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(b, message->sender_nick);
     int dx, dy, cx, cy;
-    int max_x = b->players[pindex].current_map.max_x;
-    int max_y = b->players[pindex].current_map.max_y;
     double travel_time;
-
-    if ((x > max_x || x < 0) || (y > max_y || y < 0)) {
-        sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, max_x, max_y);
+    extern struct Map * curMap;
+    if (x < 0 || x >= curMap->dim || y < 0 || y >= curMap->dim) {
+        sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, curMap->dim, curMap->dim);
         addMsg(out, strlen(out));
         return;
     }
 
-    cx = b->players[pindex].current_map.cur_x;
-    cy = b->players[pindex].current_map.cur_y;
-
-    if (cx == x && cy == y) return;
+    cx = b->players[pindex].pos_x;
+    cy = b->players[pindex].pos_y;
 
     dx = abs(x - cx);
     dy = abs(y - cy);
@@ -78,7 +46,7 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
             message->receiver, message->sender_nick, cx, cy, x, y, (unsigned int)travel_time);
     addMsg(out, strlen(out));
 }
-
+/* DEPRECATED
 void find_building (struct Bot *b, struct Message *message, char location[48]) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(b, message->sender_nick);
@@ -93,7 +61,8 @@ void find_building (struct Bot *b, struct Message *message, char location[48]) {
     }
     addMsg(out, strlen(out));
 }
-
+*/
+/* DEPRECATED
 void check_special_location (struct Bot *b, int pindex) {
     char out[MAX_MESSAGE_BUFFER];
     int cur_x = b->players[pindex].current_map.cur_x;
@@ -109,13 +78,13 @@ void check_special_location (struct Bot *b, int pindex) {
         }
     }
 }
-
-void diamondSquare(float *heightmap, unsigned dim, float roughness, float sigma, unsigned level) {
+*/
+void diamondSquare(float *heightmap, int dim, float roughness, float sigma, int level) {
     if (level < 1) return;
 
     // diamonds
-    for (unsigned i = level; i < dim; i += level) {
-        for (unsigned j = level; j < dim; j += level) {
+    for (int i = level; i < dim; i += level) {
+        for (int j = level; j < dim; j += level) {
             float a = heightmap[(i-level)*dim + j-level];
             float b = heightmap[i*dim + j-level];
             float c = heightmap[(i-level)*dim + j];
@@ -124,8 +93,8 @@ void diamondSquare(float *heightmap, unsigned dim, float roughness, float sigma,
         }
     }
     // squares
-    for (unsigned i = 2 * level; i < dim; i += level) {
-        for (unsigned j = 2 * level; j < dim; j += level) {
+    for (int i = 2 * level; i < dim; i += level) {
+        for (int j = 2 * level; j < dim; j += level) {
             float a = heightmap[(i-level)*dim + j-level];
             float b = heightmap[i*dim + j-level];
             float c = heightmap[(i-level)*dim + j];

@@ -8,8 +8,8 @@
 struct Message;
 void move_player (struct Bot *, struct Message *, int, int);
 void find_building (struct Bot *, struct Message *, char []);
-void check_special_location (struct Bot *, int);
-void diamondSquare(float *heightmap, unsigned dim, float roughness, float sigma, unsigned level);
+//void check_special_location (struct Bot *, int); //DEPRECATED
+void diamondSquare(float *heightmap, int dim, float roughness, float sigma, int level);
 
 struct Building {
     char name[64];
@@ -21,12 +21,7 @@ struct TravelTimer {
 };
 
 struct Map {
-    char name[100];
-    int max_x, max_y;
-    int cur_x, cur_y;
-    int exitx, exity;
-    int min_level;
-    struct Building buildings[MAX_BUILDINGS];
-    //double **heightmap;
+    int dim;
+    float * heightmap;
 };
 #endif

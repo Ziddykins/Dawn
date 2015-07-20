@@ -34,6 +34,7 @@ enum authLevel {
 char * authLevelToStr(enum authLevel al);
 extern char * authKey;
 extern int authKeyValid;
+static struct Map * curMap;
 
 struct Player {
     char username[64], hostmask[128]; //limits used in parse.c
@@ -42,7 +43,7 @@ struct Player {
     char first_class[64], second_class[64], title[64];
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
     struct Monsters personal_monster;
-    struct Map current_map;
+    int pos_x, pos_y;
     //wood, leather, ore, stone, bronze, mail, steel, diamond
     long materials[8];
     long kills, deaths, gold, health;
@@ -52,8 +53,9 @@ struct Player {
     int intelligence, defense, m_def, alignment, attr_pts;
     struct TravelTimer travel_timer;
     unsigned char auth_level, max_auth;
-    short x_pos, y_pos, fullness;
-    //char pad[6];
+    short fullness;
+
+    char pad[4];
 };
 
 #endif

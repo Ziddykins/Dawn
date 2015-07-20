@@ -24,13 +24,13 @@ void init_cmds() {
     registerCmd(0, ";hunt", "Hunt for a personal monster which only you can attack", AL_USER, cmd_hunt);
     registerCmd(0, ";info", "<inventory slot> | Ascertain info on an item in your inventory", AL_USER, cmd_info);
     registerCmd(0, ";inv", "Displays the items currently in your inventory", AL_USER, cmd_inv);
-    registerCmd(0, ";locate", "<building> | Find out where a certain sight is located", AL_USER, cmd_locate);
+    //registerCmd(0, ";locate", "<building> | Find out where a certain sight is located", AL_USER, cmd_locate); //DEPRECATED
     registerCmd(0, ";location", "Ascertain knowledge about your current location", AL_USER, cmd_location);
     registerCmd(0, ";make", "snow angles | Make snow angles!", AL_USER, cmd_make);
     registerCmd(0, ";market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
     registerCmd(0, ";materials", "Discover what materials you are a proud owner of", AL_USER, cmd_materials);
     registerCmd(0, ";melee", "Performs a melee attack on a personal monster", AL_USER, cmd_melee);
-    registerCmd(0, ";revive", "Flourish once again when you have passed", AL_USER, cmd_revive);
+    //registerCmd(0, ";revive", "Flourish once again when you have passed", AL_USER, cmd_revive); //DEPRECATED
     registerCmd(0, ";sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
     registerCmd(0, ";slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
     registerCmd(0, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
@@ -155,11 +155,11 @@ void cmd_hunt(int pindex, struct Message * msg) {
         call_monster(dawn, msg->sender_nick, 0);
     }
 }
-
+/* DEPRECATED
 void cmd_revive(int pindex __attribute__((unused)), struct Message * msg) {
     revive(dawn, msg);
 }
-
+*/
 void cmd_drop(int pindex __attribute__((unused)), struct Message * msg) {
     if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
@@ -269,13 +269,13 @@ void cmd_travel(int pindex __attribute__((unused)), struct Message * msg) {
         move_player(dawn, msg, atoi(regex_group[1]), atoi(regex_group[2]));
     }
 }
-
+/* DEPRECATED
 void cmd_locate(int pindex __attribute__((unused)), struct Message * msg) {
     if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         find_building(dawn, msg, to_lower(regex_group[1]));
     }
 }
-
+*/
 void cmd_materials(int pindex __attribute__((unused)), struct Message * msg) {
     print_materials(dawn, msg);
 }

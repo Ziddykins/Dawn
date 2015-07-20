@@ -295,18 +295,16 @@ void eventHandler(int sig) {
             {
                 if(dawn->players[e->data].travel_timer.active) {
                     char out[MAX_MESSAGE_BUFFER];
-                    dawn->players[e->data].current_map.cur_x = dawn->players[e->data].travel_timer.x;
-                    dawn->players[e->data].current_map.cur_y = dawn->players[e->data].travel_timer.y;
+                    dawn->players[e->data].pos_x = dawn->players[e->data].travel_timer.x;
+                    dawn->players[e->data].pos_y = dawn->players[e->data].travel_timer.y;
                     sprintf(out, "PRIVMSG %s :%s has arrived at %d,%d\r\n", dawn->active_room, dawn->players[e->data].username,
-                            dawn->players[e->data].current_map.cur_x, dawn->players[e->data].current_map.cur_y);
+                            dawn->players[e->data].pos_x, dawn->players[e->data].pos_y);
                     addMsg(out, strlen(out));
                     dawn->players[e->data].travel_timer.active = 0;
-                    check_special_location(dawn, e->data);
+                    //check_special_location(dawn, e->data); DEPRECATED
                 }
                 break;
             }
-            default:
-                continue;
         }
         free(e);
     } while(nextIsDue());

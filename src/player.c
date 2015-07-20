@@ -14,7 +14,7 @@ int get_pindex (struct Bot *b, char const * username) { //username -> MAX_NICK_L
     }
     return -1;
 }
-
+/* DEPRECATED
 int get_bindex (struct Bot *b, char const * username, char const * location) { //username -> MAX_NICK_LENGTH, location -> 64
     int pindex = get_pindex(b, username);
     for (int i=0; i<MAX_BUILDINGS; i++) {
@@ -24,6 +24,7 @@ int get_bindex (struct Bot *b, char const * username, char const * location) { /
     }
     return -1;
 }
+*/
 
 void init_new_character (struct Bot *b, struct Message *message) {
     //Check if user exists
@@ -39,9 +40,8 @@ void init_new_character (struct Bot *b, struct Message *message) {
     struct Player np;
     bzero(&np, sizeof np);
 
-    np.current_map = set_map(0);
-    np.current_map.cur_x = 0;
-    np.current_map.cur_y = 1;
+    np.pos_x = 0;
+    np.pos_y = 1;
 
     strncpy(np.username, message->sender_nick, MAX_NICK_LENGTH-1);
     genSalt(np.salt, 16);
@@ -52,8 +52,6 @@ void init_new_character (struct Bot *b, struct Message *message) {
     strcpy(np.title, "Newbie");
     bzero(np.materials, sizeof np.materials);
     np.health       = 100;
-    np.x_pos        = 1;
-    np.y_pos        = 1;
     np.fullness     = 100;
     np.alignment    = 0;
     np.alive        = 1;
@@ -210,7 +208,7 @@ void assign_attr_points (struct Bot *b, struct Message *message, char which[5], 
             message->sender_nick, which, amount, attr_pts - amount);
     addMsg(out, strlen(out));
 }
-
+/* DEPRECATED
 void revive (struct Bot *b, struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(b, message->sender_nick);
@@ -234,7 +232,7 @@ void revive (struct Bot *b, struct Message *message) {
     }
     addMsg(out, strlen(out));
 }
-
+*/
 
 char * authLevelToStr(enum authLevel al) {
     switch(al) {
