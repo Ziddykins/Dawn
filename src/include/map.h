@@ -9,11 +9,14 @@ struct Message;
 void move_player (struct Bot *, struct Message *, int, int);
 void find_building (struct Bot *, struct Message *, char []);
 //void check_special_location (struct Bot *, int); //DEPRECATED
-void diamond_square(float *heightmap, int dim, float roughness, float sigma, int level);
+void diamond_square(float *heightmap, int dim, float sigma, int level);
 
 
 void init_map(void);
 void free_map(void);
+
+void generate_map(void);
+
 
 struct Building {
     char name[64];

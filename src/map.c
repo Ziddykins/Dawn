@@ -14,11 +14,19 @@
 struct Map * global_map = 0;
 
 void init_map() {
-    global_map = malloc(sizeof *global_map);
+    CALLEXIT(!(global_map = malloc(sizeof *global_map)))
     global_map->dim = 1<<10;
+    CALLEXIT(!(global_map->heightmap = malloc((unsigned long)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap)))
+
+    generate_map();
+}
+
+void generate_map() {
+    diamond_square(global_map->heightmap, global_map->dim, 4000.0, global_map->dim);
 }
 
 void free_map() {
+    free(global_map->heightmap);
     free(global_map);
 }
 
@@ -89,7 +97,7 @@ void check_special_location (struct Bot *b, int pindex) {
     }
 }
 */
-void diamond_square(float *heightmap, int dim, float roughness, float sigma, int level) {
+void diamond_square(float *heightmap, int dim, float sigma, int level) {
     if (level < 1) return;
 
     // diamonds
@@ -114,5 +122,5 @@ void diamond_square(float *heightmap, int dim, float roughness, float sigma, int
             heightmap[(i-level/2)*dim + j-level] = (a + b + e + heightmap[(i-level/2)*dim + (j-3*level/2)]) / 4 + (float)gaussrand() * sigma;
         }
     }
-    diamond_square(heightmap, dim, roughness, sigma * roughness, level / 2);
+    diamond_square(heightmap, dim, sigma / 2, level / 2);
 }
