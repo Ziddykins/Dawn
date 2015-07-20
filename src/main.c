@@ -123,8 +123,10 @@ int main (void) {
     strcpy(dawn->active_room, rooms[0]);
     dawn->login_sent = 0;
     dawn->in_rooms   = 0;
+
     init_send_queue();
     init_cmds();
+    init_map();
 
     if (init_connect_server(dalnet, port) == 0) {
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0)) != -1) {

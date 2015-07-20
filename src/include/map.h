@@ -11,6 +11,10 @@ void find_building (struct Bot *, struct Message *, char []);
 //void check_special_location (struct Bot *, int); //DEPRECATED
 void diamondSquare(float *heightmap, int dim, float roughness, float sigma, int level);
 
+
+void init_map();
+void free_map();
+
 struct Building {
     char name[64];
     int x, y;

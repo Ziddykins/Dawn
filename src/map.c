@@ -13,6 +13,15 @@
 
 struct Map * curMap = 0;
 
+void init_map() {
+    curMap = malloc(sizeof *curMap);
+    curMap->dim = 1<<10;
+}
+
+void free_map() {
+    free(curMap);
+}
+
 void print_location (struct Bot *b, int i) {
     char out[MAX_MESSAGE_BUFFER];
     sprintf(out, "PRIVMSG %s :%s, you are at %d,%d\r\n", b->active_room, b->players[i].username,
@@ -25,7 +34,6 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
     int pindex = get_pindex(b, message->sender_nick);
     int dx, dy, cx, cy;
     double travel_time;
-    extern struct Map * curMap;
     if (x < 0 || x >= curMap->dim || y < 0 || y >= curMap->dim) {
         sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, curMap->dim, curMap->dim);
         addMsg(out, strlen(out));
