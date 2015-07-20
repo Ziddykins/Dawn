@@ -11,6 +11,8 @@
 
 #define TRAVEL_TIME_MULT (3.0)
 
+struct Map * curMap = 0;
+
 void print_location (struct Bot *b, int i) {
     char out[MAX_MESSAGE_BUFFER];
     sprintf(out, "PRIVMSG %s :%s, you are at %d,%d\r\n", b->active_room, b->players[i].username,

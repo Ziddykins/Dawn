@@ -34,7 +34,7 @@ enum authLevel {
 char * authLevelToStr(enum authLevel al);
 extern char * authKey;
 extern int authKeyValid;
-static struct Map * curMap;
+extern struct Map * curMap;
 
 struct Player {
     char username[64], hostmask[128]; //limits used in parse.c

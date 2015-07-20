@@ -21,7 +21,9 @@ struct TravelTimer {
 };
 
 struct Map {
-    int dim;
     float * heightmap;
+    int dim;
+
+    char pad[4];
 };
 #endif
