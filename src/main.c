@@ -312,6 +312,7 @@ int main (void) {
     freeMsgList();
     freeEventList();
     free_cmds();
+    free_map();
     free(dawn);
     if(authKeyValid || authKey)
         free(authKey);
