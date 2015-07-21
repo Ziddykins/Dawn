@@ -13,16 +13,43 @@
 
 struct Map * global_map = 0;
 
-void init_map() {
+void init_map(char const * const fn) {
     CALLEXIT(!(global_map = malloc(sizeof *global_map)))
     global_map->dim = 1<<10;
-    CALLEXIT(!(global_map->heightmap = malloc((unsigned long)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap)))
+    global_map->flags = 0;
+    size_t size = (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap;
+    CALLEXIT(!(global_map->heightmap = malloc(size)))
+    FILE *file = fopen(fn, "rb");
+    if(!file) {
+        printf(INFO "Generating new heightmap\n");
+        generate_map();
+        save_map(fn);
+    } else {
+        CALLEXIT(!(fread(global_map->heightmap, size, 1, file)))
+        fclose(file);
+        printf(INFO "Heightmap loaded (%zu bytes)\n", size);
+    }
+}
 
-    generate_map();
+void save_map(char const * const fn) {
+    CALLEXIT(!global_map)
+    if(global_map->flags & HEIGHTMAP_PRESENT && !(global_map->flags & HEIGHTMAP_SAVED)) {
+        FILE *file = fopen(fn, "wb");
+        if(!file) {
+            PRINTWARN("Could not save heightmap")
+            return;
+        }
+        size_t len;
+        size_t size = (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap;
+        CALLEXIT(!(len = fwrite(global_map->heightmap, size, 1, file)))
+        fclose(file);
+        printf(INFO "Saved heightmap (%zu bytes)\n", len * size);
+    }
 }
 
 void generate_map() {
     diamond_square(global_map->heightmap, global_map->dim, 4000.0, global_map->dim);
+    global_map->flags |= HEIGHTMAP_PRESENT;
 }
 
 void free_map() {

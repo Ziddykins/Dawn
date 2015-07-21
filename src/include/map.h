@@ -12,8 +12,9 @@ void find_building (struct Bot *, struct Message *, char []);
 void diamond_square(float *heightmap, int dim, float sigma, int level);
 
 
-void init_map(void);
+void init_map(char const * const fn);
 void free_map(void);
+void save_map(char const * const fn);
 
 void generate_map(void);
 
@@ -27,10 +28,14 @@ struct TravelTimer {
     int x, y, active;
 };
 
+enum map_flags {
+    HEIGHTMAP_PRESENT = 1<<0,
+    HEIGHTMAP_SAVED = 1<<1,
+};
+
 struct Map {
     float * heightmap;
     int dim;
-
-    char pad[4];
+    int flags;
 };
 #endif

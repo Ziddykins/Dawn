@@ -95,7 +95,7 @@ void init_new_character (struct Bot *b, struct Message *message) {
 void save_players (struct Bot *b) {
     if(b == 0)
         return;
-    FILE *file = fopen("players.db", "wb");
+    FILE *file = fopen("players.bin", "wb");
     if(!file) {
         PRINTWARN("Could not save players")
         return;
@@ -103,11 +103,11 @@ void save_players (struct Bot *b) {
     size_t len;
     CALLEXIT(!(len = fwrite(b, sizeof *b, 1, file)))
     fclose(file);
-    printf(INFO "Saved players (%zu/%zu bytes)\n", len*(sizeof *b), sizeof *b);
+    printf(INFO "Saved players (%zu bytes)\n", len*(sizeof *b));
 }
 
 void load_players (struct Bot *b) {
-    FILE *file = fopen("players.db", "rb");
+    FILE *file = fopen("players.bin", "rb");
     if (!file) {
         PRINTWARN("Could not load players")
         return;

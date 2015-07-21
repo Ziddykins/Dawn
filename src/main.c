@@ -65,8 +65,8 @@ int main (void) {
 
     //Load characters
 /*
-    if (access("players.db", F_OK) != -1) {
-        FILE *file = fopen("players.db", "r");
+    if (access("players.bin", F_OK) != -1) {
+        FILE *file = fopen("players.bin", "r");
         fseek(file, 0L, SEEK_END);
         ssize_t sz = ftell(file);
         fseek(file, 0L, SEEK_SET);
@@ -76,7 +76,7 @@ int main (void) {
         fclose(file);
         dawn->global_monster.active = 0;
     } else {
-        FILE *file = fopen("players.db", "w+");
+        FILE *file = fopen("players.bin", "w+");
         fclose(file);
         exit(1);
     }*/
@@ -128,7 +128,6 @@ int main (void) {
 
     init_send_queue();
     init_cmds();
-    init_map();
 
     if (init_connect_server(dalnet, port) == 0) {
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0)) != -1) {
