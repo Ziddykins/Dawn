@@ -12,6 +12,7 @@
 #include "include/parse.h"
 #include "include/commands.h"
 #include "include/util.h"
+#include "include/monsters.h"
 
 //External global defined in limit.h
 //Determined by server - if values not received on connect, default to 64
@@ -110,6 +111,7 @@ int main (void) {
             dawn->monsters[count].drop_level = drop_level;
             dawn->monsters[count].slay_cost  = gold;
             dawn->monsters[count].active = 0;
+            dawn->monsters[count].type = DEFMON;
             count++;
         }
         fclose(file);

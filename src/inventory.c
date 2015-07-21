@@ -32,9 +32,27 @@ void print_inventory (struct Bot *b, struct Message *message) {
     add_msg(out, strlen(out));
 }
 
-void equip_inventory (struct Bot *b, struct Message *message, int slot, int unequip) {
+void equip_inventory (struct Bot *b, struct Message *message, int slot, int unequip, int all) {
     int i = get_pindex(b, message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
+
+    if (all) {
+        int count = 0;
+        for (int j=0; j<MAX_INVENTORY_SLOTS - b->players[i].available_slots; j++) {
+            if (!unequip && !dawn->players[i].inventory[j].equipped) {
+                dawn->players[i].inventory[j].equipped = 1;
+                count++;
+            } else if (unequip && dawn->players[i].inventory[j].equipped) {
+                dawn->players[i].inventory[j].equipped = 0;
+                count++;
+            }
+        }
+
+        sprintf(out, "PRIVMSG %s :%s, %d pieces of equipment have been %s\r\n",
+                message->receiver, message->sender_nick, count, unequip ? "unequipped" : "equipped");
+        add_msg(out, strlen(out));
+        return;
+    }
 
     if (slot > MAX_INVENTORY_SLOTS) return;
 
@@ -43,6 +61,7 @@ void equip_inventory (struct Bot *b, struct Message *message, int slot, int uneq
         add_msg(out, strlen(out));
         return;
     }
+
     if (unequip && b->players[i].inventory[slot].equipped) {
         sprintf(out, "PRIVMSG %s :%s unequipped\r\n", message->receiver, b->players[i].inventory[slot].name);
         b->players[i].inventory[slot].equipped = 0;

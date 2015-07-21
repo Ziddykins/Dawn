@@ -17,6 +17,7 @@ void init_cmds() {
     register_cmd(0, ";check", "Check whether there is a personal monster in this room", AL_USER, cmd_check);
     register_cmd(0, ";drop", "<inventory slot> | Discard of an item in your inventory", AL_USER, cmd_drop);
     register_cmd(0, ";equip", "<inventory slot> | Equip an item from your inventory", AL_USER, cmd_equip);
+    register_cmd(0, ";equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
     register_cmd(0, ";gcheck", "Check whether there is a global monster", AL_USER, cmd_gcheck);
     register_cmd(0, ";ghunt", "Summons a global monster in to the room; if one exists it will need to be killed by attacks or ;gslay first", AL_USER, cmd_ghunt);
     register_cmd(0, ";gmelee", "Performs a melee attack on a global monster", AL_USER, cmd_gmelee);
@@ -35,10 +36,12 @@ void init_cmds() {
     register_cmd(0, ";slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
     register_cmd(0, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
     register_cmd(0, ";unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
+    register_cmd(0, ";unequipall", "Uneqippes all pieces of equipment from your inventory", AL_USER, cmd_unequipall);
     register_cmd(0, ";drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
 
     //AL_ADMIN
     register_cmd(0, ";fluctuate", "Forces the market prices to fluctuate", AL_ADMIN, cmd_fluctuate);
+    register_cmd(0, ";fslay", "Force-slay the global monster currently in the room", AL_ADMIN, cmd_fslay);
     register_cmd(0, ";gib", "Cheat yourself some gold", AL_ADMIN, cmd_gib);
     register_cmd(0, ";givexp", "<user> <amount> | Give XP points to a user", AL_ADMIN, cmd_givexp);
     register_cmd(0, ";save", "Save the current state of the game to disk", AL_ADMIN, cmd_save);
@@ -135,15 +138,23 @@ void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
 void cmd_equip(int pindex __attribute__((unused)), struct Message * msg) {
     if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
-        equip_inventory(dawn, msg, slot, 0);
+        equip_inventory(dawn, msg, slot, 0, 0);
     }
 }
 
 void cmd_unequip(int pindex __attribute__((unused)), struct Message * msg) {
     if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
-        equip_inventory(dawn, msg, slot, 1);
+        equip_inventory(dawn, msg, slot, 1, 0);
     }
+}
+
+void cmd_equipall(int pindex __attribute__((unused)), struct Message * msg) {
+    equip_inventory(dawn, msg, 0, 0, 1);
+}
+
+void cmd_unequipall(int pindex __attribute__((unused)), struct Message * msg) {
+    equip_inventory(dawn, msg, 0, 1, 1);
 }
 
 void cmd_gmelee(int pindex __attribute__((unused)), struct Message * msg) {
@@ -233,6 +244,11 @@ void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
         add_msg(out, strlen(out));
         free(out);
     }
+}
+
+void cmd_fslay(int pindex, struct Message * msg) {
+    dawn->players[pindex].gold += 9999999;
+    slay_monster(dawn, msg->sender_nick, 1, 9999999);
 }
 
 void cmd_check(int pindex __attribute__((unused)), struct Message * msg) {

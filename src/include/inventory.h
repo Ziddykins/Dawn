@@ -12,5 +12,5 @@ struct Inventory {
 };
 
 void print_inventory (struct Bot *, struct Message *);
-void equip_inventory (struct Bot *, struct Message *, int, int);
+void equip_inventory (struct Bot *, struct Message *, int, int, int);
 #endif
