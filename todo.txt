@@ -5,9 +5,17 @@ update map
     slope between two adjacent points determines the added cost for travelling
     height of a point has influence on weather
     distance to nearest water source has influence on weather (humidity, heat, ...) => basic survival items
+    
     simulate weather and other processes for biomes
     simulate rainfall for ocean and lake generation
+        possible methods:
+        have clouds pass over the terrain from a random direction which are loaded with a predetermined amount of water
+        when traveling across the terrain they lose water and raise the waterlevel of the pixel they're above
+        when having to raise their height they lose more water than normal
+        can also be deduced from this
     distribute underground materials for later use in market simulation
+        perlin noise?
+    save map data to chunks to avoid having all data loaded concurrently?
     save image representation of map to given directory for use in website
 update item and drop system
 concatenate similar messages
