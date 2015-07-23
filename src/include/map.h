@@ -34,7 +34,9 @@ enum map_flags {
 };
 
 struct Map {
-    float * heightmap;
+    float * heightmap; //dim*dim
+    float * oredistr; //dim*dim*ORE_COUNT
+    float * water; //dim*dim
     int dim;
     int flags;
 };
