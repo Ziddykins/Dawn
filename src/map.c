@@ -50,6 +50,14 @@ void save_map(char const * const fn) {
 void generate_map() {
     diamond_square(global_map->heightmap, global_map->dim, 4000.0, global_map->dim);
     global_map->flags |= HEIGHTMAP_PRESENT;
+
+    float * copy = malloc((size_t)(global_map->dim*global_map->dim) * sizeof *copy);
+    for(int i = 0; i < global_map->dim * global_map->dim; i++) {
+        copy[i] = global_map->heightmap[i];
+    }
+    qsort(copy, (size_t)(global_map->dim * global_map->dim), sizeof *copy, &compareFloatAsc);
+    global_map->water_level = copy[(int)(1.0/6.0*global_map->dim*global_map->dim)];
+    free(copy);
 }
 
 void free_map() {

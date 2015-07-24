@@ -30,5 +30,6 @@
 double randd(void);
 double gaussrand(void);
 double ABS(double);
+int compareFloatAsc(void const * a, void const * b);
 
 #endif // UTIL_H_INCLUDED

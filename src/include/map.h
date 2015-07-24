@@ -3,6 +3,7 @@
 #include "status.h"
 #include "network.h"
 #include "limits.h"
+#include "util.h"
 
 //Prototypes
 struct Message;
@@ -36,8 +37,10 @@ enum map_flags {
 struct Map {
     float * heightmap; //dim*dim
     float * oredistr; //dim*dim*ORE_COUNT
-    float * water; //dim*dim
+    float water_level;
     int dim;
     int flags;
+
+    char pad[4];
 };
 #endif
