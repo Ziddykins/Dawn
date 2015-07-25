@@ -3,6 +3,7 @@
 
 #include "colors.h"
 #include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -31,5 +32,26 @@ double randd(void);
 double gaussrand(void);
 double ABS(double);
 int compareFloatAsc(void const * a, void const * b);
+
+struct priority_node {
+    void * elem;
+    struct priority_node * next;
+    int priority;
+
+    char pad[4];
+};
+
+struct priority_queue {
+    struct priority_node * head;
+};
+
+typedef struct priority_queue * PriorityQueue;
+
+PriorityQueue init_priority_queue(void);
+void free_priority_queue(PriorityQueue, int free_elem);
+
+void priority_insert(PriorityQueue, int priority, void * elem);
+void* priority_remove_min(PriorityQueue);
+//void* priority_remove_max(void);
 
 #endif // UTIL_H_INCLUDED

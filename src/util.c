@@ -31,3 +31,53 @@ double ABS(double a) {
 int compareFloatAsc(void const * a, void const * b) {
     return (*(float const*)a) > (*(float const*)b) ? 1 : (*(float const*)a) < (*(float const*)b) ? -1 : 0;
 }
+
+PriorityQueue init_priority_queue(void) {
+    PriorityQueue newpq;
+    CALLEXIT(newpq = malloc(sizeof *newpq))
+    newpq->head = 0;
+    return newpq;
+}
+
+void free_priority_queue(PriorityQueue pq, int free_elem) {
+    while(pq->head) {
+        struct priority_node * nextHead = pq->head->next;
+        if(free_elem) {
+            free(pq->head->elem); //CAUTION!
+        }
+        free(pq->head);
+        pq->head = nextHead;
+    }
+    free(pq);
+}
+
+void priority_insert(PriorityQueue pq, int priority, void * elem) {
+    struct priority_node *newpn;
+    CALLEXIT(newpn = malloc(sizeof *newpn))
+    if(!pq->head) {
+        pq->head = newpn;
+        newpn->next = 0;
+    } else {
+        struct priority_node *prevpn = pq->head;
+        while(prevpn->priority < priority) {
+            prevpn = prevpn->next;
+        }
+        newpn->next = prevpn->next;
+        prevpn->next = newpn;
+    }
+    newpn->elem = elem;
+    newpn->priority = priority;
+}
+
+void* priority_remove_min(PriorityQueue pq) {
+    if(!pq || !pq->head) {
+        return 0;
+    }
+
+    void * ret = pq->head->elem;
+    struct priority_node * next = pq->head->next;
+    free(pq->head);
+    pq->head = next;
+
+    return ret;
+}
