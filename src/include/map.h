@@ -4,6 +4,7 @@
 #include "network.h"
 #include "limits.h"
 #include "util.h"
+#include <math.h>
 
 //Prototypes
 struct Message;
@@ -19,6 +20,7 @@ void save_map(char const * const fn);
 
 void generate_map(void);
 
+int pathlen(int x1, int y1, int x2, int y2);
 
 struct Building {
     char name[64];

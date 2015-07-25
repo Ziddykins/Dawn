@@ -60,6 +60,13 @@ void generate_map() {
     free(copy);
 }
 
+int pathlen(int x1, int y1, int x2, int y2) {
+    //placeholder, use A* later
+    int dx = x1-x2;
+    int dy = y1-y2;
+    return (int)(sqrt(dx*dx + dy*dy));
+}
+
 void free_map() {
     free(global_map->heightmap);
     free(global_map);
@@ -75,7 +82,6 @@ void print_location (struct Bot *b, int i) {
 void move_player (struct Bot *b, struct Message *message, int x, int y) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(b, message->sender_nick);
-    int dx, dy, cx, cy;
     double travel_time;
     if (x < 0 || x >= global_map->dim || y < 0 || y >= global_map->dim) {
         sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, global_map->dim, global_map->dim);
@@ -83,12 +89,10 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
         return;
     }
 
-    cx = b->players[pindex].pos_x;
-    cy = b->players[pindex].pos_y;
+    int cx = b->players[pindex].pos_x;
+    int cy = b->players[pindex].pos_y;
 
-    dx = abs(x - cx);
-    dy = abs(y - cy);
-    travel_time = sqrt(dx*dx+dy*dy)*TRAVEL_TIME_MULT;
+    travel_time = pathlen(x, y, cx, cy)*TRAVEL_TIME_MULT;
     assert(travel_time < (double)((((unsigned int)1<<(sizeof(unsigned int) * 8 - 1))-1)/TRAVEL_TIME_MULT));
     add_event(TRAVEL, pindex, (unsigned int)travel_time, UNIQUE);
     b->players[pindex].travel_timer.x = x;
