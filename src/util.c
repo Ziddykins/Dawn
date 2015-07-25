@@ -81,3 +81,7 @@ void* priority_remove_min(PriorityQueue pq) {
 
     return ret;
 }
+
+int priority_empty(PriorityQueue pq) {
+    return pq->head == 0;
+}

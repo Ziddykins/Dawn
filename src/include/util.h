@@ -52,6 +52,7 @@ void free_priority_queue(PriorityQueue, int free_elem);
 
 void priority_insert(PriorityQueue, int priority, void * elem);
 void* priority_remove_min(PriorityQueue);
+int priority_empty(PriorityQueue);
 //void* priority_remove_max(void);
 
 #endif // UTIL_H_INCLUDED
