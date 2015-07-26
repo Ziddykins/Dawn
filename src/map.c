@@ -140,14 +140,9 @@ float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags)
     start->x = x1;
     start->y = y1;
     priority_insert(pq, 0, start);
-    int steps = 0;
     while(!priority_empty(pq)) {
-        steps++;
         struct location * current = priority_remove_min(pq);
         int x = current->x, y = current->y;
-        if((steps & 1024) == 0) {
-            printf(INFO "Step %d\t(%4d,%4d)\n", steps, x, y);
-        }
         free(current);
         if(x == x2 && y == y2 && !(flags & ALL_TARGETS)) {
             break;
@@ -220,7 +215,6 @@ float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags)
             }
         }
     }
-    printf(INFO "Steps: %d\n", steps);
     if(flags & RECONSTRUCT) {
         *rop = came_from;
     } else {
@@ -264,6 +258,11 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
     int cy = b->players[pindex].pos_y;
 
     travel_time = pathlen(cx, cy, x, y)*TRAVEL_TIME_MULT;
+    if(travel_time < 0) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, (%d,%d) cannot be reached :(\r\n", message->receiver, message->sender_nick, x, y);
+        add_msg(out, strlen(out));
+        return;
+    }
     if((unsigned int)travel_time >= (unsigned int)((((unsigned int)1<<(sizeof(unsigned int) * 8 - 1))-1)/TRAVEL_TIME_MULT)) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you cannot travel that far! It would take %.2f hours!\r\n", message->receiver, message->sender_nick, travel_time/60/60);
         add_msg(out, strlen(out));

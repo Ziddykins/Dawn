@@ -20,7 +20,7 @@ struct analyzer {
     size_t tokens;
 };
 
-typedef void * Analyzer;
+typedef struct analyzer * Analyzer;
 
 Analyzer init_analyzer(size_t markov_tier);
 void free_analyzer(Analyzer);

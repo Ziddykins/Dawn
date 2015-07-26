@@ -47,7 +47,7 @@ struct msg_hist_list {
     size_t msgs;
 };
 
-typedef void * MsgHistoryList;
+typedef struct msg_hist_list * MsgHistoryList;
 
 /*
  * The Message List is responsible for keeping track of all messages that are to be
@@ -73,7 +73,7 @@ struct msg_list {
     size_t msgs; //number of messages waiting to be sent
 };
 
-typedef void * MsgList;
+typedef struct msg_list * MsgList;
 
 MsgList init_msg_list(void); //allocates a new message history list
 void free_msg_list(void); //frees all storage allocated

@@ -26,8 +26,8 @@ struct token_iterator {
     size_t consumed;
 };
 
-typedef void * TokenList;
-typedef void * TokenIterator;
+typedef struct token_list * TokenList;
+typedef struct token_iterator * TokenIterator;
 
 TokenList init_token_list(void);
 void free_token_list(TokenList l);

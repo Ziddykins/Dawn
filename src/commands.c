@@ -57,7 +57,7 @@ void free_cmds() {
 }
 
 void cmd_help(int pindex, struct Message * msg) {
-    extern void* commands;
+    extern CmdSys commands;
     struct cmd_sys * ccs = commands;
     assert(ccs);
 

@@ -31,7 +31,7 @@ enum cmd_mode {
     CMD_HELP //send the helptext publicly
 };
 
-typedef void * CmdSys;
+typedef struct cmd_sys * CmdSys;
 
 extern CmdSys commands;
 

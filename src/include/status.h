@@ -76,7 +76,7 @@ enum event_mode {
 
 char * event_to_str(enum Events x);
 
-typedef void * EventList;
+typedef struct event_list * EventList;
 
 EventList init_event_list(void);
 void free_event_list(void);

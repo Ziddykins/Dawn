@@ -16,7 +16,7 @@ struct namegen {
     int success;
 };
 
-typedef void * NameGen;
+typedef struct namegen * NameGen;
 
 NameGen init_name_gen(unsigned int markov_tier);
 void free_name_gen(NameGen);
