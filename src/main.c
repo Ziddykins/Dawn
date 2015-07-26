@@ -142,7 +142,7 @@ int main (void) {
 
             //Connected to the server, send nick/user details
             if (dawn->login_sent == 0) {
-                match = check_if_matches_regex(buffer, "AUTH");
+                match = check_if_matches_regex(buffer, "AUTH") || check_if_matches_regex(buffer, "Looking up your hostname...");
                 if (match) {
                     printf(INFO "Server checking for AUTH, sending nick/user\n");
                     handle_login(dawn->nickname, dawn->password, dawn->realname, dawn->ident);
@@ -301,6 +301,7 @@ int main (void) {
                     }
                 }
             }
+            bzero(buffer, MAX_MESSAGE_BUFFER);
         }
     } else {
         perror(ERR "main: Failed to connect");
