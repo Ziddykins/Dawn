@@ -36,7 +36,7 @@ int compareFloatAsc(void const * a, void const * b);
 struct priority_node {
     void * elem;
     struct priority_node * next;
-    int priority;
+    float priority;
 
     char pad[4];
 };
@@ -50,9 +50,11 @@ typedef struct priority_queue * PriorityQueue;
 PriorityQueue init_priority_queue(void);
 void free_priority_queue(PriorityQueue, int free_elem);
 
-void priority_insert(PriorityQueue, int priority, void * elem);
+void priority_insert(PriorityQueue, float priority, void * elem);
 void* priority_remove_min(PriorityQueue);
 int priority_empty(PriorityQueue);
+
+void print_priorities(PriorityQueue);
 //void* priority_remove_max(void);
 
 #endif // UTIL_H_INCLUDED

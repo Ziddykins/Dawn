@@ -9,7 +9,7 @@
 #include "include/limits.h"
 #include "include/network.h"
 
-#define TRAVEL_TIME_MULT (3.0)
+#define TRAVEL_TIME_MULT (1.0f)
 
 struct Map * global_map = 0;
 
@@ -17,54 +17,220 @@ void init_map(char const * const fn) {
     CALLEXIT(!(global_map = malloc(sizeof *global_map)))
     global_map->dim = 1<<10;
     global_map->flags = 0;
-    size_t size = (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap;
-    CALLEXIT(!(global_map->heightmap = malloc(size)))
+    CALLEXIT(!(global_map->heightmap = calloc(sizeof *global_map->heightmap, (size_t)(global_map->dim * global_map->dim))))
     FILE *file = fopen(fn, "rb");
     if(!file) {
         printf(INFO "Generating new heightmap\n");
         generate_map();
         save_map(fn);
     } else {
-        CALLEXIT(!(fread(global_map->heightmap, size, 1, file)))
+        CALLEXIT(!(fread(&global_map->dim, sizeof global_map->dim, 1, file)))
+        CALLEXIT(!(fread(&global_map->flags, sizeof global_map->flags, 1, file)))
+        CALLEXIT(!(fread(&global_map->water_level, sizeof global_map->water_level, 1, file)))
+        CALLEXIT(!(fread(global_map->heightmap, (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap, 1, file)))
         fclose(file);
-        printf(INFO "Heightmap loaded (%zu bytes)\n", size);
+        printf(INFO "Map loaded\n");
     }
 }
 
 void save_map(char const * const fn) {
     CALLEXIT(!global_map)
-    if(global_map->flags & HEIGHTMAP_PRESENT && !(global_map->flags & HEIGHTMAP_SAVED)) {
+    if(global_map->flags & MAP_PRESENT && !(global_map->flags & MAP_SAVED)) {
         FILE *file = fopen(fn, "wb");
         if(!file) {
             PRINTWARN("Could not save heightmap")
             return;
         }
-        size_t len;
+        CALLEXIT(!(fwrite(&global_map->dim, sizeof global_map->dim, 1, file)))
+        CALLEXIT(!(fwrite(&global_map->flags, sizeof global_map->flags, 1, file)))
+        CALLEXIT(!(fwrite(&global_map->water_level, sizeof global_map->water_level, 1, file)))
+
         size_t size = (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap;
-        CALLEXIT(!(len = fwrite(global_map->heightmap, size, 1, file)))
+        CALLEXIT(!(fwrite(global_map->heightmap, size, 1, file)))
+        printf(INFO "Saved map\n");
         fclose(file);
-        printf(INFO "Saved heightmap (%zu bytes)\n", len * size);
     }
 }
 
 void generate_map() {
-    diamond_square(global_map->heightmap, global_map->dim, 4000.0, global_map->dim);
-    global_map->flags |= HEIGHTMAP_PRESENT;
+    diamond_square(global_map->heightmap, global_map->dim, 1.0, global_map->dim);
+    global_map->flags |= MAP_PRESENT;
 
-    float * copy = malloc((size_t)(global_map->dim*global_map->dim) * sizeof *copy);
+    float * copy;
+    CALLEXIT(!(copy = malloc((size_t)(global_map->dim*global_map->dim) * sizeof *copy)))
     for(int i = 0; i < global_map->dim * global_map->dim; i++) {
         copy[i] = global_map->heightmap[i];
     }
     qsort(copy, (size_t)(global_map->dim * global_map->dim), sizeof *copy, &compareFloatAsc);
     global_map->water_level = copy[(int)(1.0/6.0*global_map->dim*global_map->dim)];
     free(copy);
+    printf(INFO "Water level: %f\n", global_map->water_level);
 }
 
-int pathlen(int x1, int y1, int x2, int y2) {
-    //placeholder, use A* later
-    int dx = x1-x2;
-    int dy = y1-y2;
-    return (int)(sqrt(dx*dx + dy*dy));
+float pathlen(int x1, int y1, int x2, int y2) {
+    return runpath(0, x1, y1, x2, y2, 0);
+}
+
+int is_water(int x, int y) {
+    return global_map->heightmap[y*global_map->dim+x] < global_map->water_level;
+}
+
+float transfer_cost(int x, int y, int direction) {
+    int dim = global_map->dim;
+    double cost;
+    switch(direction) {
+        case NORTH: //y-1
+            if(y <= 0 || is_water(x, y-1)) {
+                return -1;
+            }
+            cost = ABS(global_map->heightmap[y*dim+x] - global_map->heightmap[(y-1)*dim+x]);
+            break;
+        case EAST:
+            if(x >= dim-1 || is_water(x+1, y)) {
+                return -1;
+            }
+            cost = ABS(global_map->heightmap[y*dim+x] - global_map->heightmap[y*dim+(x+1)]);
+            break;
+        case SOUTH:
+            if(y >= dim-1 || is_water(x, y+1)) {
+                return -1;
+            }
+            cost = ABS(global_map->heightmap[y*dim+x] - global_map->heightmap[(y+1)*dim+x]);
+            break;
+        case WEST:
+            if(x <= 0 || is_water(x-1, y)) {
+                return -1;
+            }
+            cost = ABS(global_map->heightmap[y*dim+x] - global_map->heightmap[y*dim+(x-1)]);
+            break;
+        default:
+            PRINTERR("INTERNAL PATHFINDING ERROR")
+            exit(1);
+    }
+    return (float)(cost+1);
+}
+
+float manhattan(int x1, int y1, int x2, int y2) {
+    return (float)(ABS(x1-x2)+ABS(y1-y2));
+}
+
+float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags) {
+    int dim = global_map->dim;
+
+    struct location * came_from;
+    CALLEXIT(!(came_from = malloc((unsigned int)(dim*dim) * sizeof *came_from)))
+    for(int i = 0; i < dim*dim; i++) {
+        came_from->x = -1;
+        came_from->y = -1;
+    }
+
+    float *cost;
+    CALLEXIT(!(cost = malloc((unsigned int)(dim*dim) * sizeof *cost)))
+    for(int i = 0; i < dim*dim; i++) {
+        cost[i] = -1;
+    }
+
+    came_from[x1*dim+x1].x = x1;
+    came_from[x1*dim+x1].y = y1;
+    cost[y1*dim+x1] = 0;
+
+    PriorityQueue pq = init_priority_queue();
+    struct location * start;
+    CALLEXIT(!(start = malloc(sizeof *start)))
+    start->x = x1;
+    start->y = y1;
+    priority_insert(pq, 0, start);
+    int steps = 0;
+    while(!priority_empty(pq)) {
+        steps++;
+        struct location * current = priority_remove_min(pq);
+        int x = current->x, y = current->y;
+        if((steps & 1024) == 0) {
+            printf(INFO "Step %d\t(%4d,%4d)\n", steps, x, y);
+        }
+        free(current);
+        if(x == x2 && y == y2 && !(flags & ALL_TARGETS)) {
+            break;
+        }
+
+        float t_cost, new_cost;
+        //NORTH
+        t_cost = transfer_cost(x, y, 0);
+        if(t_cost >= 0) {
+            new_cost = cost[y * dim + x] + t_cost;
+
+            if(cost[(y-1)*dim+x] > new_cost || cost[(y-1)*dim+x] < 0) {
+                cost[(y-1)*dim+x] = new_cost;
+                came_from[(y-1)*dim+x].x = x;
+                came_from[(y-1)*dim+x].y = y;
+                struct location * nloc;
+                //dynamic memory to avoid filling stack space with &((struct location){.x = x-1, .y = y})
+                CALLEXIT(!(nloc = malloc(sizeof *nloc)))
+                nloc->x = x;
+                nloc->y = y-1;
+                priority_insert(pq, new_cost+manhattan(nloc->x, nloc->y, x2, y2), nloc);
+            }
+        }
+        //EAST
+        t_cost = transfer_cost(x, y, 1);
+        if(t_cost >= 0) {
+            new_cost = cost[y * dim + x] + t_cost;
+
+            if(cost[y*dim+x+1] > new_cost || cost[y*dim+x+1] < 0) {
+                cost[y*dim+x+1] = new_cost;
+                came_from[y*dim+x+1].x = x;
+                came_from[y*dim+x+1].y = y;
+                struct location * nloc;
+                CALLEXIT(!(nloc = malloc(sizeof *nloc)))
+                nloc->x = x+1;
+                nloc->y = y;
+                priority_insert(pq, new_cost+manhattan(nloc->x, nloc->y, x2, y2), nloc);
+            }
+        }
+        //SOUTH
+        t_cost = transfer_cost(x, y, 2);
+        if(t_cost >= 0) {
+            new_cost = cost[y * dim + x] + t_cost;
+
+            if(cost[(y+1)*dim+x] > new_cost || cost[(y+1)*dim+x] < 0) {
+                cost[(y+1)*dim+x] = new_cost;
+                came_from[(y+1)*dim+x].x = x;
+                came_from[(y+1)*dim+x].y = y;
+                struct location * nloc;
+                CALLEXIT(!(nloc = malloc(sizeof *nloc)))
+                nloc->x = x;
+                nloc->y = y+1;
+                priority_insert(pq, new_cost+manhattan(nloc->x, nloc->y, x2, y2), nloc);
+            }
+        }
+        //WEST
+        t_cost = transfer_cost(x, y, 3);
+        if(t_cost >= 0) {
+            new_cost = cost[y * dim + x] + t_cost;
+
+            if(cost[(y)*dim+x-1] > new_cost || cost[y*dim+x-1] < 0) {
+                cost[(y)*dim+x-1] = new_cost;
+                came_from[(y)*dim+x-1].x = x;
+                came_from[(y)*dim+x-1].y = y;
+                struct location * nloc;
+                CALLEXIT(!(nloc = malloc(sizeof *nloc)))
+                nloc->x = x-1;
+                nloc->y = y;
+                priority_insert(pq, new_cost+manhattan(nloc->x, nloc->y, x2, y2), nloc);
+            }
+        }
+    }
+    printf(INFO "Steps: %d\n", steps);
+    if(flags & RECONSTRUCT) {
+        *rop = came_from;
+    } else {
+        free(came_from);
+    }
+
+    float final_cost = cost[y2*dim+x2];
+    free(cost);
+    free_priority_queue(pq, 1);
+    return final_cost;
 }
 
 void free_map() {
@@ -82,9 +248,14 @@ void print_location (struct Bot *b, int i) {
 void move_player (struct Bot *b, struct Message *message, int x, int y) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(b, message->sender_nick);
-    double travel_time;
+    float travel_time;
     if (x < 0 || x >= global_map->dim || y < 0 || y >= global_map->dim) {
         sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, global_map->dim, global_map->dim);
+        add_msg(out, strlen(out));
+        return;
+    }
+    if(is_water(x, y)) {
+        snprintf(out, MAX_MESSAGE_BUFFER,"PRIVMSG %s :(%d,%d) is obstructed :(\r\n", message->receiver, x, y);
         add_msg(out, strlen(out));
         return;
     }
@@ -92,8 +263,12 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
     int cx = b->players[pindex].pos_x;
     int cy = b->players[pindex].pos_y;
 
-    travel_time = pathlen(x, y, cx, cy)*TRAVEL_TIME_MULT;
-    assert(travel_time < (double)((((unsigned int)1<<(sizeof(unsigned int) * 8 - 1))-1)/TRAVEL_TIME_MULT));
+    travel_time = pathlen(cx, cy, x, y)*TRAVEL_TIME_MULT;
+    if((unsigned int)travel_time >= (unsigned int)((((unsigned int)1<<(sizeof(unsigned int) * 8 - 1))-1)/TRAVEL_TIME_MULT)) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you cannot travel that far! It would take %.2f hours!\r\n", message->receiver, message->sender_nick, travel_time/60/60);
+        add_msg(out, strlen(out));
+        return;
+    }
     add_event(TRAVEL, pindex, (unsigned int)travel_time, UNIQUE);
     b->players[pindex].travel_timer.x = x;
     b->players[pindex].travel_timer.y = y;
@@ -103,6 +278,7 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
             message->receiver, message->sender_nick, cx, cy, x, y, (unsigned int)travel_time);
     add_msg(out, strlen(out));
 }
+
 /* DEPRECATED
 void find_building (struct Bot *b, struct Message *message, char location[48]) {
     char out[MAX_MESSAGE_BUFFER];
@@ -163,3 +339,4 @@ void diamond_square(float *heightmap, int dim, float sigma, int level) {
     }
     diamond_square(heightmap, dim, sigma / 2, level / 2);
 }
+

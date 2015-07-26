@@ -1,6 +1,6 @@
 #include "include/persistence.h"
 
-#define MAP_FILE "heightmap.bin"
+#define MAP_FILE "map.bin"
 #define EVENTS_FILE "events.bin"
 
 void persistent_save(struct Bot * b) {

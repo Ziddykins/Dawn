@@ -34,7 +34,7 @@ int compareFloatAsc(void const * a, void const * b) {
 
 PriorityQueue init_priority_queue(void) {
     PriorityQueue newpq;
-    CALLEXIT(newpq = malloc(sizeof *newpq))
+    CALLEXIT(!(newpq = malloc(sizeof *newpq)))
     newpq->head = 0;
     return newpq;
 }
@@ -51,15 +51,15 @@ void free_priority_queue(PriorityQueue pq, int free_elem) {
     free(pq);
 }
 
-void priority_insert(PriorityQueue pq, int priority, void * elem) {
+void priority_insert(PriorityQueue pq, float priority, void * elem) {
     struct priority_node *newpn;
-    CALLEXIT(newpn = malloc(sizeof *newpn))
+    CALLEXIT(!(newpn = malloc(sizeof *newpn)))
     if(!pq->head) {
         pq->head = newpn;
         newpn->next = 0;
     } else {
         struct priority_node *prevpn = pq->head;
-        while(prevpn->priority < priority) {
+        while(prevpn->next && prevpn->priority < priority) {
             prevpn = prevpn->next;
         }
         newpn->next = prevpn->next;
@@ -85,3 +85,18 @@ void* priority_remove_min(PriorityQueue pq) {
 int priority_empty(PriorityQueue pq) {
     return pq->head == 0;
 }
+
+
+void print_priorities(PriorityQueue pq) {
+    if(!pq) {
+        printf(INFO "[-]");
+    }
+    printf(INFO);
+    struct priority_node * cur = pq->head;
+    while(cur) {
+        printf("[%.3f]->", cur->priority);
+        cur = cur->next;
+    }
+    printf("[-]\n");
+}
+

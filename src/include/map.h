@@ -1,10 +1,13 @@
 #ifndef MAP_H_INCLUDED
 #define MAP_H_INCLUDED
+
+#include <math.h>
+#include <limits.h>
+
 #include "status.h"
 #include "network.h"
 #include "limits.h"
 #include "util.h"
-#include <math.h>
 
 //Prototypes
 struct Message;
@@ -20,7 +23,29 @@ void save_map(char const * const fn);
 
 void generate_map(void);
 
-int pathlen(int x1, int y1, int x2, int y2);
+struct location {
+    int x, y;
+};
+
+enum path_flags {
+    RECONSTRUCT = 1<<0,
+    ALL_TARGETS = 1<<1
+};
+
+enum direction {
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST
+};
+
+float manhattan(int x1, int y1, int x2, int y2);
+
+int is_water(int x, int y);
+float transfer_cost(int x, int y, int direction);
+
+float pathlen(int x1, int y1, int x2, int y2);
+float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags);
 
 struct Building {
     char name[64];
@@ -32,8 +57,8 @@ struct TravelTimer {
 };
 
 enum map_flags {
-    HEIGHTMAP_PRESENT = 1<<0,
-    HEIGHTMAP_SAVED = 1<<1,
+    MAP_PRESENT = 1<<0,
+    MAP_SAVED = 1<<1
 };
 
 struct Map {
