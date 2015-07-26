@@ -5,12 +5,14 @@
 
 void persistent_save(struct Bot * b) {
     save_players(b);
-    save_events(EVENTS_FILE);
     save_map(MAP_FILE);
+
+    save_events(EVENTS_FILE);
 }
 
 void persistent_load(struct Bot * b) {
     load_players(b);
-    init_timers(b, EVENTS_FILE);
     init_map(MAP_FILE);
+
+    init_timers(b, EVENTS_FILE);
 }
