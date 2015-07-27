@@ -24,7 +24,11 @@ double gaussrand() {
 	return X;
 }
 
-double ABS(double a) {
+double absd(double a) {
+    return a > -a ? a : -a;
+}
+
+float absf(float a) {
     return a > -a ? a : -a;
 }
 

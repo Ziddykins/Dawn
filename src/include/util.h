@@ -30,7 +30,8 @@
 
 double randd(void);
 double gaussrand(void);
-double ABS(double);
+double absd(double);
+float absf(float);
 int compareFloatAsc(void const * a, void const * b);
 
 struct priority_node {

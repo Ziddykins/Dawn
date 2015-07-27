@@ -89,7 +89,7 @@ int main (void) {
         int count = 0;
         int hp, str, def, intel, mdef, gold, exp, mhp, drop_level;
         if (!file) {
-            fprintf(stderr, ERR "main: Error opening raw monsters\n");
+            fprintf(stderr, ERR "Error opening raw monsters\n");
             return 1;
         }
         while (fgets(line, sizeof(line), file)) {

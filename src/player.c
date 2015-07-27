@@ -109,7 +109,7 @@ void save_players (struct Bot *b) {
 void load_players (struct Bot *b) {
     FILE *file = fopen("players.bin", "rb");
     if (!file) {
-        PRINTWARN("Could not load players")
+        fprintf(stderr, WARN "Could not load players\n");
         return;
     }
     CALLEXIT(!(fread(b, sizeof *b, 1, file)))

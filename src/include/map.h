@@ -33,16 +33,20 @@ enum path_flags {
 };
 
 enum direction {
-    NORTH,
-    EAST,
-    SOUTH,
-    WEST
+    NORTH = 1<<0,
+    EAST = 1<<1,
+    SOUTH = 1<<2,
+    WEST = 1<<3,
 };
 
 float manhattan(int x1, int y1, int x2, int y2);
 
+int is_valid(int x, int y, int dim);
 int is_water(int x, int y);
-float transfer_cost(int x, int y, int direction);
+int is_obstructed(int x, int y);
+float transfer_cost(int x1, int y1, int x2, int y2);
+int iter_to_dirflag(int iter);
+struct location move_step(int x, int y, int dir);
 
 float pathlen(int x1, int y1, int x2, int y2);
 float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags);

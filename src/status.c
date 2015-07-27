@@ -329,7 +329,7 @@ void load_events(char const * fn) {
     size_t len = 0;
     if(!(file = fopen(fn, "rb"))) {
         select_list(init_event_list());
-        PRINTWARN("Could not load events")
+        fprintf(stderr, WARN "Could not load events\n");
         errno = 0;
     } else {
         assert(elist == 0 && !eventQ_singleton);
@@ -395,6 +395,6 @@ void load_events(char const * fn) {
         }
         fclose(file);
         update_alarm();
+        printf(INFO "Loaded events\n");
     }
-    printf(INFO "Events read (%zu bytes)\n", len);
 }

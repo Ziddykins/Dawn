@@ -53,7 +53,7 @@ void gen_name(char * name, NameGen ng, size_t avg, double var) {
         name[0] = (char)(genNum() * 26 + 'A') //(char)(rand()%256-128);
     } while(!isProducible(ng, name[0], cng->markov_tier));*/
 
-    size_t tier = (size_t)((1-ABS(gauss)) * (cng->markov_tier-1));
+    size_t tier = (size_t)((1-absd(gauss)) * (cng->markov_tier-1));
     char * start_str = gen_start(cng->tiers[tier]);
     size_t len = 0;
     int ret = snprintf(name, avg*2+1, "%s", start_str);
@@ -77,7 +77,7 @@ void gen_name(char * name, NameGen ng, size_t avg, double var) {
         last = name[len-1];
     }
 
-    size_t distrib_len = (size_t)((ABS(gaussrand())+(1-var))*cng->markov_tier);
+    size_t distrib_len = (size_t)((absd(gaussrand())+(1-var))*cng->markov_tier);
     for(size_t i = distrib_len < cng->markov_tier-1 ? distrib_len : cng->markov_tier-1; i < cng->markov_tier; i--) {
         char * res;
         if((res = gen_token(cng->tiers[i], last, 1)) != 0) {
