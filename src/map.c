@@ -71,7 +71,7 @@ float pathlen(int x1, int y1, int x2, int y2) {
     return runpath(0, x1, y1, x2, y2, 0);
 }
 
-int is_valid(int x, int y, int dim) {
+static inline int is_valid(int x, int y, int dim) {
     return x >= 0 && x < dim && y >= 0 && y < dim;
 }
 
@@ -90,22 +90,21 @@ float transfer_cost(int x1, int y1, int x2, int y2) {
             + ((abs(x2-x1)+abs(y2-y1) < 2) ? 1 : (float)sqrt(2));
 }
 
-struct location move_step(int x, int y, int dir) {
-    struct location shift = {.x = x, .y = y};
+static inline void move_step(int *rop_x, int *rop_y, int x, int y, int dir) {
+    *rop_x = x;
+    *rop_y = y;
 
     if(dir & NORTH) {
-        shift.y--;
+        (*rop_y)--;
     } else if(dir & SOUTH) {
-        shift.y++;
+        (*rop_y)++;
     }
 
     if(dir & EAST) {
-        shift.x++;
+        (*rop_x)++;
     } else if(dir & WEST) {
-        shift.x--;
+        (*rop_x)--;
     }
-
-    return shift;
 }
 
 int iter_to_dirflag(int iter) {
@@ -131,7 +130,7 @@ int iter_to_dirflag(int iter) {
     exit(1);
 }
 
-float manhattan(int x1, int y1, int x2, int y2) {
+static inline float manhattan(int x1, int y1, int x2, int y2) {
     return (absf(x1-x2)+absf(y1-y2));
 }
 
@@ -172,25 +171,26 @@ float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags)
 
         for(int i = 0; i < 8; i++) {
             float t_cost, new_cost;
-            struct location moves = move_step(x, y, iter_to_dirflag(i));
+            int cur_x, cur_y;
+            move_step(&cur_x, &cur_y, x, y, iter_to_dirflag(i));
 
-            if(is_valid(moves.x, moves.y, dim)) {
-                t_cost = transfer_cost(x, y, moves.x, moves.y);
+            if(!is_valid(cur_x, cur_y, dim)) {
+                continue;
+            }
+            t_cost = transfer_cost(x, y, cur_x, cur_y);
+            if(t_cost >= 0) {
+                new_cost = cost[y * dim + x] + t_cost;
 
-                if(t_cost >= 0) {
-                    new_cost = cost[y * dim + x] + t_cost;
-
-                    if(cost[moves.y*dim+moves.x] > new_cost || cost[moves.y*dim+moves.x] < 0) {
-                        cost[moves.y*dim+moves.x] = new_cost;
-                        came_from[moves.y*dim+moves.x].x = x;
-                        came_from[moves.y*dim+moves.x].y = y;
-                        struct location * nloc;
-                        //dynamic memory to avoid filling stack space with &((struct location){.x = x-1, .y = y})
-                        CALLEXIT(!(nloc = malloc(sizeof *nloc)))
-                        nloc->x = moves.x;
-                        nloc->y = moves.y;
-                        priority_insert(pq, new_cost+manhattan(nloc->x, nloc->y, x2, y2), nloc);
-                    }
+                if(cost[cur_y*dim+cur_x] > new_cost || cost[cur_y*dim+cur_x] < 0) {
+                    cost[cur_y*dim+cur_x] = new_cost;
+                    came_from[cur_y*dim+cur_x].x = x;
+                    came_from[cur_y*dim+cur_x].y = y;
+                    struct location * nloc;
+                    //dynamic memory to avoid filling stack space with &((struct location){.x = x-1, .y = y})
+                    CALLEXIT(!(nloc = malloc(sizeof *nloc)))
+                    nloc->x = cur_x;
+                    nloc->y = cur_y;
+                    priority_insert(pq, new_cost+manhattan(nloc->x, nloc->y, x2, y2), nloc);
                 }
             }
         }
