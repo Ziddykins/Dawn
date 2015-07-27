@@ -132,7 +132,7 @@ int iter_to_dirflag(int iter) {
 }
 
 float manhattan(int x1, int y1, int x2, int y2) {
-    return (float)(absd(x1-x2)+absd(y1-y2));
+    return (absf(x1-x2)+absf(y1-y2));
 }
 
 float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags) {
