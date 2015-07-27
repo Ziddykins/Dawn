@@ -39,14 +39,10 @@ enum direction {
     WEST = 1<<3,
 };
 
-static inline float manhattan(int x1, int y1, int x2, int y2);
-
-static inline int is_valid(int x, int y, int dim);
 int is_water(int x, int y);
 int is_obstructed(int x, int y);
 float transfer_cost(int x1, int y1, int x2, int y2);
 int iter_to_dirflag(int iter);
-static inline void move_step(int *rop_x, int *rop_y, int x, int y, int dir);
 
 float pathlen(int x1, int y1, int x2, int y2);
 float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags);
