@@ -80,15 +80,17 @@ void cmd_help(int pindex, struct Message * msg) {
 }
 
 void cmd_new(int pindex, struct Message * msg) {
+    char * out;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if(pindex == -1) {
         init_new_character(dawn, msg);
+        snprintf(out, MAX_MESSAGE_BUFFER, "WHOIS %s\r\n", dawn->players[pindex].username);
+        add_msg(out, strlen(out));
     } else {
-        char * out;
-        CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
         sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
         add_msg(out, strlen(out));
-        free(out);
     }
+    free(out);
 }
 
 char * auth_key;
