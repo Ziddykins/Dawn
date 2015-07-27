@@ -169,29 +169,27 @@ float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags)
             break;
         }
 
+        int cur_x, cur_y;
+
         for(int i = 0; i < 8; i++) {
-            float t_cost, new_cost;
-            int cur_x, cur_y;
             move_step(&cur_x, &cur_y, x, y, iter_to_dirflag(i));
 
             if(!is_valid(cur_x, cur_y, dim)) {
                 continue;
             }
-            t_cost = transfer_cost(x, y, cur_x, cur_y);
-            if(t_cost >= 0) {
-                new_cost = cost[y * dim + x] + t_cost;
 
-                if(cost[cur_y*dim+cur_x] > new_cost || cost[cur_y*dim+cur_x] < 0) {
-                    cost[cur_y*dim+cur_x] = new_cost;
-                    came_from[cur_y*dim+cur_x].x = x;
-                    came_from[cur_y*dim+cur_x].y = y;
-                    struct location * nloc;
-                    //dynamic memory to avoid filling stack space with &((struct location){.x = x-1, .y = y})
-                    CALLEXIT(!(nloc = malloc(sizeof *nloc)))
-                    nloc->x = cur_x;
-                    nloc->y = cur_y;
-                    priority_insert(pq, new_cost+manhattan(nloc->x, nloc->y, x2, y2), nloc);
-                }
+            float new_cost = cost[y * dim + x] + transfer_cost(x, y, cur_x, cur_y);
+
+            if(cost[cur_y*dim+cur_x] > new_cost || cost[cur_y*dim+cur_x] < 0) {
+                cost[cur_y*dim+cur_x] = new_cost;
+                came_from[cur_y*dim+cur_x].x = x;
+                came_from[cur_y*dim+cur_x].y = y;
+                struct location * nloc;
+                //dynamic memory to avoid filling stack space with &((struct location){.x = x-1, .y = y})
+                CALLEXIT(!(nloc = malloc(sizeof *nloc)))
+                nloc->x = cur_x;
+                nloc->y = cur_y;
+                priority_insert(pq, new_cost+manhattan(nloc->x, nloc->y, x2, y2), nloc);
             }
         }
     }
