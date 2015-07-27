@@ -84,7 +84,7 @@ void cmd_new(int pindex, struct Message * msg) {
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if(pindex == -1) {
         init_new_character(dawn, msg);
-        snprintf(out, MAX_MESSAGE_BUFFER, "WHOIS %s\r\n", dawn->players[pindex].username);
+        snprintf(out, MAX_MESSAGE_BUFFER, "WHOIS %s\r\n", msg->sender_nick);
         add_msg(out, strlen(out));
     } else {
         sprintf(out, "PRIVMSG %s :You already have an account!\r\n", dawn->active_room);
