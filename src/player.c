@@ -135,7 +135,7 @@ unsigned long long get_nextlvl_exp(struct Bot *b, char const * username) { //use
     if (curr_level > 10) {
         return (500ULL * curr_level * curr_level * curr_level - 500ULL * curr_level);
     } else {
-        return (500ULL * curr_level * curr_level * curr_level - 100ULL * curr_level);
+        return (100ULL * curr_level * curr_level * curr_level - 100ULL * curr_level);
     }
 }
 
@@ -231,7 +231,7 @@ void revive (struct Bot *b, struct Message *message) {
 }
 
 
-char * auth_level_to_str(enum auth_level al) {
+char * auth_level_to_str(int al) { //enum auth_level
     switch(al) {
         case AL_NOAUTH:
             return "NO AUTH";
@@ -243,6 +243,8 @@ char * auth_level_to_str(enum auth_level al) {
             return "ADMIN";
         case AL_ROOT:
             return "ROOT";
+        default:
+            PRINTERR("INVALID AUTH")
     }
     return "INVALID AUTH";
 }

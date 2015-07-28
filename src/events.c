@@ -53,6 +53,8 @@ static void random_shrine (struct Bot *b, char * username) { //username -> MAX_N
             add_msg(out, strlen(out));
             break;
         }
+        default:
+            PRINTERR("INVALID SHRINE")
     }
 }
 
@@ -88,6 +90,8 @@ static void random_reward (struct Bot *b, char * username) { //username -> MAX_N
                     "wedge, and it is delicious! Fullness +5\r\n", b->active_room, username);
             add_msg(out, strlen(out));
             break;
+        default:
+            PRINTERR("INVALID REWARD")
     }
 }
 
@@ -130,6 +134,8 @@ static void random_punishment (struct Bot *b, char const * username) { //usernam
             add_msg(out, strlen(out));
             check_famine(b, index);
             break;
+        default:
+            PRINTERR("INVALID PUNISHMENT")
     }
 }
 
@@ -162,6 +168,8 @@ void hourly_events (struct Bot *b) {
         case 4:
             update_weather(b);
             break;
+        default:
+            PRINTERR("INVALID EVENT")
     }
 
     for (int i=0; i<b->player_count; i++) {
@@ -199,6 +207,8 @@ void update_weather (struct Bot *b) {
                          b->active_room);
             b->weather = SNOWING;
             break;
+        default:
+            PRINTERR("INVALID WEATHER")
     }
     add_msg(out, strlen(out));
 }

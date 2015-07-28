@@ -120,8 +120,9 @@ int iter_to_dirflag(int iter) {
             return WEST;
         case 7:
             return WEST | NORTH;
+        default:
+            PRINTERR("INTERNAL PATHFINDING ERROR")
     }
-    PRINTERR("INTERNAL PATHFINDING ERROR")
     exit(1);
 }
 

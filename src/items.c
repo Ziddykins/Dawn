@@ -143,6 +143,8 @@ void generate_drop (struct Bot *b, struct Message *message) {
             strcat(item_name, armor_type);
             break;
         }
+        default:
+            PRINTERR("ITEM ERROR")
     }
 
     strcat(item_name, IRC_NORMAL);
