@@ -222,13 +222,12 @@ size_t get_cmd_id(CmdSys cs, char * cmd) {
     }
 
     if(valid) {
-        int done = 0;
-        for(size_t iter = mid; !done && iter < ccs->len && ccs->hashes[iter] == hash; iter++) {
+        for(size_t iter = mid; iter < ccs->len && ccs->hashes[iter] == hash; iter++) {
             if(strcmp(cmd, ccs->cmds[iter]) == 0) {
                 return iter;
             }
         }
-        for(size_t iter = mid; !done && iter < ccs->len && ccs->hashes[iter] == hash; iter--) {
+        for(size_t iter = mid; iter < ccs->len && ccs->hashes[iter] == hash; iter--) {
             if(strcmp(cmd, ccs->cmds[iter]) == 0) {
                 return iter;
             }

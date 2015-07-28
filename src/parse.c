@@ -4,7 +4,7 @@
 //string will be stored here globally.
 char regex_group[15][2048];
 
-char *to_lower (char str[MAX_MESSAGE_BUFFER]) {
+char *to_lower (char *str) {
     for (size_t i=0; i<strlen(str); i++) {
         if (str[i] >= 'A' && str[i] <= 'Z') {
             str[i] += 32;

@@ -21,8 +21,8 @@ void handle_login(char *, char *, char *, char *);
 int command_allowed (struct Bot *b, char * command, int pindex);
 
 //char *nultrm   (char str[]);
-char *to_lower (char str[]);
-char *xor_flip (char str[]); //!DEPRECATED
+char *to_lower (char *str);
+char *xor_flip (char *str); //!DEPRECATED
 
 void gen_salt(char * salt, size_t len);
 void hash_pwd(unsigned char * digest, char const * salt, char const * password);

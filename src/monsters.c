@@ -89,7 +89,7 @@ void call_monster (struct Bot *b, char const * username, int global) { //usernam
     //special type of monster is picked and assign the buffed stats to the tmp monster
     //for display purposes
     if (chance < 15) {
-        enum MonsterType type = rand() % MAX_SPECIAL_MONSTERS;
+        enum MonsterType type = (enum MonsterType)(rand() % MAX_SPECIAL_MONSTERS);
         global ? (b->global_monster.type = type) : (b->players[pindex].personal_monster.type = type);
         monster_buff(b, type, pindex, global);
         global ? tmp = b->global_monster : b->players[pindex].personal_monster;

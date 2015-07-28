@@ -1,13 +1,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <math.h>
 #include "include/status.h"
-#include "include/parse.h"
-#include "include/player.h"
-#include "include/limits.h"
-#include "include/network.h"
 
 #define TRAVEL_TIME_MULT (1.0f)
 
@@ -79,7 +74,7 @@ int is_water(int x, int y) {
     return global_map->heightmap[y*global_map->dim+x] < global_map->water_level;
 }
 
-int is_obstructed(int x, int y) {
+int is_obstructed(int x, int y) { //will also handle rocks or other unreachable area
     return is_water(x,y);
 }
 
@@ -226,7 +221,7 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
         add_msg(out, strlen(out));
         return;
     }
-    if(is_water(x, y)) {
+    if(is_obstructed(x, y)) {
         snprintf(out, MAX_MESSAGE_BUFFER,"PRIVMSG %s :(%d,%d) is obstructed :(\r\n", message->receiver, x, y);
         add_msg(out, strlen(out));
         return;

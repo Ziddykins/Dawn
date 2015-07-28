@@ -94,6 +94,7 @@ int priority_empty(PriorityQueue pq) {
 void print_priorities(PriorityQueue pq) {
     if(!pq) {
         printf(INFO "[-]");
+        return;
     }
     printf(INFO);
     struct priority_node * cur = pq->head;

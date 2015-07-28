@@ -5,7 +5,7 @@
 #include "include/player.h"
 
 //Prototypes
-unsigned long long get_nextlvl_exp (struct Bot *, const char []);
+unsigned long long get_nextlvl_exp (struct Bot *, const char *);
 
 int get_pindex (struct Bot *b, char const * username) { //username -> MAX_NICK_LENGTH
     for (int i=0; i<b->player_count; i++) {
@@ -118,7 +118,7 @@ void load_players (struct Bot *b) {
 }
 
 //Lol this entire thing
-static const char *progress_bar (struct Bot *b, char const * username) { //username -> MAX_NICK_LENGTH
+static const char* progress_bar (struct Bot *b, char const * username) { //username -> MAX_NICK_LENGTH
     static char bar[48];
     int i = get_pindex(b, username);
     unsigned long long nextlvl_exp = get_nextlvl_exp(b, username);
@@ -130,12 +130,12 @@ static const char *progress_bar (struct Bot *b, char const * username) { //usern
     return bar;
 }
 
-unsigned long long get_nextlvl_exp (struct Bot *b, char const * username) { //username -> MAX_NICK_LENGTH
+unsigned long long get_nextlvl_exp(struct Bot *b, char const * username) { //username -> MAX_NICK_LENGTH
     unsigned long long curr_level = (unsigned long long)b->players[get_pindex(b, username)].level;
     if (curr_level > 10) {
         return (500ULL * curr_level * curr_level * curr_level - 500ULL * curr_level);
     } else {
-        return (500ULL * curr_level * curr_level * curr_level - 500ULL * curr_level);
+        return (500ULL * curr_level * curr_level * curr_level - 100ULL * curr_level);
     }
 }
 
@@ -180,11 +180,10 @@ void check_levelup (struct Bot *b, struct Message *message) {
                     message->receiver, message->sender_nick, curr_level + 1);
             add_msg(out, strlen(out));
         }
-
     }
 }
 
-void assign_attr_points (struct Bot *b, struct Message *message, char which[5], int amount) {
+void assign_attr_points (struct Bot *b, struct Message *message, char *which, int amount) {
     int pindex   = get_pindex(b, message->sender_nick);
     int attr_pts = b->players[pindex].attr_pts;
     char out[MAX_MESSAGE_BUFFER];

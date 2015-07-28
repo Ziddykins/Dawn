@@ -17,11 +17,11 @@ void load_players (struct Bot *);
 void print_sheet (struct Bot *, struct Message *);
 void init_new_character (struct Bot *, struct Message *);
 void check_levelup (struct Bot *, struct Message *);
-void assign_attr_points (struct Bot *, struct Message *, char [], int);
+void assign_attr_points (struct Bot *, struct Message *, char*, int);
 void revive (struct Bot *, struct Message *);
-unsigned long long get_nextlvl_exp (struct Bot *, const char []);
-int get_pindex (struct Bot *, const char []);
-int get_bindex (struct Bot *, const char [], const char []);
+unsigned long long get_nextlvl_exp(struct Bot *b, char const * username);
+int get_pindex (struct Bot *, const char*);
+int get_bindex (struct Bot *, const char*, const char*);
 
 enum auth_level {
     AL_NOAUTH,

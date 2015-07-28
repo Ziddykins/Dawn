@@ -28,7 +28,7 @@ void generate_drop (struct Bot *b, struct Message *message) {
     char item_name[200];
     item_name[0] = '\0';
 
-    float rarity_chance = rand()/(float)(RAND_MAX/100.0f);
+    float rarity_chance = rand()/(RAND_MAX/100.0f);
     int type_chance     = rand()%MAX_ITEM_TYPE;
     int p_index         = get_pindex(b, message->sender_nick);
     int drop_level      = b->global_monster.drop_level;
