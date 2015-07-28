@@ -1,18 +1,10 @@
 #include <stdio.h>
-#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <stdlib.h>
-#include <time.h>
 #include "include/status.h"
-#include "include/player.h"
-#include "include/network.h"
-#include "include/limits.h"
-#include "include/parse.h"
 #include "include/commands.h"
-#include "include/util.h"
-#include "include/monsters.h"
 
 //External global defined in limit.h
 //Determined by server - if values not received on connect, default to 64
@@ -35,7 +27,7 @@ int main (void) {
     CALLEXIT(!(auth_key = calloc(AUTH_KEY_LEN+1, 1)))
     for(size_t i = 0; i < AUTH_KEY_LEN; i++) {
         do {
-            auth_key[i] = rand() % 32;
+            auth_key[i] = (char)(rand() % 32);
         } while(auth_key[i] >= 26);
         if(rand()%2) {
             auth_key[i] += 'a';
@@ -201,13 +193,13 @@ int main (void) {
                             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
                                 dawn->active_room,
                                 dawn->players[pindex].username,
-                                auth_level_to_str(dawn->players[pindex].auth_level));
+                                auth_level_to_str((enum auth_level)(dawn->players[pindex].auth_level)));
                             add_msg(out, strlen(out));
                         } else {
                             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already verified. (%s)\r\n",
                                 dawn->active_room,
                                 dawn->players[pindex].username,
-                                auth_level_to_str(dawn->players[pindex].auth_level));
+                                auth_level_to_str((enum auth_level)(dawn->players[pindex].auth_level)));
                             add_msg(out, strlen(out));
                         }
                     }

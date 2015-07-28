@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <limits.h>
+#include <png.h>
 
 #include "status.h"
 #include "network.h"
