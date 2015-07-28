@@ -248,3 +248,16 @@ char * auth_level_to_str(int al) { //enum auth_level
     }
     return "INVALID AUTH";
 }
+
+enum auth_level str_to_auth_level(char * al) {
+    if(strcasecmp(al, "USER") == 0) {
+        return AL_USER;
+    } else if(strcasecmp(al, "REG") == 0) {
+        return AL_REG;
+    } else if(strcasecmp(al, "ADMIN") == 0) {
+        return AL_ADMIN;
+    } else if(strcasecmp(al, "ROOT") == 0) {
+        return AL_ROOT;
+    }
+    return AL_NOAUTH;
+}

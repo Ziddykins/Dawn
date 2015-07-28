@@ -32,6 +32,8 @@ enum auth_level {
 };
 
 char * auth_level_to_str(int al); //enum auth_level
+enum auth_level str_to_auth_level(char * al);
+
 extern char * auth_key;
 extern int auth_key_valid;
 extern struct Map * global_map;

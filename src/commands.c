@@ -45,6 +45,7 @@ void init_cmds() {
     register_cmd(0, ";gib", "Cheat yourself some gold", AL_ADMIN, cmd_gib);
     register_cmd(0, ";givexp", "<user> <amount> | Give XP points to a user", AL_ADMIN, cmd_givexp);
     register_cmd(0, ";save", "Save the current state of the game to disk", AL_ADMIN, cmd_save);
+    register_cmd(0, ";setauth", "Set a users authentication level. (noauth, user, reg, admin, root)", AL_ADMIN, cmd_setauth);
 
     //AL_ROOT
     register_cmd(0, ";stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
@@ -68,7 +69,7 @@ void cmd_help(int pindex, struct Message * msg) {
         char * out;
         CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
         int len = snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :", msg->receiver);
-        for(size_t i = 0; i < ccs->len; i++) {
+        for(size_t i = 0; i < ccs->len; i++) { //print each command to the string
             if(ccs->auth_levels[i] <= dawn->players[pindex].auth_level) {
                 len += snprintf(out+len, (size_t)(MAX_MESSAGE_BUFFER-len), "%s ", ccs->cmds[i]);
             }
@@ -376,5 +377,41 @@ void cmd_drink(int pindex, struct Message * msg) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You can drink some beer if you like.\r\n", msg->receiver);
     }
     add_msg(out, strlen(out));
+    free(out);
+}
+
+void cmd_setauth(int pindex, struct Message * msg) {
+    char * out;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+    if(check_if_matches_regex(msg->message, CMD_LIT " (\\w+) (\\w+)")) {
+        int useridx = get_pindex(dawn, regex_group[1]);
+        if(useridx == -1) {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :This user does not exist.\r\n", msg->receiver);
+            add_msg(out, strlen(out));
+        } else {
+            enum auth_level newlevel = str_to_auth_level(regex_group[2]);
+            if (newlevel > dawn->players[pindex].auth_level) {
+                snprintf(out, MAX_MESSAGE_BUFFER,
+                         "PRIVMSG %s :You are not allowed to set this authentication level.\r\n", msg->receiver);
+                add_msg(out, strlen(out));
+            } else if(pindex == useridx) {
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You cannot set your own authentication level.\r\n",
+                         msg->receiver);
+                add_msg(out, strlen(out));
+            } else {
+                dawn->players[useridx].max_auth = newlevel;
+                dawn->players[useridx].auth_level = dawn->players[useridx].max_auth;
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s set to %s.\r\n",
+                         msg->receiver,
+                         dawn->players[useridx].username,
+                         auth_level_to_str(newlevel));
+                add_msg(out, strlen(out));
+            }
+        }
+    } else {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Please provide a user and an authentication level.\r\n",
+                 msg->receiver);
+        add_msg(out, strlen(out));
+    }
     free(out);
 }
