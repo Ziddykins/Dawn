@@ -10,9 +10,84 @@
 //Determined by server - if values not received on connect, default to 64
 unsigned int MAX_CHANNEL_LENGTH = 64;
 unsigned int MAX_NICK_LENGTH    = 64;
-char * auth_key;
+char *auth_key;
 
-int main (void) {
+//Prototype
+void print_usage(char **);
+
+int main (int argc, char **argv) {
+    //For getops();
+    int opt;
+
+    //Default settings for the bot
+    //These will be overwritten if a configuration file is found
+    //or values are specified on the command line
+    char *monsters = "monsters.raw";
+    char *nickname = "Dawn-18";
+    char *port     = "6667";
+    char *room     = "#stacked";
+    char *server   = "108.61.240.240";
+    char *password = "none";
+    int mflag, sflag, pflag;
+    mflag = sflag = pflag = 0;
+
+    //The bot structure it self
+    CALLEXIT(!(dawn = calloc(1, sizeof *dawn)))
+
+    //Initial settings
+    strcpy(dawn->nickname, "Dawn-18");
+    strcpy(dawn->realname, "dongs");
+    strcpy(dawn->ident,    "hehe");
+    strcpy(dawn->password, "temp");
+    strcpy(dawn->active_room, "#stacked");
+
+    //Load players
+    persistent_load(dawn);
+
+    while ((opt = getopt(argc, argv, "hm:n:p:r:s:")) != -1) {
+        switch (opt) {
+            case 'h': //print help
+                print_usage(argv);
+                break;
+            case 'm': //raw monsters file
+                CALLEXIT(!(monsters = malloc(strlen(optarg) + 1)))
+                strcpy(monsters, optarg);
+                mflag = 1;
+                break;
+            case 'n': //bot's nickname
+                CALLEXIT(!(nickname = malloc(strlen(optarg) + 1)))
+                strcpy(nickname, optarg);
+                strncpy(dawn->nickname, nickname, MAX_NICK_LENGTH-1);
+                free(nickname);
+                break;
+            case 'p': //server port
+                CALLEXIT(!(port = malloc(strlen(optarg) + 1)))
+                strcpy(port, optarg);
+                pflag = 1;
+                break;
+            case 'r': //room to join
+                CALLEXIT(!(room = malloc(strlen(optarg) + 2)))
+                room[0] = '#';
+                strcpy(room+1, optarg);
+                strncpy(dawn->active_room, room, MAX_CHANNEL_LENGTH);
+                free(room);
+                break;
+            case 's': //server to connect to
+                CALLEXIT(!(server = malloc(16))) //do we need IPV6 support?
+                hostname_to_ip(optarg, server);  //network.c
+                sflag = 1;
+                break;
+            case 'w': //nickserv password
+                CALLEXIT(!(password = malloc(strlen(optarg) + 1)))
+                strncat(password, optarg, 64);
+                strcpy(dawn->password, password);
+                free(password);
+                break;
+            default:
+                print_usage(argv);
+        }
+    }
+
     FILE *urandom;
     CALLEXIT(!(urandom = fopen("/dev/urandom", "r")))
 
@@ -23,8 +98,8 @@ int main (void) {
 
     FILE *auth_key_file;
     CALLEXIT(!(auth_key_file = fopen("auth_key.txt", "w")))
-
     CALLEXIT(!(auth_key = calloc(AUTH_KEY_LEN+1, 1)))
+
     for(size_t i = 0; i < AUTH_KEY_LEN; i++) {
         do {
             auth_key[i] = (char)(rand() % 32);
@@ -45,37 +120,9 @@ int main (void) {
 
     int match;
     ssize_t len;
-    const char dalnet[]  = "154.35.175.101";
-    const char port[]    = "6667";
 
-    //Keep a NULL at the end
-    const char *rooms[]  = { "#stacked", NULL }, **n;
-    n = rooms;
-
-    //The bot structure it self
-    CALLEXIT(!(dawn = calloc(1, sizeof *dawn)))
-
-    //Load characters
-/*
-    if (access("players.bin", F_OK) != -1) {
-        FILE *file = fopen("players.bin", "r");
-        fseek(file, 0L, SEEK_END);
-        ssize_t sz = ftell(file);
-        fseek(file, 0L, SEEK_SET);
-        if (sz > 0) {
-            load_players(&dawn);
-        }
-        fclose(file);
-        dawn->global_monster.active = 0;
-    } else {
-        FILE *file = fopen("players.bin", "w+");
-        fclose(file);
-        exit(1);
-    }*/
-    persistent_load(dawn);
-
-    if (access("monsters.raw", F_OK) != -1) {
-        FILE *file = fopen("monsters.raw", "r");
+    if (access(monsters, F_OK) != -1) {
+        FILE *file = fopen(monsters, "r");
         char line[1024];
         char name[100];
         int count = 0;
@@ -109,19 +156,13 @@ int main (void) {
         fclose(file);
     }
 
-    //Initial settings
-    strcpy(dawn->nickname, "Dawn-18");
-    strcpy(dawn->realname, "Helo");
-    strcpy(dawn->ident,    "hehe");
-    strcpy(dawn->password, "none");
-    strcpy(dawn->active_room, rooms[0]);
     dawn->login_sent = 0;
     dawn->in_rooms   = 0;
 
     init_send_queue();
     init_cmds();
 
-    if (init_connect_server(dalnet, port) == 0) {
+    if (init_connect_server(server, port) == 0) {
         while ((len = recv(con_socket, buffer, MAX_RECV_BUFFER, 0)) != -1) {
             char out[MAX_MESSAGE_BUFFER];
             buffer[len] = '\0';
@@ -158,12 +199,9 @@ int main (void) {
                 match = check_if_matches_regex(buffer, ":(.*?)\\s001(.*)");
                 if (match) {
                     printf(INFO "Got welcome message from server, joining rooms\n");
-                    while (*n != NULL) {
-                        sprintf(out, "JOIN %s\r\n", *n++);
-                        fluctuate_market(dawn);
-                        add_msg(out, strlen(out));
-                    }
-                    n = NULL;
+                    sprintf(out, "JOIN %s\r\n", dawn->active_room);
+                    fluctuate_market(dawn);
+                    add_msg(out, strlen(out));
                     dawn->in_rooms = 1;
                 }
             }
@@ -178,10 +216,11 @@ int main (void) {
                 if (check_if_matches_regex(buffer, ":.*?005.*?CHANNELLEN=(\\d+)\\s.*?NICKLEN=(\\d+)")) {
                     MAX_CHANNEL_LENGTH = (unsigned int)strtoul(regex_group[1], 0, 10) + 1;
                     MAX_NICK_LENGTH    = (unsigned int)strtoul(regex_group[2], 0, 10) + 1;
+                    dawn->nickname[MAX_NICK_LENGTH] = '\0';
+                    dawn->active_room[MAX_CHANNEL_LENGTH] = '\0';
                 }
 
                 //Check if user is identified
-                //:punch.wa.us.dal.net 307 jkjff ziddy :has auth_level for this nick
                 if (check_if_matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
                     int pindex = get_pindex(dawn, regex_group[3]);
                     if(pindex != -1 && (dawn->players[pindex].max_auth > AL_USER || dawn->players[pindex].auth_level > AL_NOAUTH)) {
@@ -300,16 +339,33 @@ int main (void) {
         close(con_socket);
         return 1;
     }
-    if(len != -1)
-        close(con_socket);
+
+    if (len != -1) close(con_socket);
+
+    if (sflag) free(server);
+    if (pflag) free(port);
+    if (mflag) free(monsters); 
+
     free_msg_hist_list();
     free_msg_list();
     free_event_list();
     free_cmds();
     free_map();
     free(dawn);
-    if(auth_key_valid || auth_key)
-        free(auth_key);
+    if (auth_key_valid || auth_key) free(auth_key);
     printf(INFO "Program exiting normally\n");
     return 0;
+}
+
+void print_usage (char **argv) {
+    printf(WARN "Usage: %s [parameters]\n\n", argv[0]);
+    printf(WARN "Valid parameters:\n");
+    printf(WARN "\t-h\t\t- Prints this, hi\n");
+    printf(WARN "\t-m <file>\t- Specifies the raw monster database\n");
+    printf(WARN "\t-n <nick>\t- Sets the bot's nickname\n");
+    printf(WARN "\t-p <port>\t- Sets the server port the bot connects to\n");
+    printf(WARN "\t-r <room>\t- Sets which room the bot will join - NOTE: OMIT THE #\n");
+    printf(WARN "\t-s <server>\t- Specify the server the bot connects to -\n"
+                "\t\t\t  can be IP or hostname\n");
+    exit(1);
 }

@@ -34,7 +34,7 @@ int init_connect_server (const char *ip_addr, const char *port) {
     destination.ai_socktype = SOCK_STREAM;
     getaddrinfo(ip_addr, port, &destination, &res);
     CALLEXIT((con_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) == -1)
-    printf(INFO "Trying to connect\n");
+    printf(INFO "Trying to connect to %s:%s\n", ip_addr, port);
     CALLEXIT(connect(con_socket, res->ai_addr, res->ai_addrlen) == -1)
     printf(INFO "Connected to %s:%s\n", ip_addr, port);
     freeaddrinfo(res);
@@ -271,4 +271,26 @@ void process_messages() {
     if(cdest->msgs >= MAX_MSGS_IN_INTERVAL || cdest->byte_size + peek_msg_size() >= MAX_SENDQ_SIZE) {
         printf(INFO "Send queue full\n");
     }
+}
+
+//Converts a hostname to an IP address string
+//If the passed string is already an IP, return it unchanged
+int hostname_to_ip(char *hostname , char *ip) {
+    struct hostent *he;
+    struct in_addr **addr_list;
+    int i;
+         
+    if ((he = gethostbyname(hostname)) == NULL) {
+        herror("gethostbyname");
+        return 1;
+    }
+ 
+    addr_list = (struct in_addr **) he->h_addr_list;
+     
+    for(i=0; addr_list[i] != NULL; i++) {
+        strcpy(ip , inet_ntoa(*addr_list[i]));
+        return 0;
+    }
+     
+    return 1;
 }
