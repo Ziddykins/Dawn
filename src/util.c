@@ -100,16 +100,15 @@ void priority_insert(PriorityQueue pq, float priority, void * elem) {
     priority_insert_tree(pq, new_tree);
 }
 
-static inline unsigned long ceillog2ul(unsigned long n) {
+static inline int ceillog2ul(unsigned long n) {
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif
-#if __GNUC__ > 4 \
- || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7) \
+#if __GNUC__ >= 4 \
  || __has_builtin(__builtin_clzl)
-    return sizeof(n) * CHAR_BIT - __builtin_clzl(n); //not exactly the same as below but good enough
+    return (int)(sizeof(n) * CHAR_BIT) - __builtin_clzl(n); //not exactly the same as below but good enough
 #else
-    return (unsigned long)(ceil(log2(n)));
+    return (int)(ceil(log2(n)));
 #endif
 }
 
@@ -141,7 +140,7 @@ void * priority_remove_min(PriorityQueue pq) {
     free(pq->min);
 
     struct priority_node **trees; //needed for cleanup algorithm
-    size_t const len = 2*ceillog2ul(pq->size)+1;
+    size_t const len = (size_t)(2*ceillog2ul(pq->size)+1);
     CALLEXIT(!(trees = calloc(len, sizeof trees)));
 
     struct priority_node * current_node = pq->head;
