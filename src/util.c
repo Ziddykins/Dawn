@@ -39,9 +39,9 @@ int compareFloatAsc(void const * a, void const * b) {
 PriorityQueue init_priority_queue(void) {
     struct priority_queue * rop;
     CALLEXIT(!(rop = malloc(sizeof *rop)))
-    rop->head = 0;
-    rop->min = 0;
-    rop->min_prev = 0;
+    rop->head = NULL;
+    rop->min = NULL;
+    rop->min_prev = NULL;
     rop->size = 0;
     return rop;
 }
