@@ -27,23 +27,30 @@
         PRINTERR(#func) \
     }
 
-
 double randd(void);
 double gaussrand(void);
 double absd(double);
 float absf(float);
 int compareFloatAsc(void const * a, void const * b);
 
-struct priority_node {
-    void * elem;
-    struct priority_node * next;
-    float priority;
+struct priority_node;
 
-    char pad[4];
+struct priority_tree {
+    void *elem;
+    struct priority_node * children, * last_child;
+    int degree;
+    float priority;
+};
+
+struct priority_node {
+    struct priority_tree * tree;
+    struct priority_node * next;
 };
 
 struct priority_queue {
     struct priority_node * head;
+    struct priority_node * min, * min_prev;
+    size_t size;
 };
 
 typedef struct priority_queue * PriorityQueue;
@@ -54,8 +61,5 @@ void free_priority_queue(PriorityQueue, int free_elem);
 void priority_insert(PriorityQueue, float priority, void * elem);
 void* priority_remove_min(PriorityQueue);
 int priority_empty(PriorityQueue);
-
-void print_priorities(PriorityQueue);
-//void* priority_remove_max(void);
 
 #endif // UTIL_H_INCLUDED
