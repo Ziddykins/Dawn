@@ -17,6 +17,14 @@ update map
         perlin noise?
     save map data to chunks to avoid having all data loaded concurrently?
     save image representation of map to given directory for use in website
+configuration file
+    load basic configuration from a dawn.conf file
+    XML/JSON? own syntax?
+    possible configuration options:
+        IP
+        Port
+        Nickname
+        channel
 update item and drop system
 concatenate similar messages
     this may require a complete redesign of the message system to be done efficiently

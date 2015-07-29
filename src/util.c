@@ -107,7 +107,7 @@ static inline unsigned long ceillog2ul(unsigned long n) {
 #if __GNUC__ > 4 \
  || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7) \
  || __has_builtin(__builtin_clzl)
-    return sizeof(n) * CHAR_BIT - __builtin_clzl(n);
+    return sizeof(n) * CHAR_BIT - __builtin_clzl(n); //not exactly the same as below but good enough
 #else
     return (unsigned long)(ceil(log2(n)));
 #endif
