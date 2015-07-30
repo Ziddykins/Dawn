@@ -23,11 +23,9 @@ int main (int argc, char **argv) {
     //These will be overwritten if a configuration file is found
     //or values are specified on the command line
     char *monsters = "monsters.raw";
-    char *nickname = "Dawn-18";
     char *port     = "6667";
-    char *room     = "#stacked";
     char *server   = "108.61.240.240";
-    char *password = "none";
+    //char *password = "none";
     int mflag, sflag, pflag;
     mflag = sflag = pflag = 0;
 
@@ -48,17 +46,14 @@ int main (int argc, char **argv) {
         switch (opt) {
             case 'h': //print help
                 print_usage(argv);
-                break;
+                return 0;
             case 'm': //raw monsters file
                 CALLEXIT(!(monsters = malloc(strlen(optarg) + 1)))
                 strcpy(monsters, optarg);
                 mflag = 1;
                 break;
             case 'n': //bot's nickname
-                CALLEXIT(!(nickname = malloc(strlen(optarg) + 1)))
-                strcpy(nickname, optarg);
-                strncpy(dawn->nickname, nickname, MAX_NICK_LENGTH-1);
-                free(nickname);
+                strncpy(dawn->nickname, optarg, MAX_NICK_LENGTH-1);
                 break;
             case 'p': //server port
                 CALLEXIT(!(port = malloc(strlen(optarg) + 1)))
@@ -66,11 +61,8 @@ int main (int argc, char **argv) {
                 pflag = 1;
                 break;
             case 'r': //room to join
-                CALLEXIT(!(room = malloc(strlen(optarg) + 2)))
-                room[0] = '#';
-                strcpy(room+1, optarg);
-                strncpy(dawn->active_room, room, MAX_CHANNEL_LENGTH);
-                free(room);
+                dawn->active_room[0] = '#';
+                strncpy(dawn->active_room+1, optarg, MAX_CHANNEL_LENGTH-2);
                 break;
             case 's': //server to connect to
                 CALLEXIT(!(server = malloc(16))) //do we need IPV6 support?
@@ -78,10 +70,7 @@ int main (int argc, char **argv) {
                 sflag = 1;
                 break;
             case 'w': //nickserv password
-                CALLEXIT(!(password = malloc(strlen(optarg) + 1)))
-                strncat(password, optarg, 64);
-                strcpy(dawn->password, password);
-                free(password);
+                strncpy(dawn->password, optarg, 64-1);
                 break;
             default:
                 print_usage(argv);
