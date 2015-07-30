@@ -9,7 +9,7 @@ unsigned long long get_nextlvl_exp (struct Bot *, const char *);
 
 int get_pindex (struct Bot *b, char const * username) { //username -> MAX_NICK_LENGTH
     for (int i=0; i<b->player_count; i++) {
-        if (strcmp(b->players[i].username, username) == 0)
+        if (strcasecmp(b->players[i].username, username) == 0)
             return i;
     }
     return -1;
