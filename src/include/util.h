@@ -31,7 +31,9 @@ double randd(void);
 double gaussrand(void);
 double absd(double);
 float absf(float);
-int compareFloatAsc(void const * a, void const * b);
+double remapd(double x, double lo1, double hi1, double lo2, double hi2);
+float remapf(float x, float lo1, float hi1, float lo2, float hi2);
+int compare_float_asc(void const *a, void const *b);
 
 struct priority_node;
 

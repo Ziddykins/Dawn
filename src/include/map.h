@@ -69,6 +69,6 @@ struct Map {
     int dim;
     int flags;
 
-    char pad[4];
+    //char pad[4];
 };
 #endif

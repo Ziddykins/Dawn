@@ -32,8 +32,16 @@ float absf(float a) {
     return a > -a ? a : -a;
 }
 
-int compareFloatAsc(void const * a, void const * b) {
+int compare_float_asc(void const *a, void const *b) { //for qsort during map generation
     return (*(float const*)a) > (*(float const*)b) ? 1 : (*(float const*)a) < (*(float const*)b) ? -1 : 0;
+}
+
+double remapd(double x, double lo1, double hi1, double lo2, double hi2) {
+    return (x-lo1)/(hi1-lo1)*(hi2-lo2)+lo2;
+}
+
+float remapf(float x, float lo1, float hi1, float lo2, float hi2) {
+    return (x-lo1)/(hi1-lo1)*(hi2-lo2)+lo2;
 }
 
 PriorityQueue init_priority_queue(void) {

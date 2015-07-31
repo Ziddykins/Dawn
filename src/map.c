@@ -56,7 +56,7 @@ void generate_map() {
     for(int i = 0; i < global_map->dim * global_map->dim; i++) {
         copy[i] = global_map->heightmap[i];
     }
-    qsort(copy, (size_t)(global_map->dim * global_map->dim), sizeof *copy, &compareFloatAsc);
+    qsort(copy, (size_t) (global_map->dim * global_map->dim), sizeof *copy, &compare_float_asc);
     global_map->water_level = copy[(int)(1.0/6.0*global_map->dim*global_map->dim)];
     free(copy);
     printf(INFO "Water level: %f\n", global_map->water_level);
