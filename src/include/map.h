@@ -64,7 +64,8 @@ enum map_flags {
 
 struct Map {
     float * heightmap; //dim*dim
-    float * oredistr; //dim*dim*ORE_COUNT
+    float * matdistr; //dim*dim*ORE_COUNT
+    unsigned char * locflags; //dim*dim
     float water_level;
     int dim;
     int flags;

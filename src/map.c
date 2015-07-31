@@ -52,14 +52,20 @@ void generate_map() {
     global_map->flags |= MAP_PRESENT;
 
     float * copy;
-    CALLEXIT(!(copy = malloc((size_t)(global_map->dim*global_map->dim) * sizeof *copy)))
-    for(int i = 0; i < global_map->dim * global_map->dim; i++) {
+    int dim = global_map->dim;
+    CALLEXIT(!(copy = malloc((size_t)(dim*dim) * sizeof *copy)))
+    for(int i = 0; i < dim*dim; i++) {
         copy[i] = global_map->heightmap[i];
     }
-    qsort(copy, (size_t) (global_map->dim * global_map->dim), sizeof *copy, &compare_float_asc);
-    global_map->water_level = copy[(int)(1.0/6.0*global_map->dim*global_map->dim)];
+    qsort(copy, (size_t) (dim*dim), sizeof *copy, &compare_float_asc);
+    global_map->water_level = copy[(int)(1.0/6.0*dim*dim)];
     free(copy);
-    printf(INFO "Water level: %f\n", global_map->water_level);
+
+    //CALLEXIT(!(global_map->matdistr = malloc((size_t)(dim*dim)*MAT_COUNT)))
+    //permute();
+    //generate material distribution using perlin noise
+    //generate towns
+    //create markets
 }
 
 float pathlen(int x1, int y1, int x2, int y2) {

@@ -9,5 +9,6 @@ void fluctuate_market (struct Bot *);
 void print_market (struct Bot *);
 void print_materials (struct Bot *, struct Message *);
 void market_buysell (struct Bot *, struct Message *, int, char *, long);
+#define MAT_COUNT 8
 enum Materials {WOOD, LEATHER, ORE, STONE, BRONZE, MAIL, STEEL, DIAMOND};
 #endif
