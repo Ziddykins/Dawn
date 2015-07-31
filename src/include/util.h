@@ -35,6 +35,9 @@ double remapd(double x, double lo1, double hi1, double lo2, double hi2);
 float remapf(float x, float lo1, float hi1, float lo2, float hi2);
 int compare_float_asc(void const *a, void const *b);
 
+float noise(int * p, float x, float y, float z);
+void permute(void);
+
 struct priority_node;
 
 struct priority_tree {
