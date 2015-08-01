@@ -8,6 +8,26 @@
 
 struct Map * global_map = 0;
 
+struct location {
+    int x, y;
+};
+enum path_flags {
+    RECONSTRUCT = 1<<0,
+    ALL_TARGETS = 1<<1
+};
+
+enum direction {
+    NORTH = 1<<0,
+    EAST = 1<<1,
+    SOUTH = 1<<2,
+    WEST = 1<<3,
+};
+
+enum map_flags {
+    MAP_PRESENT = 1<<0,
+    MAP_SAVED = 1<<1
+};
+
 void init_map(char const * const fn) {
     CALLEXIT(!(global_map = malloc(sizeof *global_map)))
     global_map->dim = 1<<10;
@@ -66,10 +86,6 @@ void generate_map() {
     //generate material distribution using perlin noise
     //generate towns
     //create markets
-}
-
-float pathlen(int x1, int y1, int x2, int y2) {
-    return runpath(0, x1, y1, x2, y2, 0);
 }
 
 static inline int is_valid(int x, int y, int dim) {
@@ -136,7 +152,7 @@ static inline float manhattan(int x1, int y1, int x2, int y2) {
     return (absf(x1-x2)+absf(y1-y2));
 }
 
-float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags) {
+static float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags) {
     int dim = global_map->dim;
 
     struct location * came_from;
@@ -205,6 +221,10 @@ float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags)
     free(cost);
     free_priority_queue(pq, 1);
     return final_cost;
+}
+
+float pathlen(int x1, int y1, int x2, int y2) {
+    return runpath(0, x1, y1, x2, y2, 0);
 }
 
 void free_map() {

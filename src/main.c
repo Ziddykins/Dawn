@@ -74,6 +74,7 @@ int main (int argc, char **argv) {
                 break;
             default:
                 print_usage(argv);
+                return 1;
         }
     }
 
@@ -356,5 +357,4 @@ void print_usage (char **argv) {
     printf(WARN "\t-r <room>\t- Sets which room the bot will join - NOTE: OMIT THE #\n");
     printf(WARN "\t-s <server>\t- Specify the server the bot connects to -\n"
                 "\t\t\t  can be IP or hostname\n");
-    exit(1);
 }
