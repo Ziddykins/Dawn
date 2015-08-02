@@ -55,7 +55,7 @@ static inline float grad(int hash, float x, float y, float z) {
 
 static int *p_noise_arr = 0;
 
-void permute() { //this is a very wrong way to do this but it works for our purposes
+void perlin_init() { //this is a very wrong way to do this but it works for our purposes
     int permutation[256];
     for(int i = 0; i < 256; i++) {
         permutation[i] = i;
@@ -66,9 +66,18 @@ void permute() { //this is a very wrong way to do this but it works for our purp
         permutation[i] = permutation[pos];
         permutation[pos] = tmp;
     }
+    if(p_noise_arr) {
+        free(p_noise_arr);
+    }
     int *p = malloc(512 * sizeof *p);
     for (int i=0; i < 256 ; i++) {
         p[256+i] = p[i] = permutation[i];
+    }
+}
+
+void perlin_cleanup() {
+    if(p_noise_arr) {
+        free(p_noise_arr);
     }
 }
 

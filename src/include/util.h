@@ -36,7 +36,8 @@ float remapf(float x, float lo1, float hi1, float lo2, float hi2);
 int compare_float_asc(void const *a, void const *b);
 
 float noise(float x, float y, float z);
-void permute(void);
+void perlin_init(void);
+void perlin_cleanup(void);
 
 struct priority_node;
 

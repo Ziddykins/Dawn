@@ -119,7 +119,7 @@ void generate_map() {
     global_map->water_level = copy[(int)(1.0/6.0*dim*dim)];
     free(copy);
 
-    permute();
+    perlin_init();
     for(int i = 0; i < TOWN_COUNT; i++) {
         do {
             global_map->towns[i].pos.x = (int) (randd() * dim);
@@ -129,6 +129,7 @@ void generate_map() {
             global_map->towns[i].matdistr[j] = noise(global_map->towns[i].pos.x * PERLIN_SCALE, global_map->towns[i].pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
         }
     }
+    perlin_cleanup();
     //create markets
 }
 
