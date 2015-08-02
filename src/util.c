@@ -53,9 +53,10 @@ static inline float grad(int hash, float x, float y, float z) {
     return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v);
 }
 
-static int permutation[256];
+static int *p_noise_arr = 0;
 
 void permute() { //this is a very wrong way to do this but it works for our purposes
+    int permutation[256];
     for(int i = 0; i < 256; i++) {
         permutation[i] = i;
     }
@@ -65,10 +66,14 @@ void permute() { //this is a very wrong way to do this but it works for our purp
         permutation[i] = permutation[pos];
         permutation[pos] = tmp;
     }
+    int *p = malloc(512 * sizeof *p);
+    for (int i=0; i < 256 ; i++) {
+        p[256+i] = p[i] = permutation[i];
+    }
 }
 
 //reference perlin noise implementation
-float noise(int * p, float x, float y, float z) {
+float noise(float x, float y, float z) {
     int X = (int) (floor(x)) & 255,                  // FIND UNIT CUBE THAT
             Y = (int) (floor(y)) & 255,                  // CONTAINS POINT.
             Z = (int) (floor(z)) & 255;
@@ -78,17 +83,17 @@ float noise(int * p, float x, float y, float z) {
     float u = fade(x),                                // COMPUTE FADE CURVES
             v = fade(y),                                // FOR EACH OF X,Y,Z.
             w = fade(z);
-    int A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z,      // HASH COORDINATES OF
-            B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z;      // THE 8 CUBE CORNERS,
+    int A = p_noise_arr[X] + Y, AA = p_noise_arr[A] + Z, AB = p_noise_arr[A + 1] + Z,      // HASH COORDINATES OF
+            B = p_noise_arr[X + 1] + Y, BA = p_noise_arr[B] + Z, BB = p_noise_arr[B + 1] + Z;      // THE 8 CUBE CORNERS,
 
-    return lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z),  // AND ADD
-                                grad(p[BA], x - 1, y, z)), // BLENDED
-                        lerp(u, grad(p[AB], x, y - 1, z),  // RESULTS
-                             grad(p[BB], x - 1, y - 1, z))),// FROM  8
-                lerp(v, lerp(u, grad(p[AA + 1], x, y, z - 1),  // CORNERS
-                             grad(p[BA + 1], x - 1, y, z - 1)), // OF CUBE
-                     lerp(u, grad(p[AB + 1], x, y - 1, z - 1),
-                          grad(p[BB + 1], x - 1, y - 1, z - 1))));
+    return lerp(w, lerp(v, lerp(u, grad(p_noise_arr[AA], x, y, z),  // AND ADD
+                                grad(p_noise_arr[BA], x - 1, y, z)), // BLENDED
+                        lerp(u, grad(p_noise_arr[AB], x, y - 1, z),  // RESULTS
+                             grad(p_noise_arr[BB], x - 1, y - 1, z))),// FROM  8
+                lerp(v, lerp(u, grad(p_noise_arr[AA + 1], x, y, z - 1),  // CORNERS
+                             grad(p_noise_arr[BA + 1], x - 1, y, z - 1)), // OF CUBE
+                     lerp(u, grad(p_noise_arr[AB + 1], x, y - 1, z - 1),
+                          grad(p_noise_arr[BB + 1], x - 1, y - 1, z - 1))));
 }
 
 PriorityQueue init_priority_queue(void) {

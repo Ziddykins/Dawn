@@ -121,15 +121,14 @@ void generate_map() {
 
     permute();
     for(int i = 0; i < TOWN_COUNT; i++) {
+        do {
+            global_map->towns[i].pos.x = (int) (randd() * dim);
+            global_map->towns[i].pos.y = (int) (randd() * dim);
+        } while(town_too_close(global_map->towns, i));
         for(int j = 0; j < MAT_COUNT; j++) {
-            do {
-                global_map->towns[i].pos.x = (int) (randd() * dim);
-                global_map->towns[i].pos.y = (int) (randd() * dim);
-            } while(town_too_close(global_map->towns, i));
-
+            global_map->towns[i].matdistr[j] = noise(global_map->towns[i].pos.x * PERLIN_SCALE, global_map->towns[i].pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
         }
     }
-    //generate towns
     //create markets
 }
 
