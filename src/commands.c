@@ -123,8 +123,21 @@ void cmd_auth(int pindex, struct Message * msg) {
     free(out);
 }
 
-void cmd_stop(int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
-    close_socket(con_socket);
+void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
+    char * out;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+    if (check_if_matches_regex(msg->message, CMD_LIT " (.*)")) {
+        if(strcasecmp(regex_group[1], dawn->nickname) == 0) {
+            close_socket(con_socket);
+        } else {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Wrong nickname.\r\n", dawn->active_room);
+            add_msg(out, strlen(out));
+        }
+    } else {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Please supply the nickname of the bot.\r\n", dawn->active_room);
+        add_msg(out, strlen(out));
+    }
+    free(out);
 }
 
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
