@@ -22,7 +22,8 @@
 #define MAX_WEATHER_TYPE     (3)
 #define MAX_ARMOR_TYPE       (5)
 #define MAX_SLAY_GOLD        (INT_MAX)
-#define MAX_BUILDINGS        (5)
+#define MAT_COUNT            (8)
+#define TOWN_COUNT           (10)
 //Seconds
 #define HEALING_INTERVAL     (1800)
 #define SAVING_INTERVAL      (900)

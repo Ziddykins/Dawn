@@ -8,24 +8,53 @@
 
 struct Map * global_map = 0;
 
-struct location {
-    int x, y;
-};
-enum path_flags {
-    RECONSTRUCT = 1<<0,
-    ALL_TARGETS = 1<<1
+enum path_flags { //for pathfinding
+    RECONSTRUCT = 1<<0, //retain the came_from array to reconstruct the path
+    ALL_TARGETS = 1<<1 //do not stop when the target has been reached
 };
 
-enum direction {
+enum direction { //used in pathfinding
     NORTH = 1<<0,
     EAST = 1<<1,
     SOUTH = 1<<2,
     WEST = 1<<3,
 };
 
-enum map_flags {
+enum map_flags { //represent the state of the map
     MAP_PRESENT = 1<<0,
     MAP_SAVED = 1<<1
+};
+
+struct town {
+    char *name;
+    struct location pos;
+    float matdistr[MAT_COUNT]; //which materials are present in this town
+};
+
+struct shop {
+    char * name;
+    enum shop_type {
+        SHOP_ARMORY,
+        SHOP_DOCTOR,
+        //to be extended
+    } type;
+};
+
+enum map_entity {
+    MENT_TOWN,
+    MENT_STABLES,
+    MENT_SHOP,
+    MENT_SHRINE,
+};
+
+struct Map {
+    float * heightmap; //dim*dim
+    struct town towns[TOWN_COUNT];
+    float water_level;
+    int dim;
+    int flags;
+
+    //char pad[4];
 };
 
 void init_map(char const * const fn) {
@@ -67,6 +96,15 @@ void save_map(char const * const fn) {
     }
 }
 
+static inline int town_too_close(struct town *towns, int index) {
+    for(int i = 0; i < index; i++) {
+        if(sqrt(abs(towns[i].pos.x-towns[index].pos.x)+abs(towns[i].pos.y-towns[index].pos.y)) < 10) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void generate_map() {
     diamond_square(global_map->heightmap, global_map->dim, 4000.0, global_map->dim);
     global_map->flags |= MAP_PRESENT;
@@ -81,9 +119,16 @@ void generate_map() {
     global_map->water_level = copy[(int)(1.0/6.0*dim*dim)];
     free(copy);
 
-    //CALLEXIT(!(global_map->matdistr = malloc((size_t)(dim*dim)*MAT_COUNT)))
-    //permute();
-    //generate material distribution using perlin noise
+    permute();
+    for(int i = 0; i < TOWN_COUNT; i++) {
+        for(int j = 0; j < MAT_COUNT; j++) {
+            do {
+                global_map->towns[i].pos.x = (int) (randd() * dim);
+                global_map->towns[i].pos.y = (int) (randd() * dim);
+            } while(town_too_close(global_map->towns, i));
+
+        }
+    }
     //generate towns
     //create markets
 }
@@ -269,8 +314,8 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
         return;
     }
     add_event(TRAVEL, pindex, (unsigned int)travel_time, UNIQUE);
-    b->players[pindex].travel_timer.x = x;
-    b->players[pindex].travel_timer.y = y;
+    b->players[pindex].travel_timer.pos.x = x;
+    b->players[pindex].travel_timer.pos.y = y;
     b->players[pindex].travel_timer.active = 1;
 
     sprintf(out, "PRIVMSG %s :%s, you are traveling from (%d,%d) to (%d,%d). This will take %u seconds.\r\n",

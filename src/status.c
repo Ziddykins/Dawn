@@ -250,8 +250,8 @@ void event_handler(int sig) {
             {
                 if(dawn->players[e->data].travel_timer.active) {
                     char out[MAX_MESSAGE_BUFFER];
-                    dawn->players[e->data].pos_x = dawn->players[e->data].travel_timer.x;
-                    dawn->players[e->data].pos_y = dawn->players[e->data].travel_timer.y;
+                    dawn->players[e->data].pos_x = dawn->players[e->data].travel_timer.pos.x;
+                    dawn->players[e->data].pos_y = dawn->players[e->data].travel_timer.pos.y;
                     sprintf(out, "PRIVMSG %s :%s has arrived at %d,%d\r\n", dawn->active_room, dawn->players[e->data].username,
                             dawn->players[e->data].pos_x, dawn->players[e->data].pos_y);
                     add_msg(out, strlen(out));

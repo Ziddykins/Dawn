@@ -31,22 +31,12 @@ int iter_to_dirflag(int iter);
 
 float pathlen(int x1, int y1, int x2, int y2);
 
-struct Building {
-    char name[64];
+struct location {
     int x, y;
 };
 
-struct TravelTimer {
-    int x, y, active;
-};
-
-struct Map {
-    float * heightmap; //dim*dim
-    unsigned char * locflags; //dim*dim
-    float water_level;
-    int dim;
-    int flags;
-
-    //char pad[4];
+struct travel_timer {
+    struct location pos;
+    int active;
 };
 #endif
