@@ -26,7 +26,6 @@ void generate_map(void);
 
 int is_water(int x, int y);
 int is_obstructed(int x, int y);
-float transfer_cost(int x1, int y1, int x2, int y2);
 int iter_to_dirflag(int iter);
 
 float pathlen(int x1, int y1, int x2, int y2);

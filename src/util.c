@@ -69,9 +69,9 @@ void perlin_init() { //this is a very wrong way to do this but it works for our 
     if(p_noise_arr) {
         free(p_noise_arr);
     }
-    int *p = malloc(512 * sizeof *p);
+    CALLEXIT(!(p_noise_arr = malloc(512 * sizeof *p_noise_arr)))
     for (int i=0; i < 256 ; i++) {
-        p[256+i] = p[i] = permutation[i];
+        p_noise_arr[256+i] = p_noise_arr[i] = permutation[i];
     }
 }
 
@@ -93,8 +93,12 @@ float noise(float x, float y, float z) {
     float u = fade(x),                                // COMPUTE FADE CURVES
             v = fade(y),                                // FOR EACH OF X,Y,Z.
             w = fade(z);
-    int A = p_noise_arr[X] + Y, AA = p_noise_arr[A] + Z, AB = p_noise_arr[A + 1] + Z,      // HASH COORDINATES OF
-            B = p_noise_arr[X + 1] + Y, BA = p_noise_arr[B] + Z, BB = p_noise_arr[B + 1] + Z;      // THE 8 CUBE CORNERS,
+    int A = p_noise_arr[X] + Y;
+    int AA = p_noise_arr[A] + Z;
+    int AB = p_noise_arr[A + 1] + Z; // HASH COORDINATES OF
+    int B = p_noise_arr[X + 1] + Y;
+    int BA = p_noise_arr[B] + Z;
+    int BB = p_noise_arr[B + 1] + Z; // THE 8 CUBE CORNERS,
 
     return lerp(w, lerp(v, lerp(u, grad(p_noise_arr[AA], x, y, z),  // AND ADD
                                 grad(p_noise_arr[BA], x - 1, y, z)), // BLENDED
