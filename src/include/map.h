@@ -1,13 +1,12 @@
 #ifndef MAP_H_INCLUDED
 #define MAP_H_INCLUDED
 
-#include <math.h>
-#include <limits.h>
-#include <png.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
+#include <png.h>
 
 #include "status.h"
 #include "network.h"
