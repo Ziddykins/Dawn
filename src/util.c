@@ -79,6 +79,7 @@ void perlin_cleanup() {
     if(p_noise_arr) {
         free(p_noise_arr);
     }
+    p_noise_arr = NULL;
 }
 
 //reference perlin noise implementation
