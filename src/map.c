@@ -145,20 +145,11 @@ int is_obstructed(int x, int y) { //will also handle rocks or other unreachable 
     return is_water(x,y);
 }
 
-static inline float slope_cost(float x) {
-    return  9.9999999999994471e-001f
-            +  3.1249999999991727e+000f * x
-            +  2.3333333333335187e+000f * x * x
-            + -1.5624999999995648e+001f * x * x * x
-            +  6.6666666666665373e+000f * x * x * x * x
-            +  1.2499999999996474e+001f * x * x * x * x * x;
-}
-
 //(x2,y2) may only have a distance of sqrt(2) from (x1,y1)
 static inline float transfer_cost(int x1, int y1, int x2, int y2) {
     int dim = global_map->dim;
     float dist = ((abs(x2-x1)+abs(y2-y1) < 2) ? 1 : (float)sqrt(2));
-    return slope_cost(tanf((global_map->heightmap[y1*dim+x1]-global_map->heightmap[y2*dim+x2])/dist)) + dist;
+    return absf((global_map->heightmap[y1*dim+x1]-global_map->heightmap[y2*dim+x2]))*dist + dist;
 }
 
 static inline void move_step(int *rop_x, int *rop_y, int x, int y, int dir) {
