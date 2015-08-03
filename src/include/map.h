@@ -4,6 +4,10 @@
 #include <math.h>
 #include <limits.h>
 #include <png.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include "status.h"
 #include "network.h"

@@ -1,7 +1,3 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include "include/status.h"
 
 #define TRAVEL_TIME_MULT (1.0f)
