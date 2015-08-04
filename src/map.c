@@ -27,13 +27,15 @@ struct town {
     float matdistr[MAT_COUNT]; //which materials are present in this town
 };
 
+enum shop_type {
+    SHOP_ARMORY,
+    SHOP_DOCTOR,
+    //to be extended
+};
+
 struct shop {
     char * name;
-    enum shop_type {
-        SHOP_ARMORY,
-        SHOP_DOCTOR,
-        //to be extended
-    } type;
+    enum shop_type type;
 };
 
 enum map_entity {
@@ -92,13 +94,25 @@ void save_map(char const * const fn) {
     }
 }
 
-static inline int town_too_close(struct town *towns, int index) {
-    for(int i = 0; i < index; i++) {
-        if(sqrt(abs(towns[i].pos.x-towns[index].pos.x)+abs(towns[i].pos.y-towns[index].pos.y)) < 10) {
+static inline int town_too_close(struct town *towns, int idx) {
+    for(int i = 0; i < TOWN_COUNT; i++) {
+        if(i != idx && sqrt(abs(towns[i].pos.x-towns[idx].pos.x)+abs(towns[i].pos.y-towns[idx].pos.y)) < 10) {
             return 1;
         }
     }
     return 0;
+}
+
+//requires perlin noise
+static inline void place_town(int idx) {
+    int dim = global_map->dim;
+    do {
+        global_map->towns[idx].pos.x = (int) (randd() * dim);
+        global_map->towns[idx].pos.y = (int) (randd() * dim);
+    } while(town_too_close(global_map->towns, idx));
+    for(int j = 0; j < MAT_COUNT; j++) {
+        global_map->towns[idx].matdistr[j] = noise(global_map->towns[idx].pos.x * PERLIN_SCALE, global_map->towns[idx].pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
+    }
 }
 
 void generate_map() {
@@ -115,18 +129,16 @@ void generate_map() {
     global_map->water_level = copy[(int)(1.0/6.0*dim*dim)];
     free(copy);
 
+    bzero(global_map->towns, TOWN_COUNT * sizeof *global_map->towns);
     perlin_init();
     for(int i = 0; i < TOWN_COUNT; i++) {
-        do {
-            global_map->towns[i].pos.x = (int) (randd() * dim);
-            global_map->towns[i].pos.y = (int) (randd() * dim);
-        } while(town_too_close(global_map->towns, i));
-        for(int j = 0; j < MAT_COUNT; j++) {
-            global_map->towns[i].matdistr[j] = noise(global_map->towns[i].pos.x * PERLIN_SCALE, global_map->towns[i].pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
-        }
+        place_town(i);
     }
+
+
     perlin_cleanup();
-    //create markets
+
+
 }
 
 static inline int is_valid(int x, int y, int dim) {
