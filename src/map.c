@@ -28,8 +28,9 @@ struct town {
 };
 
 enum shop_type {
-    SHOP_ARMORY,
+    SHOP_BLACKSMITH,
     SHOP_DOCTOR,
+    SHOP_TAILOR,
     //to be extended
 };
 
@@ -134,6 +135,7 @@ void generate_map() {
     for(int i = 0; i < TOWN_COUNT; i++) {
         place_town(i);
     }
+
 
 
     perlin_cleanup();
