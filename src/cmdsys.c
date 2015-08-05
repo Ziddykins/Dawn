@@ -86,9 +86,13 @@ void invoke_cmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mod
     assert(ccs && msg && cmd);
     assert(ccs->flags == CMD_FINALIZED);
 
+    if(cmd[0] && strchr(PREFIX, cmd[0]) != NULL) {
+        cmd++;
+    }
+
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
-    if(pindex == -1 && strcmp(cmd, ";new") != 0) {
+    if(pindex == -1 && strcmp(cmd, "new") != 0) {
         sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", msg->receiver);
         add_msg(out, strlen(out));
     } else {

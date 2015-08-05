@@ -6,49 +6,49 @@ void init_cmds() {
     init_global_cmd_sys();
 
     //AL_NOAUTH
-    register_cmd(NULL, ";[", "Express your pure sadness", AL_NOAUTH, cmd_cry);
-    register_cmd(NULL, ";auth", "Authenticate your account to use Dawn", AL_NOAUTH, cmd_auth);
-    register_cmd(NULL, ";help", "[command] | Prints general help or for a specific command | [] = optional, <> = necessary", AL_NOAUTH, cmd_help);
-    register_cmd(NULL, ";new", "Create a new account for this nick", AL_NOAUTH, cmd_new);
+    register_cmd(NULL, "[", "Express your pure sadness", AL_NOAUTH, cmd_cry);
+    register_cmd(NULL, "auth", "Authenticate your account to use Dawn", AL_NOAUTH, cmd_auth);
+    register_cmd(NULL, "help", "[command] | Prints general help or for a specific command | [] = optional, <> = necessary", AL_NOAUTH, cmd_help);
+    register_cmd(NULL, "new", "Create a new account for this nick", AL_NOAUTH, cmd_new);
 
     //AL_USER
-    register_cmd(NULL, ";ap", "Learn how many attribute points you have left to spend", AL_USER, cmd_ap);
-    register_cmd(NULL, ";assign", "<type> <amount> | assign attribute points to your stats", AL_USER, cmd_assign);
-    register_cmd(NULL, ";check", "Check whether there is a personal monster in this room", AL_USER, cmd_check);
-    register_cmd(NULL, ";drop", "<inventory slot> | Discard of an item in your inventory", AL_USER, cmd_drop);
-    register_cmd(NULL, ";equip", "<inventory slot> | Equip an item from your inventory", AL_USER, cmd_equip);
-    register_cmd(NULL, ";equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
-    register_cmd(NULL, ";gcheck", "Check whether there is a global monster", AL_USER, cmd_gcheck);
-    register_cmd(NULL, ";ghunt", "Summons a global monster in to the room; if one exists it will need to be killed by attacks or ;gslay first", AL_USER, cmd_ghunt);
-    register_cmd(NULL, ";gmelee", "Performs a melee attack on a global monster", AL_USER, cmd_gmelee);
-    register_cmd(NULL, ";gslay", "[gold amount] | Contribute to slaying a global monster or check how much is needed", AL_USER, cmd_gslay);
-    register_cmd(NULL, ";hunt", "Hunt for a personal monster which only you can attack", AL_USER, cmd_hunt);
-    register_cmd(NULL, ";info", "<inventory slot> | Ascertain info on an item in your inventory", AL_USER, cmd_info);
-    register_cmd(NULL, ";inv", "Displays the items currently in your inventory", AL_USER, cmd_inv);
+    register_cmd(NULL, "ap", "Learn how many attribute points you have left to spend", AL_USER, cmd_ap);
+    register_cmd(NULL, "assign", "<type> <amount> | assign attribute points to your stats", AL_USER, cmd_assign);
+    register_cmd(NULL, "check", "Check whether there is a personal monster in this room", AL_USER, cmd_check);
+    register_cmd(NULL, "drop", "<inventory slot> | Discard of an item in your inventory", AL_USER, cmd_drop);
+    register_cmd(NULL, "equip", "<inventory slot> | Equip an item from your inventory", AL_USER, cmd_equip);
+    register_cmd(NULL, "equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
+    register_cmd(NULL, "gcheck", "Check whether there is a global monster", AL_USER, cmd_gcheck);
+    register_cmd(NULL, "ghunt", "Summons a global monster in to the room; if one exists it will need to be killed by attacks or ;gslay first", AL_USER, cmd_ghunt);
+    register_cmd(NULL, "gmelee", "Performs a melee attack on a global monster", AL_USER, cmd_gmelee);
+    register_cmd(NULL, "gslay", "[gold amount] | Contribute to slaying a global monster or check how much is needed", AL_USER, cmd_gslay);
+    register_cmd(NULL, "hunt", "Hunt for a personal monster which only you can attack", AL_USER, cmd_hunt);
+    register_cmd(NULL, "info", "<inventory slot> | Ascertain info on an item in your inventory", AL_USER, cmd_info);
+    register_cmd(NULL, "inv", "Displays the items currently in your inventory", AL_USER, cmd_inv);
     //registerCmd(0, ";locate", "<building> | Find out where a certain sight is located", AL_USER, cmd_locate); //DEPRECATED
-    register_cmd(NULL, ";location", "Ascertain knowledge about your current location", AL_USER, cmd_location);
-    register_cmd(NULL, ";make", "snow angles | Make snow angles!", AL_USER, cmd_make);
-    register_cmd(NULL, ";market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
-    register_cmd(NULL, ";materials", "Discover what materials you are a proud owner of", AL_USER, cmd_materials);
-    register_cmd(NULL, ";melee", "Performs a melee attack on a personal monster", AL_USER, cmd_melee);
-    register_cmd(NULL, ";revive", "Flourish once again when you have passed", AL_USER, cmd_revive);
-    register_cmd(NULL, ";sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
-    register_cmd(NULL, ";slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
-    register_cmd(NULL, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
-    register_cmd(NULL, ";unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
-    register_cmd(NULL, ";unequipall", "Uneqippes all pieces of equipment from your inventory", AL_USER, cmd_unequipall);
-    register_cmd(NULL, ";drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
+    register_cmd(NULL, "location", "Ascertain knowledge about your current location", AL_USER, cmd_location);
+    register_cmd(NULL, "make", "snow angles | Make snow angles!", AL_USER, cmd_make);
+    register_cmd(NULL, "market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
+    register_cmd(NULL, "materials", "Discover what materials you are a proud owner of", AL_USER, cmd_materials);
+    register_cmd(NULL, "melee", "Performs a melee attack on a personal monster", AL_USER, cmd_melee);
+    register_cmd(NULL, "revive", "Flourish once again when you have passed", AL_USER, cmd_revive);
+    register_cmd(NULL, "sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
+    register_cmd(NULL, "slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
+    register_cmd(NULL, "travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
+    register_cmd(NULL, "unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
+    register_cmd(NULL, "unequipall", "Uneqippes all pieces of equipment from your inventory", AL_USER, cmd_unequipall);
+    register_cmd(NULL, "drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
 
     //AL_ADMIN
-    register_cmd(NULL, ";fluctuate", "Forces the market prices to fluctuate", AL_ADMIN, cmd_fluctuate);
-    register_cmd(NULL, ";fslay", "Force-slay the global monster currently in the room", AL_ADMIN, cmd_fslay);
-    register_cmd(NULL, ";gib", "Cheat yourself some gold", AL_ADMIN, cmd_gib);
-    register_cmd(NULL, ";givexp", "<user> <amount> | Give XP points to a user", AL_ADMIN, cmd_givexp);
-    register_cmd(NULL, ";save", "Save the current state of the game to disk", AL_ADMIN, cmd_save);
-    register_cmd(NULL, ";setauth", "Set a users authentication level. (noauth, user, reg, admin, root)", AL_ADMIN, cmd_setauth);
+    register_cmd(NULL, "fluctuate", "Forces the market prices to fluctuate", AL_ADMIN, cmd_fluctuate);
+    register_cmd(NULL, "fslay", "Force-slay the global monster currently in the room", AL_ADMIN, cmd_fslay);
+    register_cmd(NULL, "gib", "Cheat yourself some gold", AL_ADMIN, cmd_gib);
+    register_cmd(NULL, "givexp", "<user> <amount> | Give XP points to a user", AL_ADMIN, cmd_givexp);
+    register_cmd(NULL, "save", "Save the current state of the game to disk", AL_ADMIN, cmd_save);
+    register_cmd(NULL, "setauth", "Set a users authentication level. (noauth, user, reg, admin, root)", AL_ADMIN, cmd_setauth);
 
     //AL_ROOT
-    register_cmd(NULL, ";stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
+    register_cmd(NULL, "stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
 
     finalize_cmd_sys(0);
 }
@@ -62,8 +62,7 @@ void cmd_help(int pindex, struct Message * msg) {
     struct cmd_sys * ccs = commands;
     assert(ccs);
 
-    if(check_if_matches_regex(msg->message, CMD_LIT"\\s*([;\\s]"CMD_MATCH")")) {
-        regex_group[1][0] = PREFIX_C;
+    if(check_if_matches_regex(msg->message, CMD_LIT"\\s+("CMD_MATCH")")) {
         invoke_cmd(0, pindex, regex_group[1], msg, CMD_HELP);
     } else {
         char * out;
