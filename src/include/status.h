@@ -18,14 +18,8 @@
 extern struct Bot * dawn;
 
 //Prototypes
-void set_timer (int, time_t);
 void init_timers (struct Bot *, const char *);
 void print_location (struct Bot *, int);
-struct Map set_map (int);
-
-struct Timers {
-    time_t time_finished;
-};
 
 struct Market {
     int materials[MAX_MATERIAL_TYPE];
@@ -39,7 +33,6 @@ struct Bot {
     struct Monsters monsters[MAX_MONSTERS];
     struct Monsters global_monster;
     struct Market market;
-    int pad; //unused padding data
 };
 
 enum Events  {
@@ -83,15 +76,9 @@ void free_event_list(void);
 void add_event(enum Events event, int e_data, unsigned int offset, int flags);
 void remove_event(struct event_node * prev);
 void select_list(EventList);
-void print_next_event(void);
-void print_from_node(struct event_node * x);
-void print_list(void);
 
 struct event * retr_event(void);
 void update_alarm(void);
-time_t time_to_next_msg(void);
-
-size_t event_list_len(void);
 
 int is_next_due(void);
 void event_handler(int sig);

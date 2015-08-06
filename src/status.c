@@ -70,7 +70,7 @@ void select_list(EventList x) {
     elist = x;
 }
 
-void print_next_event() {
+static void print_next_event() {
     struct event_list * celist = elist;
     printf(" next in +%zu (%s)",
         celist != 0 ?
@@ -184,7 +184,7 @@ struct event * retr_event() { //callee must free the data himself
     return ret;
 }
 
-time_t time_to_next_msg() {
+static time_t time_to_next_msg() {
     if(elist == 0)
         return time(0);
     struct event_list * celist = (struct event_list *)elist;
@@ -193,7 +193,7 @@ time_t time_to_next_msg() {
     return celist->head->event_time;
 }
 
-size_t event_list_len() {
+static size_t event_list_len() {
     if(elist == 0)
         return 0;
     struct event_list * celist = (struct event_list *)elist;
