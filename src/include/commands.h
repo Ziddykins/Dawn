@@ -10,6 +10,12 @@
 #include "cmdsys.h"
 #include "util.h"
 
+#define PREFIX ";"
+#define PREFIX_C ';'
+#define CMD_MATCH "[\\w[]+"
+#define CMD_LIT "^" PREFIX CMD_MATCH
+#define CMD_LIT_MID PREFIX CMD_MATCH
+
 void init_cmds(void);
 void free_cmds(void);
 

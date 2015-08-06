@@ -57,7 +57,7 @@ int hash_cmp(unsigned char const * s1, unsigned char const * s2) {
     return str;
 }*/
 
-int check_if_matches_regex (char *buf, const char *regular_expression) {
+int matches_regex (char *buf, const char *regular_expression) {
     pcre *regex_compiled;
     pcre_extra *pcre_optimized;
     int pcre_return;
@@ -70,7 +70,7 @@ int check_if_matches_regex (char *buf, const char *regular_expression) {
                                   &pcre_error, &pcre_error_offset, NULL);
 
     if (regex_compiled == NULL) {
-        fprintf(stderr, ERR "parse/check_if_matches_regex: Could not compile regular expression: %s (%s)\n",
+        fprintf(stderr, ERR "parse/matches_regex: Could not compile regular expression: %s (%s)\n",
                 regular_expression, pcre_error);
         exit(1);
     }
@@ -78,7 +78,7 @@ int check_if_matches_regex (char *buf, const char *regular_expression) {
     pcre_optimized = pcre_study(regex_compiled, 0, &pcre_error);
 
     if (pcre_error != NULL) {
-        fprintf(stderr, ERR "parse/check_if_matches_regex: Could not optimize regular expression: %s (%s)\n", regular_expression, pcre_error);
+        fprintf(stderr, ERR "parse/matches_regex: Could not optimize regular expression: %s (%s)\n", regular_expression, pcre_error);
         exit(1);
     }
 
@@ -121,13 +121,13 @@ void parse_private_message (struct Bot *b, struct Message *message) {
         return;
     }
 
-    if (check_if_matches_regex(message->message, ";set password (\\w+)")) {
+    if (matches_regex(message->message, ";set password (\\w+)")) {
         if (strcmp(message->sender_hostmask, b->players[pindex].hostmask) == 0) {
             hash_pwd(b->players[pindex].pwd, b->players[pindex].salt, regex_group[1]);
             sprintf(out, "PRIVMSG %s :Your password has been set\r\n", message->sender_nick);
         }
         add_msg(out, strlen(out));
-    } else if (check_if_matches_regex(message->message, ";login (\\w+)")) {
+    } else if (matches_regex(message->message, ";login (\\w+)")) {
         if (b->players[pindex].auth_level < AL_USER) {
             unsigned char hash[SHA256_DIGEST_LENGTH];
             hash_pwd(hash, b->players[pindex].salt, regex_group[1]);
@@ -166,11 +166,11 @@ void parse_room_message (struct Bot *b, struct Message *message) {
     }
 
     //Check if a user has an account and is logged in from the correct host
-    if (check_if_matches_regex(message->message, "^;(.*)")) {
+    if (matches_regex(message->message, "^;(.*)")) {
         int pindex = get_pindex(b, message->sender_nick);
 
         //store command to check if user can execute it in current state
-        check_if_matches_regex(message->message, "^;(.*?)\\s");
+        matches_regex(message->message, "^;(.*?)\\s");
 
         if (pindex == -1) {
             sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", message->receiver);

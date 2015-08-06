@@ -158,14 +158,14 @@ int main (int argc, char **argv) {
             buffer[len] = '\0';
 
             //Handle keepalive pings from the server
-            if (check_if_matches_regex(buffer, "PING :(.*)")) {
+            if (matches_regex(buffer, "PING :(.*)")) {
                 sprintf(out, "PONG :%s\r\n", regex_group[1]);
                 add_msg(out, strlen(out));
             }
 
             //Connected to the server, send nick/user details
             if (dawn->login_sent == 0) {
-                match = check_if_matches_regex(buffer, "AUTH") || check_if_matches_regex(buffer, "Looking up your hostname...");
+                match = matches_regex(buffer, "AUTH") || matches_regex(buffer, "Looking up your hostname...");
                 if (match) {
                     printf(INFO "Server checking for AUTH, sending nick/user\n");
                     handle_login(dawn->nickname, dawn->password, dawn->realname, dawn->ident);
@@ -174,7 +174,7 @@ int main (int argc, char **argv) {
             }
 
             //Nickname is in use, add a random suffix
-            if (check_if_matches_regex(buffer, ":.*?\\s433\\s*\\s.*")) {
+            if (matches_regex(buffer, ":.*?\\s433\\s*\\s.*")) {
                 int rand_suffix = rand() % 10;
                 fprintf(stderr, WARN "Username %s in use\n", dawn->nickname);
                 size_t nicklen = strlen(dawn->nickname);
@@ -186,7 +186,7 @@ int main (int argc, char **argv) {
             //If we're logged in and we're received a
             //welcome message, join the rooms
             if (!dawn->in_rooms && dawn->login_sent == 1) {
-                match = check_if_matches_regex(buffer, ":(.*?)\\s001(.*)");
+                match = matches_regex(buffer, ":(.*?)\\s001(.*)");
                 if (match) {
                     printf(INFO "Got welcome message from server, joining rooms\n");
                     sprintf(out, "JOIN %s\r\n", dawn->active_room);
@@ -203,7 +203,7 @@ int main (int argc, char **argv) {
                 struct Message message;
 
                 //Set lengths based on server rather than assuming
-                if (check_if_matches_regex(buffer, ":.*?005.*?CHANNELLEN=(\\d+)\\s.*?NICKLEN=(\\d+)")) {
+                if (matches_regex(buffer, ":.*?005.*?CHANNELLEN=(\\d+)\\s.*?NICKLEN=(\\d+)")) {
                     MAX_CHANNEL_LENGTH = (unsigned int)strtoul(regex_group[1], 0, 10) + 1;
                     MAX_NICK_LENGTH    = (unsigned int)strtoul(regex_group[2], 0, 10) + 1;
                     dawn->nickname[MAX_NICK_LENGTH] = '\0';
@@ -211,7 +211,7 @@ int main (int argc, char **argv) {
                 }
 
                 //Check if user is identified
-                if (check_if_matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
+                if (matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
                     int pindex = get_pindex(dawn, regex_group[3]);
                     if(pindex != -1 && (dawn->players[pindex].max_auth > AL_USER || dawn->players[pindex].auth_level > AL_NOAUTH)) {
                         if(dawn->players[pindex].max_auth < AL_REG) { //upgrade
@@ -238,7 +238,7 @@ int main (int argc, char **argv) {
                 //This will split up the received users in the room and set
                 //their status availability to 1, stripping their name of status symbols
                 //and converting their username to lowercase
-                if (check_if_matches_regex(buffer, ":(.*?)\\s353\\s(.*?)\\s@\\s(.*?)\\s:(.*)")) {
+                if (matches_regex(buffer, ":(.*?)\\s353\\s(.*?)\\s@\\s(.*?)\\s:(.*)")) {
                     char *ch_ptr;
                     ch_ptr = strtok(regex_group[4], " @&+");
                     while (ch_ptr != NULL) {
@@ -254,7 +254,7 @@ int main (int argc, char **argv) {
                 }
 
                 //Kicks
-                if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(\\w+)\\s(.*?)\\s(.*?)\\s:(.*)")) {
+                if (matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(\\w+)\\s(.*?)\\s(.*?)\\s:(.*)")) {
                     if (strcmp(regex_group[4], "KICK") == 0) {
                         int index = get_pindex(dawn, to_lower(regex_group[6]));
                         if (index != -1) {
@@ -265,7 +265,7 @@ int main (int argc, char **argv) {
                 }
 
                 //Nick changes
-                if (check_if_matches_regex(buffer, ":(.*?)!~?.*?@.*?\\sNICK\\s:(.*?)\r\n")) {
+                if (matches_regex(buffer, ":(.*?)!~?.*?@.*?\\sNICK\\s:(.*?)\r\n")) {
                     int oldindex = get_pindex(dawn, to_lower(regex_group[1]));
                     int newindex = get_pindex(dawn, to_lower(regex_group[2]));
                     if (oldindex != -1) {
@@ -279,7 +279,7 @@ int main (int argc, char **argv) {
                 }
 
                 //Parting and joining
-                if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)")) {
+                if (matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)")) {
                     int pindex = get_pindex(dawn, to_lower(regex_group[1]));
                     if (pindex != -1) {
                         if (strcmp(regex_group[4], "PART") == 0) {
@@ -303,14 +303,14 @@ int main (int argc, char **argv) {
                 }
 
                 //Regular messages and notices
-                if (check_if_matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n")) {
+                if (matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n")) {
                     strncpy(message.sender_nick,     to_lower(regex_group[1]), 64);
                     strncpy(message.sender_ident,    regex_group[2], 64);
                     strncpy(message.sender_hostmask, regex_group[3], 64);
                     strncpy(message.receiver,        regex_group[5], 64);
                     strncpy(message.message,         regex_group[6], MAX_MESSAGE_BUFFER);
                     if (strcmp(regex_group[4], "PRIVMSG") == 0) {
-                        if(check_if_matches_regex(message.message, CMD_LIT)) {
+                        if(matches_regex(message.message, CMD_LIT)) {
                             if (message.receiver[0] == '#') {
                                 invoke_cmd(0, get_pindex(dawn, message.sender_nick),  regex_group[0], &message, CMD_EXEC);
                             } else {

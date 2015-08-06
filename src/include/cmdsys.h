@@ -7,10 +7,6 @@
 #include "network.h"
 #include "player.h"
 
-#define PREFIX "[;.]"
-#define CMD_MATCH "[\\w[]+"
-#define CMD_LIT "^" PREFIX CMD_MATCH
-
 struct cmd_sys {
     size_t len, capacity; //info for array list
     uint64_t * hashes;

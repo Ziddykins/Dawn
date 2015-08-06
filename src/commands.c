@@ -6,49 +6,49 @@ void init_cmds() {
     init_global_cmd_sys();
 
     //AL_NOAUTH
-    register_cmd(NULL, "[", "Express your pure sadness", AL_NOAUTH, cmd_cry);
-    register_cmd(NULL, "auth", "Authenticate your account to use Dawn", AL_NOAUTH, cmd_auth);
-    register_cmd(NULL, "help", "[command] | Prints general help or for a specific command | [] = optional, <> = necessary", AL_NOAUTH, cmd_help);
-    register_cmd(NULL, "new", "Create a new account for this nick", AL_NOAUTH, cmd_new);
+    register_cmd(NULL, ";[", "Express your pure sadness", AL_NOAUTH, cmd_cry);
+    register_cmd(NULL, ";auth", "Authenticate your account to use Dawn", AL_NOAUTH, cmd_auth);
+    register_cmd(NULL, ";help", "[command] | Prints general help or for a specific command | [] = optional, <> = necessary", AL_NOAUTH, cmd_help);
+    register_cmd(NULL, ";new", "Create a new account for this nick", AL_NOAUTH, cmd_new);
 
     //AL_USER
-    register_cmd(NULL, "ap", "Learn how many attribute points you have left to spend", AL_USER, cmd_ap);
-    register_cmd(NULL, "assign", "<type> <amount> | assign attribute points to your stats", AL_USER, cmd_assign);
-    register_cmd(NULL, "check", "Check whether there is a personal monster in this room", AL_USER, cmd_check);
-    register_cmd(NULL, "drop", "<inventory slot> | Discard of an item in your inventory", AL_USER, cmd_drop);
-    register_cmd(NULL, "equip", "<inventory slot> | Equip an item from your inventory", AL_USER, cmd_equip);
-    register_cmd(NULL, "equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
-    register_cmd(NULL, "gcheck", "Check whether there is a global monster", AL_USER, cmd_gcheck);
-    register_cmd(NULL, "ghunt", "Summons a global monster in to the room; if one exists it will need to be killed by attacks or ;gslay first", AL_USER, cmd_ghunt);
-    register_cmd(NULL, "gmelee", "Performs a melee attack on a global monster", AL_USER, cmd_gmelee);
-    register_cmd(NULL, "gslay", "[gold amount] | Contribute to slaying a global monster or check how much is needed", AL_USER, cmd_gslay);
-    register_cmd(NULL, "hunt", "Hunt for a personal monster which only you can attack", AL_USER, cmd_hunt);
-    register_cmd(NULL, "info", "<inventory slot> | Ascertain info on an item in your inventory", AL_USER, cmd_info);
-    register_cmd(NULL, "inv", "Displays the items currently in your inventory", AL_USER, cmd_inv);
+    register_cmd(NULL, ";ap", "Learn how many attribute points you have left to spend", AL_USER, cmd_ap);
+    register_cmd(NULL, ";assign", "<type> <amount> | assign attribute points to your stats", AL_USER, cmd_assign);
+    register_cmd(NULL, ";check", "Check whether there is a personal monster in this room", AL_USER, cmd_check);
+    register_cmd(NULL, ";drop", "<inventory slot> | Discard of an item in your inventory", AL_USER, cmd_drop);
+    register_cmd(NULL, ";equip", "<inventory slot> | Equip an item from your inventory", AL_USER, cmd_equip);
+    register_cmd(NULL, ";equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
+    register_cmd(NULL, ";gcheck", "Check whether there is a global monster", AL_USER, cmd_gcheck);
+    register_cmd(NULL, ";ghunt", "Summons a global monster in to the room; if one exists it will need to be killed by attacks or ;gslay first", AL_USER, cmd_ghunt);
+    register_cmd(NULL, ";gmelee", "Performs a melee attack on a global monster", AL_USER, cmd_gmelee);
+    register_cmd(NULL, ";gslay", "[gold amount] | Contribute to slaying a global monster or check how much is needed", AL_USER, cmd_gslay);
+    register_cmd(NULL, ";hunt", "Hunt for a personal monster which only you can attack", AL_USER, cmd_hunt);
+    register_cmd(NULL, ";info", "<inventory slot> | Ascertain info on an item in your inventory", AL_USER, cmd_info);
+    register_cmd(NULL, ";inv", "Displays the items currently in your inventory", AL_USER, cmd_inv);
     //registerCmd(0, ";locate", "<building> | Find out where a certain sight is located", AL_USER, cmd_locate); //DEPRECATED
-    register_cmd(NULL, "location", "Ascertain knowledge about your current location", AL_USER, cmd_location);
-    register_cmd(NULL, "make", "snow angles | Make snow angles!", AL_USER, cmd_make);
-    register_cmd(NULL, "market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
-    register_cmd(NULL, "materials", "Discover what materials you are a proud owner of", AL_USER, cmd_materials);
-    register_cmd(NULL, "melee", "Performs a melee attack on a personal monster", AL_USER, cmd_melee);
-    register_cmd(NULL, "revive", "Flourish once again when you have passed", AL_USER, cmd_revive);
-    register_cmd(NULL, "sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
-    register_cmd(NULL, "slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
-    register_cmd(NULL, "travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
-    register_cmd(NULL, "unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
-    register_cmd(NULL, "unequipall", "Uneqippes all pieces of equipment from your inventory", AL_USER, cmd_unequipall);
-    register_cmd(NULL, "drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
+    register_cmd(NULL, ";location", "Ascertain knowledge about your current location", AL_USER, cmd_location);
+    register_cmd(NULL, ";make", "snow angles | Make snow angles!", AL_USER, cmd_make);
+    register_cmd(NULL, ";market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
+    register_cmd(NULL, ";materials", "Discover what materials you are a proud owner of", AL_USER, cmd_materials);
+    register_cmd(NULL, ";melee", "Performs a melee attack on a personal monster", AL_USER, cmd_melee);
+    register_cmd(NULL, ";revive", "Flourish once again when you have passed", AL_USER, cmd_revive);
+    register_cmd(NULL, ";sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
+    register_cmd(NULL, ";slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
+    register_cmd(NULL, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
+    register_cmd(NULL, ";unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
+    register_cmd(NULL, ";unequipall", "Uneqippes all pieces of equipment from your inventory", AL_USER, cmd_unequipall);
+    register_cmd(NULL, ";drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
 
     //AL_ADMIN
-    register_cmd(NULL, "fluctuate", "Forces the market prices to fluctuate", AL_ADMIN, cmd_fluctuate);
-    register_cmd(NULL, "fslay", "Force-slay the global monster currently in the room", AL_ADMIN, cmd_fslay);
-    register_cmd(NULL, "gib", "Cheat yourself some gold", AL_ADMIN, cmd_gib);
-    register_cmd(NULL, "givexp", "<user> <amount> | Give XP points to a user", AL_ADMIN, cmd_givexp);
-    register_cmd(NULL, "save", "Save the current state of the game to disk", AL_ADMIN, cmd_save);
-    register_cmd(NULL, "setauth", "Set a users authentication level. (noauth, user, reg, admin, root)", AL_ADMIN, cmd_setauth);
+    register_cmd(NULL, ";fluctuate", "Forces the market prices to fluctuate", AL_ADMIN, cmd_fluctuate);
+    register_cmd(NULL, ";fslay", "Force-slay the global monster currently in the room", AL_ADMIN, cmd_fslay);
+    register_cmd(NULL, ";gib", "Cheat yourself some gold", AL_ADMIN, cmd_gib);
+    register_cmd(NULL, ";givexp", "<user> <amount> | Give XP points to a user", AL_ADMIN, cmd_givexp);
+    register_cmd(NULL, ";save", "Save the current state of the game to disk", AL_ADMIN, cmd_save);
+    register_cmd(NULL, ";setauth", "Set a users authentication level. (noauth, user, reg, admin, root)", AL_ADMIN, cmd_setauth);
 
     //AL_ROOT
-    register_cmd(NULL, "stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
+    register_cmd(NULL, ";stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
 
     finalize_cmd_sys(0);
 }
@@ -62,7 +62,8 @@ void cmd_help(int pindex, struct Message * msg) {
     struct cmd_sys * ccs = commands;
     assert(ccs);
 
-    if(check_if_matches_regex(msg->message, CMD_LIT"\\s+("CMD_MATCH")")) {
+    if(matches_regex(msg->message, CMD_LIT"\\s*([;\\s]"CMD_MATCH")")) {
+        regex_group[1][0] = PREFIX_C;
         invoke_cmd(0, pindex, regex_group[1], msg, CMD_HELP);
     } else {
         char * out;
@@ -99,7 +100,7 @@ int auth_key_valid;
 void cmd_auth(int pindex, struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
-    if(check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
+    if(matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         if(auth_key_valid && strcmp(auth_key, regex_group[1]) == 0) {
             auth_key_valid = 0;
             free(auth_key);
@@ -115,7 +116,7 @@ void cmd_auth(int pindex, struct Message * msg) {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Invalid auth_key!\r\n", dawn->active_room);
             add_msg(out, strlen(out));
         }
-    } else if(check_if_matches_regex(msg->message, CMD_LIT)) {
+    } else if(matches_regex(msg->message, CMD_LIT)) {
         snprintf(out, MAX_MESSAGE_BUFFER, "WHOIS %s\r\n", dawn->players[pindex].username);
         add_msg(out, strlen(out));
     }
@@ -125,7 +126,7 @@ void cmd_auth(int pindex, struct Message * msg) {
 void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
-    if (check_if_matches_regex(msg->message, CMD_LIT " (.*)")) {
+    if (matches_regex(msg->message, CMD_LIT " (.*)")) {
         if(strcasecmp(regex_group[1], dawn->nickname) == 0) {
             close_socket(con_socket);
         } else {
@@ -140,7 +141,7 @@ void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
 }
 
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         strncpy(msg->sender_nick, to_lower(regex_group[1]), MAX_NICK_LENGTH);
         if (get_pindex(dawn, regex_group[1]) != -1) {
             print_sheet(dawn, msg);
@@ -151,14 +152,14 @@ void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
 }
 
 void cmd_equip(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
         equip_inventory(dawn, msg, slot, 0, 0);
     }
 }
 
 void cmd_unequip(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
         equip_inventory(dawn, msg, slot, 1, 0);
     }
@@ -187,21 +188,21 @@ void cmd_revive(int pindex __attribute__((unused)), struct Message * msg) {
 }
 
 void cmd_drop(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
         drop_item(dawn, msg, slot);
     }
 }
 
 void cmd_info(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
         get_item_info(dawn, msg, slot);
     }
 }
 
 void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
         char * username;
         CALLEXIT(!(username = calloc(MAX_NICK_LENGTH, 1)))
         char *eptr;
@@ -227,7 +228,7 @@ void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
 void cmd_make(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
-    if (check_if_matches_regex(msg->message, CMD_LIT" snow angels")) {
+    if (matches_regex(msg->message, CMD_LIT" snow angels")) {
         if (dawn->weather == SNOWING) {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s falls to the ground and begins making snow angels!\r\n",
                     msg->receiver, msg->sender_nick);
@@ -248,7 +249,7 @@ void cmd_slay(int pindex __attribute__((unused)), struct Message * msg) {
 }
 
 void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
-    if(check_if_matches_regex(msg->message, CMD_LIT" (\\d+)")) {
+    if(matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         slay_monster(dawn, msg->sender_nick, 1, atoi(regex_group[1]));
     } else {
         char * out;
@@ -273,7 +274,7 @@ void cmd_gcheck(int pindex __attribute__((unused)), struct Message * msg) {
     print_monster(dawn, msg->sender_nick, 1);
 }
 void cmd_assign(int pindex, struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
         assign_attr_points(dawn, msg, to_lower(regex_group[1]), atoi(regex_group[2]));
     } else {
         char * out;
@@ -296,13 +297,13 @@ void cmd_ap(int pindex, struct Message * msg) {
 }
 
 void cmd_travel(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\d+),(\\d+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\d+),(\\d+)")) {
         move_player(dawn, msg, atoi(regex_group[1]), atoi(regex_group[2]));
     }
 }
 /* DEPRECATED
 void cmd_locate(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" (\\w+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         find_building(dawn, msg, to_lower(regex_group[1]));
     }
 }
@@ -312,11 +313,11 @@ void cmd_materials(int pindex __attribute__((unused)), struct Message * msg) {
 }
 
 void cmd_market(int pindex __attribute__((unused)), struct Message * msg) {
-    if (check_if_matches_regex(msg->message, CMD_LIT" sell (\\w+) (\\d+)")) {
+    if (matches_regex(msg->message, CMD_LIT" sell (\\w+) (\\d+)")) {
         char *eptr;
         long amount = strtol(regex_group[2], &eptr, 10);
         market_buysell(dawn, msg, 0, regex_group[1], amount);
-    } else if (check_if_matches_regex(msg->message, CMD_LIT" buy (\\w+) (\\d+)")) {
+    } else if (matches_regex(msg->message, CMD_LIT" buy (\\w+) (\\d+)")) {
         char *eptr;
         long amount = strtol(regex_group[2], &eptr, 10);
         market_buysell(dawn, msg, 1, regex_group[1], amount);
@@ -343,9 +344,9 @@ void cmd_cry(int pindex __attribute__((unused)), struct Message * msg) {
 }
 
 void cmd_gib(int pindex, struct Message * msg) {
-    if(check_if_matches_regex(msg->message, CMD_LIT" gold (\\d+)")) {
+    if(matches_regex(msg->message, CMD_LIT" gold (\\d+)")) {
         dawn->players[pindex].gold += atoi(regex_group[1]);
-    } else if(check_if_matches_regex(msg->message, CMD_LIT" ap (\\d+)")) {
+    } else if(matches_regex(msg->message, CMD_LIT" ap (\\d+)")) {
         dawn->players[pindex].attr_pts += atoi(regex_group[1]);
     }
 }
@@ -379,13 +380,13 @@ void cmd_fluctuate (int pindex __attribute__((unused)), struct Message * msg __a
 void cmd_drink(int pindex, struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
-    if(check_if_matches_regex(msg->message, CMD_LIT " beer")) {
+    if(matches_regex(msg->message, CMD_LIT " beer")) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You help yourself to a good 'ol bottle of beer. Fullness +5\r\n", msg->receiver);
         dawn->players[pindex].fullness+=5;
         if(dawn->players[pindex].fullness > 100)
             dawn->players[pindex].fullness = 100;
 
-    } else if(check_if_matches_regex(msg->message, CMD_LIT)) {
+    } else if(matches_regex(msg->message, CMD_LIT)) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You can drink some beer if you like.\r\n", msg->receiver);
     }
     add_msg(out, strlen(out));
@@ -395,7 +396,7 @@ void cmd_drink(int pindex, struct Message * msg) {
 void cmd_setauth(int pindex, struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
-    if(check_if_matches_regex(msg->message, CMD_LIT " (\\w+) (\\w+)")) {
+    if(matches_regex(msg->message, CMD_LIT " (\\w+) (\\w+)")) {
         int useridx = get_pindex(dawn, regex_group[1]);
         if(useridx == -1) {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :This user does not exist.\r\n", msg->receiver);
