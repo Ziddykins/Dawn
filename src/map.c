@@ -21,12 +21,6 @@ enum map_flags { //represent the state of the map
     MAP_SAVED = 1<<1
 };
 
-struct town {
-    char *name;
-    struct location pos;
-    float matdistr[MAT_COUNT]; //which materials are present in this town
-};
-
 enum shop_type {
     SHOP_BLACKSMITH,
     SHOP_DOCTOR,
@@ -34,16 +28,25 @@ enum shop_type {
     //to be extended
 };
 
-struct shop {
-    char * name;
-    enum shop_type type;
+enum entity_type {
+    ENT_TOWN,
+    ENT_STABLES,
+    ENT_SHOP,
+    ENT_SHRINE,
 };
 
-enum map_entity {
-    MENT_TOWN,
-    MENT_STABLES,
-    MENT_SHOP,
-    MENT_SHRINE,
+struct entity {
+    struct location pos;
+    int type;
+    void *data;
+};
+
+struct town {
+    char *name;
+    struct location pos;
+    float matdistr[MAT_COUNT]; //which materials are present in this town
+    struct entity * entities;
+    int entitiy_count;
 };
 
 struct Map {
@@ -52,8 +55,6 @@ struct Map {
     float water_level;
     int dim;
     int flags;
-
-    //char pad[4];
 };
 
 void init_map(char const * const fn) {
@@ -107,13 +108,16 @@ static inline int town_too_close(struct town *towns, int idx) {
 //requires perlin noise
 static inline void place_town(int idx) {
     int dim = global_map->dim;
+    struct town * _town = &(global_map->towns[idx]);
     do {
-        global_map->towns[idx].pos.x = (int) (randd() * dim);
-        global_map->towns[idx].pos.y = (int) (randd() * dim);
+        _town->pos.x = (int) (randd() * dim);
+        _town->pos.y = (int) (randd() * dim);
     } while(town_too_close(global_map->towns, idx));
     for(int j = 0; j < MAT_COUNT; j++) {
-        global_map->towns[idx].matdistr[j] = noise(global_map->towns[idx].pos.x * PERLIN_SCALE, global_map->towns[idx].pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
+        _town->matdistr[j] = noise(_town->pos.x * PERLIN_SCALE, _town->pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
     }
+    _town->entitiy_count = (int)(10 + gaussrand() * 5);
+    _town->entities = calloc((size_t)(_town->entitiy_count), sizeof *_town->entities);
 }
 
 void generate_map() {
@@ -135,12 +139,7 @@ void generate_map() {
     for(int i = 0; i < TOWN_COUNT; i++) {
         place_town(i);
     }
-
-
-
     perlin_cleanup();
-
-
 }
 
 static inline int is_valid(int x, int y, int dim) {
