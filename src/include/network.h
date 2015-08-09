@@ -81,8 +81,6 @@ MsgList init_msg_list(void); //allocates a new message history list
 void free_msg_list(void); //frees all storage allocated
 void add_msg(char * msg, size_t len); //deep copies msg
 
-char * retr_msg(void); //returns pointer to msg, destroys node
-
 void pop_hist_msg(void); //updates the message history
 size_t peek_msg_size(void); //returns size of mlist's head
 
@@ -94,7 +92,7 @@ extern int con_socket;
 int init_connect_server (const char *, const char *);
 int hostname_to_ip (char *, char *); //Returns an IP from a hostname
 void close_socket (int);
-void send_socket (char *);
+void send_socket (char *,size_t);
 void send_login (char *, char *, char *, char *);
 void parse_room_message (struct Bot *, struct Message *);
 void parse_private_message (struct Bot *, struct Message *);

@@ -55,13 +55,7 @@ void close_socket (int socket) {
  * @param out_buf character string to send
  * @see add_msg
  */
-void send_socket (char * out_buf) {
-    size_t len = strlen(out_buf);
-    if(len > MAX_MESSAGE_BUFFER) {
-        printf(WARN "network/send_socket: Message too long: %lu", len);
-        return;
-    }
-
+void send_socket (char * out_buf, size_t len) {
     CALLEXIT(write(con_socket, out_buf, len) == -1)
 }
 
@@ -261,8 +255,11 @@ void process_messages() {
 
     size_t len;
     while(csrc->head != 0 && cdest->msgs < MAX_MSGS_IN_INTERVAL && cdest->byte_size + (len = peek_msg_size()) < MAX_SENDQ_SIZE) {
+        if(len > MAX_MESSAGE_BUFFER) {
+            PRINTERR("Message too long")
+        }
         char * msg = retr_msg();
-        send_socket(msg);
+        send_socket(msg, len);
         free(msg);
         add_hist_msg(len);
         //printf("MQueue: %zu of %d (PUSH)\n", cdest->byte_size, MAX_SENDQ_SIZE);
