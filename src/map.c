@@ -42,8 +42,6 @@ struct entity {
 };
 
 struct town {
-    char *name;
-    struct location pos;
     float matdistr[MAT_COUNT]; //which materials are present in this town
     struct entity * entities;
     int entitiy_count;
@@ -98,7 +96,7 @@ void save_map(char const * const fn) {
 
 static inline int town_too_close(struct town *towns, int idx) {
     for(int i = 0; i < TOWN_COUNT; i++) {
-        if(i != idx && sqrt(abs(towns[i].pos.x-towns[idx].pos.x)+abs(towns[i].pos.y-towns[idx].pos.y)) < 10) {
+        if(i != idx && towns[i].entities && sqrt(abs(towns[i].entities[0].pos.x-towns[idx].entities[0].pos.x)+abs(towns[i].entities[0].pos.y-towns[idx].entities[0].pos.y)) < 10) {
             return 1;
         }
     }
@@ -109,15 +107,17 @@ static inline int town_too_close(struct town *towns, int idx) {
 static inline void place_town(int idx) {
     int dim = global_map->dim;
     struct town * _town = &(global_map->towns[idx]);
-    do {
-        _town->pos.x = (int) (randd() * dim);
-        _town->pos.y = (int) (randd() * dim);
-    } while(town_too_close(global_map->towns, idx));
-    for(int j = 0; j < MAT_COUNT; j++) {
-        _town->matdistr[j] = noise(_town->pos.x * PERLIN_SCALE, _town->pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
-    }
+
     _town->entitiy_count = (int)(10 + gaussrand() * 5);
     _town->entities = calloc((size_t)(_town->entitiy_count), sizeof *_town->entities);
+    _town->entities[0].type = ENT_TOWN;
+    do {
+        _town->entities[0].pos.x = (int) (randd() * dim);
+        _town->entities[0].pos.y = (int) (randd() * dim);
+    } while(town_too_close(global_map->towns, idx));
+    for(int j = 0; j < MAT_COUNT; j++) {
+        _town->matdistr[j] = noise(_town->entities[0].pos.x * PERLIN_SCALE, _town->entities[0].pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
+    }
 }
 
 void generate_map() {

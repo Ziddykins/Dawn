@@ -288,6 +288,6 @@ int hostname_to_ip(char *hostname , char *ip) {
         strcpy(ip , inet_ntoa(*addr_list[i]));
         return 0;
     }
-     
+
     return 1;
 }
