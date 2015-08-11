@@ -136,6 +136,7 @@ static inline void rand_ent(struct entity * e) {
     while(probs[ent_type] < rand_num) {
         ent_type++;
     }
+    e->type = ent_type;
     switch(ent_type) {
         case ENT_TOWN:
             PRINTERR("Entity generation FATAL")
@@ -170,9 +171,6 @@ static inline void q_append(struct location *q, size_t start, size_t *end, size_
     q[*end].x = elem.x;
     q[*end].y = elem.y;
     (*end) = ((*end)+1)%len;
-    if(*end == start) {
-        puts("");
-    }
     assert(*end != start);
 }
 
