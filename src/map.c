@@ -28,8 +28,10 @@ enum shop_type {
     //to be extended
 };
 
-enum entity_type {
+
+enum entity_type { //ORDERING IMPORTANT, see rand_ent()
     ENT_TOWN,
+    ENT_RESIDENTIAL,
     ENT_STABLES,
     ENT_SHOP,
     ENT_SHRINE,
@@ -120,6 +122,121 @@ static inline void place_town(int idx) {
     }
 }
 
+static inline void rand_ent(struct entity * e) {
+    //generate entity
+    float probs[] = {
+            0,   //0% town
+            0.6, //60% reditential houses
+            0.7, //10% stables
+            0.9, //20% shops
+            1.0, //10% shrines
+    };
+    double rand_num = randd();
+    int ent_type = 0;
+    while(probs[ent_type] < rand_num) {
+        ent_type++;
+    }
+    switch(ent_type) {
+        case ENT_TOWN:
+            PRINTERR("Entity generation FATAL")
+            exit(1);
+        case ENT_RESIDENTIAL:
+
+            break;
+        case ENT_SHOP:
+
+            break;
+        case ENT_SHRINE:
+
+            break;
+        case ENT_STABLES:
+
+            break;
+        default:
+            PRINTERR("Entity generation FATAL")
+            exit(1);
+    }
+}
+
+//unsafe, use with caution - must store retrieved values elsewhere before appending again
+static inline struct location* q_pop(struct location *q, size_t *start, size_t end, size_t len) {
+    assert(*start != end);
+    struct location *rop = &q[*start];
+    *start = ((*start)+1)%len;
+    return rop;
+}
+
+static inline void q_append(struct location *q, size_t start, size_t *end, size_t len, struct location elem) {
+    q[*end].x = elem.x;
+    q[*end].y = elem.y;
+    (*end) = ((*end)+1)%len;
+    if(*end == start) {
+        puts("");
+    }
+    assert(*end != start);
+}
+
+static inline int queue_overlap(struct location *q, size_t start, size_t end, size_t len, int x, int y) {
+    for(size_t i = start; i != end; i = (i+1)%len) {
+        if(q[i].x == x && q[i].y == y) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static inline int town_overlap(struct town *_town, int x, int y) {
+    for(int i = 0; i < _town->entitiy_count; i++) {
+        if(_town->entities[i].pos.x == x && _town->entities[i].pos.y == y) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+//do not inline, essentially a horrible flood-fill
+static void grow_town(int idx) {
+    struct town * _town = &(global_map->towns[idx]);
+    size_t pos = 0;
+    size_t q_size = (size_t)(4*(_town->entitiy_count+1));
+    struct location * queue = calloc(q_size, sizeof *queue);
+    size_t start = 0, end = 0;
+
+    q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x+1, .y =  _town->entities[0].pos.y});
+    q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x-1, .y =  _town->entities[0].pos.y});
+    q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x, .y =  _town->entities[0].pos.y+1});
+    q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x, .y =  _town->entities[0].pos.y-1});
+    while(pos < _town->entitiy_count) {
+        struct location *cur = q_pop(queue, &start, end, q_size);
+        int x = cur->x;
+        int y = cur->y;
+
+        rand_ent(&(_town->entities[pos]));
+
+        //check von neumann neighborhood
+        int app_x = x+1, app_y = y;
+        if(!town_overlap(_town, app_x, app_y) && !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
+            q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
+        }
+        app_x = x-1, app_y = y;
+        if(!town_overlap(_town, app_x, app_y) && !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
+            q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
+        }
+        app_x = x, app_y = y+1;
+        if(!town_overlap(_town, app_x, app_y) && !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
+            q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
+        }
+        app_x = x, app_y = y-1;
+        if(!town_overlap(_town, app_x, app_y) && !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
+            q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
+        }
+
+        pos++;
+    }
+
+    free(queue);
+}
+
 void generate_map() {
     diamond_square(global_map->heightmap, global_map->dim, 4000.0, global_map->dim);
     global_map->flags |= MAP_PRESENT;
@@ -138,6 +255,7 @@ void generate_map() {
     perlin_init();
     for(int i = 0; i < TOWN_COUNT; i++) {
         place_town(i);
+        grow_town(i);
     }
     perlin_cleanup();
 }
