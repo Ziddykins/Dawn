@@ -116,7 +116,8 @@ static inline void place_town(int idx) {
     do {
         _town->entities[0].pos.x = (int) (randd() * dim);
         _town->entities[0].pos.y = (int) (randd() * dim);
-    } while(town_too_close(global_map->towns, idx));
+    } while (town_too_close(global_map->towns, idx) ||
+             is_obstructed(_town->entities[0].pos.x, _town->entities[0].pos.y));
     for(int j = 0; j < MAT_COUNT; j++) {
         _town->matdistr[j] = noise(_town->entities[0].pos.x * PERLIN_SCALE, _town->entities[0].pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
     }
@@ -213,19 +214,23 @@ static void grow_town(int idx) {
 
         //check von neumann neighborhood
         int app_x = x+1, app_y = y;
-        if(!town_overlap(_town, app_x, app_y) && !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
+        if (!is_obstructed(app_x, app_y) && !town_overlap(_town, app_x, app_y) &&
+            !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
             q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
         }
         app_x = x-1, app_y = y;
-        if(!town_overlap(_town, app_x, app_y) && !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
+        if (!is_obstructed(app_x, app_y) && !town_overlap(_town, app_x, app_y) &&
+            !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
             q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
         }
         app_x = x, app_y = y+1;
-        if(!town_overlap(_town, app_x, app_y) && !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
+        if (!is_obstructed(app_x, app_y) && !town_overlap(_town, app_x, app_y) &&
+            !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
             q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
         }
         app_x = x, app_y = y-1;
-        if(!town_overlap(_town, app_x, app_y) && !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
+        if (!is_obstructed(app_x, app_y) && !town_overlap(_town, app_x, app_y) &&
+            !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
             q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
         }
 
