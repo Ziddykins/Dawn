@@ -111,7 +111,7 @@ static inline void place_town(int idx) {
     struct town * _town = &(global_map->towns[idx]);
 
     _town->entitiy_count = (int)(10 + gaussrand() * 5);
-    _town->entities = calloc((size_t)(_town->entitiy_count), sizeof *_town->entities);
+    CALLEXIT(!(_town->entities = calloc((size_t) (_town->entitiy_count), sizeof *_town->entities)))
     _town->entities[0].type = ENT_TOWN;
     do {
         _town->entities[0].pos.x = (int) (randd() * dim);
@@ -198,7 +198,8 @@ static void grow_town(int idx) {
     struct town * _town = &(global_map->towns[idx]);
     size_t pos = 0;
     size_t q_size = (size_t)(4*(_town->entitiy_count+1));
-    struct location * queue = calloc(q_size, sizeof *queue);
+    struct location *queue;
+    CALLEXIT(!(queue = calloc(q_size, sizeof *queue)))
     size_t start = 0, end = 0;
 
     q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x+1, .y =  _town->entities[0].pos.y});
