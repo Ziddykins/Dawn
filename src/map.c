@@ -73,6 +73,7 @@ void init_map(char const * const fn) {
         CALLEXIT(!(fread(&global_map->dim, sizeof global_map->dim, 1, file)))
         CALLEXIT(!(fread(&global_map->flags, sizeof global_map->flags, 1, file)))
         CALLEXIT(!(fread(&global_map->water_level, sizeof global_map->water_level, 1, file)))
+        CALLEXIT(!(fread(&global_map->towns, sizeof global_map->towns, 1, file)))
         CALLEXIT(!(fread(global_map->heightmap, (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap, 1, file)))
         fclose(file);
         printf(INFO "Map loaded\n");
@@ -90,6 +91,7 @@ void save_map(char const * const fn) {
         CALLEXIT(!(fwrite(&global_map->dim, sizeof global_map->dim, 1, file)))
         CALLEXIT(!(fwrite(&global_map->flags, sizeof global_map->flags, 1, file)))
         CALLEXIT(!(fwrite(&global_map->water_level, sizeof global_map->water_level, 1, file)))
+        CALLEXIT(!(fwrite(&global_map->towns, sizeof global_map->towns, 1, file)))
 
         size_t size = (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap;
         CALLEXIT(!(fwrite(global_map->heightmap, size, 1, file)))
