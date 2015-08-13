@@ -40,7 +40,9 @@ enum entity_type { //ORDERING IMPORTANT, see rand_ent()
 struct entity {
     struct location pos;
     int type;
-    void *data;
+    union data {
+        //data
+    };
 };
 
 struct town {
