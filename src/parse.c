@@ -120,7 +120,11 @@ void parse_private_message (struct Bot *b, struct Message *message) {
         add_msg(out, strlen(out));
         return;
     }
-
+    if (b->players[pindex].max_auth >= AL_REG) {
+        sprintf(out, "PRIVMSG %s :Please use ;auth\r\n", message->sender_nick);
+        add_msg(out, strlen(out));
+        return;
+    }
     if (matches_regex(message->message, ";set password (\\w+)")) {
         if (strcmp(message->sender_hostmask, b->players[pindex].hostmask) == 0) {
             hash_pwd(b->players[pindex].pwd, b->players[pindex].salt, regex_group[1]);
