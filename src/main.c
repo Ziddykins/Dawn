@@ -38,10 +38,8 @@ int main (int argc, char **argv) {
     strcpy(dawn->ident,    "hehe");
     strcpy(dawn->password, "temp");
     strcpy(dawn->active_room, "#stacked");
-printf("nickname before load: %s\n", dawn->nickname);
     //Load players
     persistent_load(dawn);
-printf("nickname after load: %s\n", dawn->nickname);
 
     while ((opt = getopt(argc, argv, "hm:n:p:r:s:")) != -1) {
         switch (opt) {

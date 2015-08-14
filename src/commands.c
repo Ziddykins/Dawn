@@ -269,6 +269,7 @@ void cmd_cast(int pindex, struct Message * msg) {
             cast_fireball(dawn, msg->sender_nick, regex_group[2]);
         }
     }
+    free(out);
 }
 
 void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
