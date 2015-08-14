@@ -30,7 +30,7 @@ enum shop_type {
 
 
 enum entity_type { //ORDERING IMPORTANT, see rand_ent()
-    ENT_TOWN,
+    ENT_TOWN, //add road
     ENT_RESIDENTIAL,
     ENT_STABLES,
     ENT_SHOP,
@@ -73,7 +73,7 @@ void init_map(char const * const fn) {
         CALLEXIT(!(fread(&global_map->dim, sizeof global_map->dim, 1, file)))
         CALLEXIT(!(fread(&global_map->flags, sizeof global_map->flags, 1, file)))
         CALLEXIT(!(fread(&global_map->water_level, sizeof global_map->water_level, 1, file)))
-        CALLEXIT(!(fread(&global_map->towns, sizeof global_map->towns, 1, file)))
+        //CALLEXIT(!(fread(&global_map->towns, sizeof global_map->towns, 1, file)))
         CALLEXIT(!(fread(global_map->heightmap, (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap, 1, file)))
         fclose(file);
         printf(INFO "Map loaded\n");
@@ -91,7 +91,7 @@ void save_map(char const * const fn) {
         CALLEXIT(!(fwrite(&global_map->dim, sizeof global_map->dim, 1, file)))
         CALLEXIT(!(fwrite(&global_map->flags, sizeof global_map->flags, 1, file)))
         CALLEXIT(!(fwrite(&global_map->water_level, sizeof global_map->water_level, 1, file)))
-        CALLEXIT(!(fwrite(&global_map->towns, sizeof global_map->towns, 1, file)))
+        //CALLEXIT(!(fwrite(&global_map->towns, sizeof global_map->towns, 1, file)))
 
         size_t size = (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap;
         CALLEXIT(!(fwrite(global_map->heightmap, size, 1, file)))
@@ -263,6 +263,9 @@ void generate_map() {
     perlin_init();
     for(int i = 0; i < TOWN_COUNT; i++) {
         place_town(i);
+    }
+
+    for (int i = 0; i < TOWN_COUNT; i++) {
         grow_town(i);
     }
     perlin_cleanup();
@@ -409,6 +412,9 @@ float pathlen(int x1, int y1, int x2, int y2) {
 
 void free_map() {
     free(global_map->heightmap);
+    for (int i = 0; i < TOWN_COUNT; i++) {
+        free(global_map->towns[i].entities);
+    }
     free(global_map);
 }
 
