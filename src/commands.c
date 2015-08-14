@@ -129,7 +129,6 @@ void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if (matches_regex(msg->message, CMD_LIT " (.*)")) {
-        printf("%s -> %s\n", regex_group[1], dawn->nickname);
         if(strcasecmp(regex_group[1], dawn->nickname) == 0) {
             close_socket(con_socket);
         } else {
@@ -262,11 +261,11 @@ void cmd_cast(int pindex, struct Message * msg) {
     }
     if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s?(\\w+)?")) {
         if (strcmp(regex_group[1], "heal") == 0) {
-            cast_heal(dawn, msg->sender_nick, regex_group[2]);
+            cast_heal(dawn, msg->sender_nick, to_lower(regex_group[2]));
         } else if (strcmp(regex_group[1], "rain") == 0) {
             cast_rain(dawn, msg->sender_nick);
         } else if (strcmp(regex_group[1], "fireball") == 0) {
-            cast_fireball(dawn, msg->sender_nick, regex_group[2]);
+            cast_fireball(dawn, msg->sender_nick, to_lower(regex_group[2]));
         }
     }
     free(out);

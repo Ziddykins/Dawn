@@ -176,12 +176,18 @@ void check_levelup (struct Bot *b, struct Message *message) {
         b->players[i].attr_pts   += 20;
         b->players[i].health      = b->players[i].max_health;
         b->players[i].mana        = b->players[i].max_mana;
-        if (get_nextlvl_exp(b, message->sender_nick) > curr_level_exp) {
+        check_learn_spells(b, message->sender_nick);
+
+        if (b->players[i].experience > get_nextlvl_exp(b, message->sender_nick)) {
+            check_levelup(b, message);
+            return;
+        }
+
+        if (b->players[i].experience < get_nextlvl_exp(b, message->sender_nick)) {
             sprintf(out, "PRIVMSG %s :%s has achieved level %d. 20 attribute points ready for assignment, HP and MP"
                     " increased +25! Increase your attributes using the ;assign command!\r\n",
                     message->receiver, message->sender_nick, curr_level + 1);
             add_msg(out, strlen(out));
-            check_learn_spells(b, message->sender_nick);
         }
     }
 }
