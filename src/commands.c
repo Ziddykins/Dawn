@@ -6,6 +6,7 @@ void init_cmds() {
     init_global_cmd_sys();
 
     //AL_NOAUTH
+    register_cmd(NULL, ";_;", "Crave crying I bet", AL_NOAUTH, cmd_cry);
     register_cmd(NULL, ";[", "Express your pure sadness", AL_NOAUTH, cmd_cry);
     register_cmd(NULL, ";auth", "Authenticate your account to use Dawn", AL_NOAUTH, cmd_auth);
     register_cmd(NULL, ";help", "[command] | Prints general help or for a specific command | [] = optional, <> = necessary", AL_NOAUTH, cmd_help);
@@ -15,6 +16,7 @@ void init_cmds() {
     register_cmd(NULL, ";ap", "Learn how many attribute points you have left to spend", AL_USER, cmd_ap);
     register_cmd(NULL, ";assign", "<type> <amount> | assign attribute points to your stats", AL_USER, cmd_assign);
     register_cmd(NULL, ";check", "Check whether there is a personal monster in this room", AL_USER, cmd_check);
+    register_cmd(NULL, ";cast", "<spell> [target] | cast a specified spell; spell may require a target", AL_USER, cmd_cast);
     register_cmd(NULL, ";drop", "<inventory slot> | Discard of an item in your inventory", AL_USER, cmd_drop);
     register_cmd(NULL, ";equip", "<inventory slot> | Equip an item from your inventory", AL_USER, cmd_equip);
     register_cmd(NULL, ";equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
@@ -127,6 +129,7 @@ void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if (matches_regex(msg->message, CMD_LIT " (.*)")) {
+        printf("%s -> %s\n", regex_group[1], dawn->nickname);
         if(strcasecmp(regex_group[1], dawn->nickname) == 0) {
             close_socket(con_socket);
         } else {
@@ -246,6 +249,26 @@ void cmd_location(int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_slay(int pindex __attribute__((unused)), struct Message * msg) {
     slay_monster(dawn, msg->sender_nick, 0, 0);
+}
+
+void cmd_cast(int pindex, struct Message * msg) {
+    char *out;
+    CALLEXIT (!(out = malloc(MAX_MESSAGE_BUFFER)))
+    if (dawn->players[pindex].health <= 0) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, dead people can not cast spells\r\n",
+                dawn->active_room, msg->sender_nick);
+        add_msg(out, strlen(out));
+        return;
+    }
+    if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s?(\\w+)?")) {
+        if (strcmp(regex_group[1], "heal") == 0) {
+            cast_heal(dawn, msg->sender_nick, regex_group[2]);
+        } else if (strcmp(regex_group[1], "rain") == 0) {
+            cast_rain(dawn, msg->sender_nick);
+        } else if (strcmp(regex_group[1], "fireball") == 0) {
+            cast_fireball(dawn, msg->sender_nick, regex_group[2]);
+        }
+    }
 }
 
 void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
@@ -381,6 +404,14 @@ void cmd_drink(int pindex, struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if(matches_regex(msg->message, CMD_LIT " beer")) {
+        if (dawn->players[pindex].fullness + 5 > 100) {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s takes two more sips and projectile vomits"
+                    " all over the patrons. Perhaps you've had enough to drink. Fullness -15\r\n",
+                    dawn->active_room, msg->sender_nick);
+            dawn->players[pindex].fullness -= 15;
+            add_msg(out, strlen(out));
+            return;
+        }
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You help yourself to a good 'ol bottle of beer. Fullness +5\r\n", msg->receiver);
         dawn->players[pindex].fullness+=5;
         if(dawn->players[pindex].fullness > 100)

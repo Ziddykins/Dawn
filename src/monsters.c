@@ -157,11 +157,14 @@ void slay_monster (struct Bot *b, char const * username, int global, int amount)
 void print_monster (struct Bot *b, char const * username, int global) { //username -> MAX_NICK_LENGTH
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(b, username);
+
+    if (pindex == -1) return;
+
     if (global) {
         if (!b->global_monster.active) {
             sprintf(out, "PRIVMSG %s :There is no monster in the room currently\r\n", b->active_room);
         } else {
-            sprintf(out, "PRIVMSG %s :A %s is in the room: [Health: %d] [%d Str - %d Def - %d Int - %d MDef]",
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :A %s is in the room: [Health: %d] [%d Str - %d Def - %d Int - %d MDef]\r\n",
                     b->active_room, b->global_monster.name, b->global_monster.hp,
                     b->global_monster.str, b->global_monster.def, b->global_monster.intel,
                     b->global_monster.mdef);

@@ -9,10 +9,11 @@
 #include "network.h"
 #include "cmdsys.h"
 #include "util.h"
+#include "spells.h"
 
 #define PREFIX ";"
 #define PREFIX_C ';'
-#define CMD_MATCH "[\\w[]+"
+#define CMD_MATCH "[\\w[_;]+"
 #define CMD_LIT "^" PREFIX CMD_MATCH
 #define CMD_LIT_MID PREFIX CMD_MATCH
 
@@ -28,6 +29,7 @@ void cmd_equip(int pindex, struct Message * msg);
 void cmd_equipall(int pindex, struct Message * msg);
 void cmd_unequip(int pindex, struct Message * msg);
 void cmd_unequipall(int pindex, struct Message * msg);
+void cmd_cast(int pindex, struct Message * msg);
 void cmd_gmelee(int pindex, struct Message * msg);
 void cmd_hunt(int pindex, struct Message * msg);
 void cmd_revive(int pindex, struct Message * msg);

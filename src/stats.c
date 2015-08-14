@@ -8,8 +8,7 @@
 
 void get_stat (struct Bot *b, struct Message *m, int stats[6]) {
     int i = get_pindex(b, m->sender_nick);
-    int j;
-    for (j=0; j<(MAX_INVENTORY_SLOTS - b->players[i].available_slots); j++) {
+    for (int j=0; j<(MAX_INVENTORY_SLOTS - b->players[i].available_slots); j++) {
         if (b->players[i].inventory[j].equipped) {
             stats[0] += b->players[i].inventory[j].attr_health;
             stats[1] += b->players[i].inventory[j].attr_mana;

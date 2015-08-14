@@ -3,6 +3,7 @@
 #include <string.h>
 #include "include/status.h"
 #include "include/player.h"
+#include "include/spells.h"
 
 //Prototypes
 unsigned long long get_nextlvl_exp (struct Bot *, const char *);
@@ -14,6 +15,7 @@ int get_pindex (struct Bot *b, char const * username) { //username -> MAX_NICK_L
     }
     return -1;
 }
+
 /* DEPRECATED
 int get_bindex (struct Bot *b, char const * username, char const * location) { //username -> MAX_NICK_LENGTH, location -> 64
     int pindex = get_pindex(b, username);
@@ -179,6 +181,7 @@ void check_levelup (struct Bot *b, struct Message *message) {
                     " increased +25! Increase your attributes using the ;assign command!\r\n",
                     message->receiver, message->sender_nick, curr_level + 1);
             add_msg(out, strlen(out));
+            check_learn_spells(b, message->sender_nick);
         }
     }
 }

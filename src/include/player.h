@@ -10,6 +10,7 @@
 #include "inventory.h"
 #include "limits.h"
 #include "parse.h"
+#include "spells.h"
 
 //Prototypes
 void save_players (struct Bot *);
@@ -45,6 +46,8 @@ struct Player {
     char first_class[64], second_class[64], title[64];
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
     struct Monsters personal_monster;
+    struct travel_timer travel_timer;
+    struct SpellBook spellbook;
     int pos_x, pos_y;
     //wood, leather, ore, stone, bronze, mail, steel, diamond
     long materials[8];
@@ -53,9 +56,9 @@ struct Player {
     int alive, available, level, contribution, max_health, max_mana;
     int available_slots, available_capacity, mana, strength;
     int intelligence, defense, m_def, alignment, attr_pts;
-    struct travel_timer travel_timer;
     unsigned char auth_level, max_auth;
     short fullness;
+
 
     char pad[4];
 };

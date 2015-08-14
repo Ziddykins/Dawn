@@ -38,9 +38,10 @@ int main (int argc, char **argv) {
     strcpy(dawn->ident,    "hehe");
     strcpy(dawn->password, "temp");
     strcpy(dawn->active_room, "#stacked");
-
+printf("nickname before load: %s\n", dawn->nickname);
     //Load players
     persistent_load(dawn);
+printf("nickname after load: %s\n", dawn->nickname);
 
     while ((opt = getopt(argc, argv, "hm:n:p:r:s:")) != -1) {
         switch (opt) {
@@ -296,7 +297,7 @@ int main (int argc, char **argv) {
                     }
                     if (dawn->player_count == 0) {
                         struct Message temp;
-                        strcpy(temp.sender_nick, to_lower(dawn->nickname));
+                        strcpy(temp.sender_nick, dawn->nickname);
                         strcpy(temp.sender_hostmask, regex_group[3]);
                         init_new_character(dawn, &temp);
                     }
