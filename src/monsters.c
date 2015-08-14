@@ -67,7 +67,7 @@ void call_monster (struct Bot *b, char const * username, int global) { //usernam
             b->global_monster.hp = b->global_monster.mhp;
         }
 
-        b->global_monster = b->monsters[0];//rand()%MAX_MONSTERS];
+        b->global_monster = b->monsters[rand()%MAX_MONSTERS];
         b->global_monster.active = 1;
 
         for (i=0; i<b->player_count; i++) {
