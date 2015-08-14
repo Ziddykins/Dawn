@@ -10,3 +10,6 @@ dawn
 *~
 obj/
 bin/
+*.bin
+*.txt
+*.map
