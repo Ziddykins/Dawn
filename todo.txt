@@ -45,3 +45,4 @@ bank (with gained interest)
 buildable properties (to be discussed)
 mount system (increased movement speed)
 command-line arguments to set some attributes for added convenience
+web interface?
