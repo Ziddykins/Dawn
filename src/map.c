@@ -53,7 +53,8 @@ struct town {
 
 struct Map {
     float * heightmap; //dim*dim
-    struct town towns[TOWN_COUNT];
+    struct town *towns;
+    int town_count;
     float water_level;
     int dim;
     int flags;
@@ -101,7 +102,7 @@ void save_map(char const * const fn) {
 }
 
 static inline int town_too_close(struct town *towns, int idx) {
-    for(int i = 0; i < TOWN_COUNT; i++) {
+    for (int i = 0; i < global_map->town_count; i++) {
         if(i != idx && towns[i].entities && sqrt(abs(towns[i].entities[0].pos.x-towns[idx].entities[0].pos.x)+abs(towns[i].entities[0].pos.y-towns[idx].entities[0].pos.y)) < 10) {
             return 1;
         }
@@ -259,13 +260,14 @@ void generate_map() {
     global_map->water_level = copy[(int)(1.0/6.0*dim*dim)];
     free(copy);
 
-    bzero(global_map->towns, TOWN_COUNT * sizeof *global_map->towns);
+    global_map->town_count = (int) (10 + gaussrand() * 3);
+    CALLEXIT(!(global_map->towns = calloc(global_map->town_count, sizeof *global_map->towns)))
     perlin_init();
-    for(int i = 0; i < TOWN_COUNT; i++) {
+    for (int i = 0; i < global_map->town_count; i++) {
         place_town(i);
     }
 
-    for (int i = 0; i < TOWN_COUNT; i++) {
+    for (int i = 0; i < global_map->town_count; i++) {
         grow_town(i);
     }
     perlin_cleanup();
@@ -412,9 +414,10 @@ float pathlen(int x1, int y1, int x2, int y2) {
 
 void free_map() {
     free(global_map->heightmap);
-    for (int i = 0; i < TOWN_COUNT; i++) {
+    for (int i = 0; i < global_map->town_count; i++) {
         free(global_map->towns[i].entities);
     }
+    free(global_map->towns);
     free(global_map);
 }
 

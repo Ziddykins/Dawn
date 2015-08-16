@@ -23,7 +23,6 @@
 #define MAX_ARMOR_TYPE       (5)
 #define MAX_SLAY_GOLD        (INT_MAX)
 #define MAT_COUNT            (8)
-#define TOWN_COUNT           (10)
 #define PERLIN_SCALE         (1.0f/(1<<8))
 #define PERLIN_V_SCALE       (3.25f)
 //Seconds
