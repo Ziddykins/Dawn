@@ -33,6 +33,7 @@ void init_cmds() {
     register_cmd(NULL, ";assign", "<type> <amount> | assign attribute points to your stats", AL_USER, cmd_assign);
     register_cmd(NULL, ";check", "Check whether there is a personal monster in this room", AL_USER, cmd_check);
     register_cmd(NULL, ";cast", "<spell> [target] | cast a specified spell; spell may require a target", AL_USER, cmd_cast);
+    register_cmd(NULL, ";drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
     register_cmd(NULL, ";drop", "<inventory slot> | Discard of an item in your inventory", AL_USER, cmd_drop);
     register_cmd(NULL, ";equip", "<inventory slot> | Equip an item from your inventory", AL_USER, cmd_equip);
     register_cmd(NULL, ";equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
@@ -55,7 +56,7 @@ void init_cmds() {
     register_cmd(NULL, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
     register_cmd(NULL, ";unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
     register_cmd(NULL, ";unequipall", "Uneqippes all pieces of equipment from your inventory", AL_USER, cmd_unequipall);
-    register_cmd(NULL, ";drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
+    register_cmd(NULL, ";weather", "Checks the current weather", AL_USER, cmd_weather);
 
     //AL_ADMIN
     register_cmd(NULL, ";fluctuate", "Forces the market prices to fluctuate", AL_ADMIN, cmd_fluctuate);
@@ -473,5 +474,25 @@ void cmd_setauth(int pindex, struct Message * msg) {
                  msg->receiver);
         add_msg(out, strlen(out));
     }
+    free(out);
+}
+void cmd_weather (int pindex __attribute__((unused)), struct Message *msg) {
+    char *out;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, the current weather is: ", dawn->active_room, msg->sender_nick);
+    switch (dawn->weather) {
+        case SUNNY:
+            strcat(out, "warm and sunny!\r\n");
+            break;
+        case RAINING:
+            strcat(out, "pouring rain\r\n");
+            break;
+        case SNOWING:
+            strcat(out, "snowing, perfect for making snow angels!\r\n");
+            break;
+        default:
+            strcat(out, "wejustdontknow.gif\r\n");
+    }
+    add_msg(out, strlen(out));
     free(out);
 }
