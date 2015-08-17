@@ -1,5 +1,16 @@
 #include "include/cmdsys.h"
 
+#include "include/network.h"
+#include "include/player.h"
+#include "include/util.h"
+#include "include/colors.h"
+#include "include/status.h"
+
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 CmdSys commands;
 
 void init_global_cmd_sys() {

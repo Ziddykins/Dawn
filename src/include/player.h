@@ -1,28 +1,35 @@
 #ifndef PLAYER_H_INCLUDED
 #define PLAYER_H_INCLUDED
+
+
 #include <openssl/sha.h>
-#include "status.h"
-#include "network.h"
-#include "map.h"
-#include "network.h"
-#include "stats.h"
-#include "colors.h"
-#include "inventory.h"
+
 #include "limits.h"
-#include "parse.h"
+#include "inventory.h"
+#include "monsters.h"
+#include "map.h"
 #include "spells.h"
 
 //Prototypes
-void save_players (struct Bot *);
-void load_players (struct Bot *);
-void print_sheet (struct Bot *, struct Message *);
-void init_new_character (struct Bot *, struct Message *);
-void check_levelup (struct Bot *, struct Message *);
-void assign_attr_points (struct Bot *, struct Message *, char*, int);
-void revive (struct Bot *, struct Message *);
-unsigned long long get_nextlvl_exp(struct Bot *b, char const * username);
-int get_pindex (struct Bot *, const char*);
-int get_bindex (struct Bot *, const char*, const char*);
+void save_players();
+
+void load_players();
+
+void print_sheet(struct Message *);
+
+void init_new_character(struct Message *);
+
+void check_levelup(struct Message *);
+
+void assign_attr_points(struct Message *, char *, int);
+
+void revive(struct Message *);
+
+unsigned long long get_nextlvl_exp(char const *username);
+
+int get_pindex(const char *);
+
+int get_bindex(const char *, const char *);
 
 enum auth_level {
     AL_NOAUTH,

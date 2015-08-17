@@ -7,20 +7,10 @@
  * It's main task is to avoid getting kicked from the server due to spam.
  */
 
-#include <stdio.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <netdb.h>
-#include <netdb.h> 
-#include <arpa/inet.h>
 #include "limits.h"
-#include "status.h"
-#include "util.h"
+
+#include <stddef.h>
+#include <time.h>
 
 struct Message {
     char sender_nick[64], sender_ident[64], sender_hostmask[64];
@@ -94,6 +84,4 @@ int hostname_to_ip (char *, char *); //Returns an IP from a hostname
 void close_socket (int);
 void send_socket (char *,size_t);
 void send_login (char *, char *, char *, char *);
-void parse_room_message (struct Bot *, struct Message *);
-void parse_private_message (struct Bot *, struct Message *);
 #endif

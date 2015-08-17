@@ -2,10 +2,8 @@
 #define UTIL_H_INCLUDED
 
 #include "colors.h"
-#include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <stddef.h>
 
 #define STR(x) #x
 #define XSTR(x) STR(x)

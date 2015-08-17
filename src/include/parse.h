@@ -1,24 +1,15 @@
 #ifndef PARSE_H_INCLUDED
 #define PARSE_H_INCLUDED
 
-#include <stdio.h>
-#include <pcre.h>
-#include <string.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include <openssl/sha.h>
+#include <stddef.h>
 #include "network.h"
-#include "status.h"
-#include "player.h"
-#include "inventory.h"
-#include "combat.h"
-#include "items.h"
-#include "market.h"
 
 int matches_regex(char *, const char *);
 void handle_login(char *, char *, char *, char *);
 
-int command_allowed (struct Bot *b, char * command, int pindex);
+void parse_private_message(struct Message *message);
+
+int command_allowed(char *command, int pindex);
 
 //char *nultrm   (char str[]);
 char *to_lower (char *str);

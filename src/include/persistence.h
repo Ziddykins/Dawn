@@ -2,9 +2,9 @@
 #define PERSISTENCE_H_INCLUDED
 
 #include "status.h"
-#include "player.h"
 
-void persistent_save(struct Bot *);
-void persistent_load(struct Bot *);
+void persistent_save();
+
+void persistent_load();
 
 #endif // PERSISTENCE_H_INCLUDED

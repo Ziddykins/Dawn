@@ -1,10 +1,13 @@
 #ifndef SPELLS_H_INCLUDED
 #define SPELLS_H_INCLUDED
 
-void cast_heal (struct Bot *, const char *, const char *);
-void cast_rain (struct Bot *, const char *);
-void cast_fireball (struct Bot *, const char *, const char *);
-void check_learn_spells (struct Bot *, const char *);
+void cast_heal(const char *, const char *);
+
+void cast_rain(const char *);
+
+void cast_fireball(const char *, const char *);
+
+void check_learn_spells(const char *);
 
 enum Element {FIRE, ICE, EARTH, WATER};
 

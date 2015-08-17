@@ -1,6 +1,8 @@
 #ifndef LIMITS_H_INCLUDED
 #define LIMITS_H_INCLUDED
 
+#include <limits.h>
+
 //networking
 #define MAX_MESSAGE_BUFFER  (400) //Max length of a single message
 #define MAX_RECV_BUFFER     (4096)

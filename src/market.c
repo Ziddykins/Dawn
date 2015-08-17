@@ -1,4 +1,6 @@
+#include <string.h>
 #include "include/market.h"
+#include "include/util.h"
 
 static int rrange (int min, int max) {
     int rval = (int)(randd() * (max-min) + min);
@@ -6,18 +8,18 @@ static int rrange (int min, int max) {
     return rval;
 }
 
-void fluctuate_market (struct Bot *b) {
+void fluctuate_market() {
     char out[MAX_MESSAGE_BUFFER];
-    memcpy(b->market.prevprice, b->market.materials , sizeof(b->market.materials));
-    b->market.materials[WOOD]    = rrange(100, 500);
-    b->market.materials[LEATHER] = rrange(250, 800);
-    b->market.materials[ORE]     = rrange(400, 1200);
-    b->market.materials[STONE]   = rrange(500, 1400);
-    b->market.materials[BRONZE]  = rrange(700, 2000);
-    b->market.materials[MAIL]    = rrange(1000, 3000);
-    b->market.materials[STEEL]   = rrange(4000, 12000);
-    b->market.materials[DIAMOND] = rrange(25000, 100000);
-    sprintf(out, "PRIVMSG %s :Market prices have been updated\r\n", b->active_room);
+    memcpy(dawn->market.prevprice, dawn->market.materials, sizeof(dawn->market.materials));
+    dawn->market.materials[WOOD] = rrange(100, 500);
+    dawn->market.materials[LEATHER] = rrange(250, 800);
+    dawn->market.materials[ORE] = rrange(400, 1200);
+    dawn->market.materials[STONE] = rrange(500, 1400);
+    dawn->market.materials[BRONZE] = rrange(700, 2000);
+    dawn->market.materials[MAIL] = rrange(1000, 3000);
+    dawn->market.materials[STEEL] = rrange(4000, 12000);
+    dawn->market.materials[DIAMOND] = rrange(25000, 100000);
+    sprintf(out, "PRIVMSG %s :Market prices have been updated\r\n", dawn->active_room);
     add_msg(out, strlen(out));
 }
 static char *material_to_str(int index) {
@@ -34,17 +36,17 @@ static char *material_to_str(int index) {
     }
 }
 
-void print_market (struct Bot *b) {
+void print_market() {
     char out[MAX_MESSAGE_BUFFER];
-    sprintf(out, "PRIVMSG %s :", b->active_room);
+    sprintf(out, "PRIVMSG %s :", dawn->active_room);
     for (int i=0; i<MAX_MATERIAL_TYPE; i++) {
         char *temp;
         size_t len = strlen(out);
         CALLEXIT(!(temp = malloc(MAX_MESSAGE_BUFFER-len)))
-        int difference = b->market.materials[i] - b->market.prevprice[i];
+        int difference = dawn->market.materials[i] - dawn->market.prevprice[i];
         snprintf(temp, MAX_MESSAGE_BUFFER-len, "[%s: %d (%s%+d" IRC_NORMAL ")] ",
                  material_to_str(i),
-                 b->market.materials[i],
+                 dawn->market.materials[i],
                  ((difference >= 0) ? IRC_GREEN : IRC_RED),
                  difference);
         strncat(out, temp, MAX_MESSAGE_BUFFER-len);
@@ -76,8 +78,8 @@ static int get_itemID (char *which) {
 }
 
 
-void market_buysell (struct Bot *b, struct Message *m, int buysell, char *which, long amount) {
-    int pindex = get_pindex(b, m->sender_nick);
+void market_buysell(struct Message *m, int buysell, char *which, long amount) {
+    int pindex = get_pindex(m->sender_nick);
     int material = get_itemID(which);
     char out[MAX_MESSAGE_BUFFER];
 
@@ -85,16 +87,16 @@ void market_buysell (struct Bot *b, struct Message *m, int buysell, char *which,
 
     if (buysell == 0) {
         //sell
-        if (b->players[pindex].materials[material] >= amount) {
-            if (b->players[pindex].gold + b->market.materials[material] * amount >= LONG_MAX) {
+        if (dawn->players[pindex].materials[material] >= amount) {
+            if (dawn->players[pindex].gold + dawn->market.materials[material] * amount >= LONG_MAX) {
                 sprintf(out, "PRIVMSG %s :%s, you can't carry that much gold\r\n", m->receiver, m->sender_nick);
                 add_msg(out, strlen(out));
                 return;
             }
-            b->players[pindex].materials[material] -= amount;
-            b->players[pindex].gold += b->market.materials[material] * amount;
+            dawn->players[pindex].materials[material] -= amount;
+            dawn->players[pindex].gold += dawn->market.materials[material] * amount;
             sprintf(out, "PRIVMSG %s :%s, you have sold %ld %s for %ld gold\r\n",
-                    m->receiver, m->sender_nick, amount, which, b->market.materials[material] * amount);
+                    m->receiver, m->sender_nick, amount, which, dawn->market.materials[material] * amount);
 
         } else {
             sprintf(out, "PRIVMSG %s :%s, you do not have enough %s to do that\r\n",
@@ -102,16 +104,16 @@ void market_buysell (struct Bot *b, struct Message *m, int buysell, char *which,
         }
     } else {
         //buy
-        if (b->players[pindex].materials[material] + amount >= LONG_MAX) {
+        if (dawn->players[pindex].materials[material] + amount >= LONG_MAX) {
             sprintf(out, "PRIVMSG %s :%s, you can't carry anymore %s\r\n", m->receiver, m->sender_nick, which);
             add_msg(out, strlen(out));
             return;
         }
-        if (b->players[pindex].gold >= b->market.materials[material] * amount) {
-            b->players[pindex].gold -= b->market.materials[material] * amount;
-            b->players[pindex].materials[material] += amount;
+        if (dawn->players[pindex].gold >= dawn->market.materials[material] * amount) {
+            dawn->players[pindex].gold -= dawn->market.materials[material] * amount;
+            dawn->players[pindex].materials[material] += amount;
             sprintf(out, "PRIVMSG %s :%s, you have purchased %ld %s for %ld gold\r\n",
-                    m->receiver, m->sender_nick, amount, which, b->market.materials[material] * amount);
+                    m->receiver, m->sender_nick, amount, which, dawn->market.materials[material] * amount);
         } else {
             sprintf(out, "PRIVMSG %s :%s, you do not have enough gold to purchase that much %s\r\n",
                     m->receiver, m->sender_nick, which);
@@ -120,15 +122,15 @@ void market_buysell (struct Bot *b, struct Message *m, int buysell, char *which,
     add_msg(out, strlen(out));
 }
 
-void print_materials (struct Bot *b, struct Message *m) {
-    int pindex = get_pindex(b, m->sender_nick);
+void print_materials(struct Message *m) {
+    int pindex = get_pindex(m->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
     sprintf(out, "PRIVMSG %s :%s, [Materials: - Wood: %ld - Leather %ld - Ore: %ld - Stone: %ld - "
                " Bronze: %ld - Mail: %ld - Steel: %ld - Diamond: %ld]\r\n",
-               m->receiver, m->sender_nick, b->players[pindex].materials[WOOD],
-               b->players[pindex].materials[LEATHER], b->players[pindex].materials[ORE],
-               b->players[pindex].materials[STONE], b->players[pindex].materials[BRONZE],
-               b->players[pindex].materials[MAIL], b->players[pindex].materials[STEEL],
-               b->players[pindex].materials[DIAMOND]);
+            m->receiver, m->sender_nick, dawn->players[pindex].materials[WOOD],
+            dawn->players[pindex].materials[LEATHER], dawn->players[pindex].materials[ORE],
+            dawn->players[pindex].materials[STONE], dawn->players[pindex].materials[BRONZE],
+            dawn->players[pindex].materials[MAIL], dawn->players[pindex].materials[STEEL],
+            dawn->players[pindex].materials[DIAMOND]);
     add_msg(out, strlen(out));
 }

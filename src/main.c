@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include "include/status.h"
 #include "include/commands.h"
+#include "include/util.h"
+#include "include/persistence.h"
+#include "include/parse.h"
+#include "include/market.h"
+#include "include/cmdsys.h"
 
 //External global defined in limit.h
 //Determined by server - if values not received on connect, default to 64
@@ -189,7 +194,7 @@ int main (int argc, char **argv) {
                 if (match) {
                     printf(INFO "Got welcome message from server, joining rooms\n");
                     sprintf(out, "JOIN %s\r\n", dawn->active_room);
-                    fluctuate_market(dawn);
+                    fluctuate_market();
                     add_msg(out, strlen(out));
                     dawn->in_rooms = 1;
                 }
@@ -211,7 +216,7 @@ int main (int argc, char **argv) {
 
                 //Check if user is identified
                 if (matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
-                    int pindex = get_pindex(dawn, regex_group[3]);
+                    int pindex = get_pindex(regex_group[3]);
                     if(pindex != -1 && (dawn->players[pindex].max_auth > AL_USER || dawn->players[pindex].auth_level > AL_NOAUTH)) {
                         if(dawn->players[pindex].max_auth < AL_REG) { //upgrade
                             dawn->players[pindex].max_auth = AL_REG;
@@ -241,7 +246,7 @@ int main (int argc, char **argv) {
                     char *ch_ptr;
                     ch_ptr = strtok(regex_group[4], " @&+");
                     while (ch_ptr != NULL) {
-                        int index = get_pindex(dawn, to_lower(ch_ptr));
+                        int index = get_pindex(to_lower(ch_ptr));
                         if (index != -1){
                             dawn->players[index].available = 1;
                             dawn->players[index].auth_level = AL_NOAUTH;
@@ -255,7 +260,7 @@ int main (int argc, char **argv) {
                 //Kicks
                 if (matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(\\w+)\\s(.*?)\\s(.*?)\\s:(.*)")) {
                     if (strcmp(regex_group[4], "KICK") == 0) {
-                        int index = get_pindex(dawn, to_lower(regex_group[6]));
+                        int index = get_pindex(to_lower(regex_group[6]));
                         if (index != -1) {
                             dawn->players[index].available = 0;
                             dawn->players[index].auth_level = AL_NOAUTH;
@@ -265,8 +270,8 @@ int main (int argc, char **argv) {
 
                 //Nick changes
                 if (matches_regex(buffer, ":(.*?)!~?.*?@.*?\\sNICK\\s:(.*?)\r\n")) {
-                    int oldindex = get_pindex(dawn, to_lower(regex_group[1]));
-                    int newindex = get_pindex(dawn, to_lower(regex_group[2]));
+                    int oldindex = get_pindex(to_lower(regex_group[1]));
+                    int newindex = get_pindex(to_lower(regex_group[2]));
                     if (oldindex != -1) {
                         dawn->players[oldindex].available = 0;
                         dawn->players[oldindex].auth_level = AL_NOAUTH;
@@ -279,7 +284,7 @@ int main (int argc, char **argv) {
 
                 //Parting and joining
                 if (matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)")) {
-                    int pindex = get_pindex(dawn, to_lower(regex_group[1]));
+                    int pindex = get_pindex(to_lower(regex_group[1]));
                     if (pindex != -1) {
                         if (strcmp(regex_group[4], "PART") == 0) {
                             dawn->players[pindex].available = 0;
@@ -297,7 +302,7 @@ int main (int argc, char **argv) {
                         struct Message temp;
                         strcpy(temp.sender_nick, dawn->nickname);
                         strcpy(temp.sender_hostmask, regex_group[3]);
-                        init_new_character(dawn, &temp);
+                        init_new_character(&temp);
                     }
                 }
 
@@ -311,9 +316,9 @@ int main (int argc, char **argv) {
                     if (strcmp(regex_group[4], "PRIVMSG") == 0) {
                         if(matches_regex(message.message, CMD_LIT)) {
                             if (message.receiver[0] == '#') {
-                                invoke_cmd(0, get_pindex(dawn, message.sender_nick),  regex_group[0], &message, CMD_EXEC);
+                                invoke_cmd(0, get_pindex(message.sender_nick), regex_group[0], &message, CMD_EXEC);
                             } else {
-                                parse_private_message(dawn, &message);
+                                parse_private_message(&message);
                             }
                         }
                     } else if (strcmp(regex_group[4], "NOTICE") == 0) {

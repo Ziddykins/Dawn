@@ -1,5 +1,20 @@
 #include "include/network.h"
 
+#include "include/limits.h"
+#include "include/status.h"
+#include "include/util.h"
+
+#include <stdio.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
 //! Receive buffer
 char buffer[MAX_RECV_BUFFER + 1];
 

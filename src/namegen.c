@@ -1,5 +1,15 @@
 #include "include/namegen.h"
 
+#include "include/analyzer.h"
+#include "include/colors.h"
+#include "include/util.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <malloc.h>
+#include <assert.h>
+#include <math.h>
+
 NameGen init_name_gen(unsigned int markov_tier) {
     if(markov_tier == 0)
         return 0;

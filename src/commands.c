@@ -1,5 +1,21 @@
 #include "include/commands.h"
 
+#include "include/parse.h"
+#include "include/limits.h"
+#include "include/cmdsys.h"
+#include "include/util.h"
+#include "include/spells.h"
+#include "include/player.h"
+#include "include/status.h"
+#include "include/combat.h"
+#include "include/items.h"
+#include "include/market.h"
+#include "include/persistence.h"
+
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+
 char regex_group[15][2048];
 
 void init_cmds() {
@@ -86,7 +102,7 @@ void cmd_new(int pindex, struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if(pindex == -1) {
-        init_new_character(dawn, msg);
+        init_new_character(msg);
         snprintf(out, MAX_MESSAGE_BUFFER, "WHOIS %s\r\n", msg->sender_nick);
         add_msg(out, strlen(out));
     } else {
@@ -145,61 +161,61 @@ void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         strncpy(msg->sender_nick, to_lower(regex_group[1]), MAX_NICK_LENGTH);
-        if (get_pindex(dawn, regex_group[1]) != -1) {
-            print_sheet(dawn, msg);
+        if (get_pindex(regex_group[1]) != -1) {
+            print_sheet(msg);
         }
     } else {
-        print_sheet(dawn, msg);
+        print_sheet(msg);
     }
 }
 
 void cmd_equip(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
-        equip_inventory(dawn, msg, slot, 0, 0);
+        equip_inventory(msg, slot, 0, 0);
     }
 }
 
 void cmd_unequip(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
-        equip_inventory(dawn, msg, slot, 1, 0);
+        equip_inventory(msg, slot, 1, 0);
     }
 }
 
 void cmd_equipall(int pindex __attribute__((unused)), struct Message * msg) {
-    equip_inventory(dawn, msg, 0, 0, 1);
+    equip_inventory(msg, 0, 0, 1);
 }
 
 void cmd_unequipall(int pindex __attribute__((unused)), struct Message * msg) {
-    equip_inventory(dawn, msg, 0, 1, 1);
+    equip_inventory(msg, 0, 1, 1);
 }
 
 void cmd_gmelee(int pindex __attribute__((unused)), struct Message * msg) {
-    player_attacks(dawn, msg, 1);
+    player_attacks(msg, 1);
 }
 
 void cmd_hunt(int pindex, struct Message * msg) {
     if (!dawn->players[pindex].personal_monster.active) {
-        call_monster(dawn, msg->sender_nick, 0);
+        call_monster(msg->sender_nick, 0);
     }
 }
 
 void cmd_revive(int pindex __attribute__((unused)), struct Message * msg) {
-    revive(dawn, msg);
+    revive(msg);
 }
 
 void cmd_drop(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
-        drop_item(dawn, msg, slot);
+        drop_item(msg, slot);
     }
 }
 
 void cmd_info(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
-        get_item_info(dawn, msg, slot);
+        get_item_info(msg, slot);
     }
 }
 
@@ -212,16 +228,16 @@ void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
         unsigned long long amount = strtoull(regex_group[2], &eptr, 10);
 
         strncpy(username, to_lower(regex_group[1]), MAX_NICK_LENGTH);
-        index = get_pindex(dawn, username);
+        index = get_pindex(username);
         dawn->players[index].experience += amount;
 
         if (index == -1) return;
 
-        while (dawn->players[index].experience > get_nextlvl_exp(dawn, username)) {
+        while (dawn->players[index].experience > get_nextlvl_exp(username)) {
             struct Message temp;
             strcpy(temp.sender_nick, username);
             strcpy(temp.receiver, dawn->active_room);
-            check_levelup(dawn, &temp);
+            check_levelup(&temp);
         }
         free(username);
     }
@@ -243,11 +259,11 @@ void cmd_make(int pindex __attribute__((unused)), struct Message * msg) {
     free(out);
 }
 void cmd_location(int pindex __attribute__((unused)), struct Message * msg) {
-    print_location(dawn, get_pindex(dawn, msg->sender_nick));
+    print_location(get_pindex(msg->sender_nick));
 }
 
 void cmd_slay(int pindex __attribute__((unused)), struct Message * msg) {
-    slay_monster(dawn, msg->sender_nick, 0, 0);
+    slay_monster(msg->sender_nick, 0, 0);
 }
 
 void cmd_cast(int pindex, struct Message * msg) {
@@ -261,11 +277,11 @@ void cmd_cast(int pindex, struct Message * msg) {
     }
     if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s?(\\w+)?")) {
         if (strcmp(regex_group[1], "heal") == 0) {
-            cast_heal(dawn, msg->sender_nick, to_lower(regex_group[2]));
+            cast_heal(msg->sender_nick, to_lower(regex_group[2]));
         } else if (strcmp(regex_group[1], "rain") == 0) {
-            cast_rain(dawn, msg->sender_nick);
+            cast_rain(msg->sender_nick);
         } else if (strcmp(regex_group[1], "fireball") == 0) {
-            cast_fireball(dawn, msg->sender_nick, to_lower(regex_group[2]));
+            cast_fireball(msg->sender_nick, to_lower(regex_group[2]));
         }
     }
     free(out);
@@ -273,7 +289,7 @@ void cmd_cast(int pindex, struct Message * msg) {
 
 void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
     if(matches_regex(msg->message, CMD_LIT" (\\d+)")) {
-        slay_monster(dawn, msg->sender_nick, 1, atoi(regex_group[1]));
+        slay_monster(msg->sender_nick, 1, atoi(regex_group[1]));
     } else {
         char * out;
         CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
@@ -287,18 +303,18 @@ void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_fslay(int pindex, struct Message * msg) {
     dawn->players[pindex].gold += 9999999;
-    slay_monster(dawn, msg->sender_nick, 1, 9999999);
+    slay_monster(msg->sender_nick, 1, 9999999);
 }
 
 void cmd_check(int pindex __attribute__((unused)), struct Message * msg) {
-    print_monster(dawn, msg->sender_nick, 0);
+    print_monster(msg->sender_nick, 0);
 }
 void cmd_gcheck(int pindex __attribute__((unused)), struct Message * msg) {
-    print_monster(dawn, msg->sender_nick, 1);
+    print_monster(msg->sender_nick, 1);
 }
 void cmd_assign(int pindex, struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
-        assign_attr_points(dawn, msg, to_lower(regex_group[1]), atoi(regex_group[2]));
+        assign_attr_points(msg, to_lower(regex_group[1]), atoi(regex_group[2]));
     } else {
         char * out;
         CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
@@ -321,7 +337,7 @@ void cmd_ap(int pindex, struct Message * msg) {
 
 void cmd_travel(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+),(\\d+)")) {
-        move_player(dawn, msg, atoi(regex_group[1]), atoi(regex_group[2]));
+        move_player(msg, atoi(regex_group[1]), atoi(regex_group[2]));
     }
 }
 /* DEPRECATED
@@ -332,20 +348,20 @@ void cmd_locate(int pindex __attribute__((unused)), struct Message * msg) {
 }
 */
 void cmd_materials(int pindex __attribute__((unused)), struct Message * msg) {
-    print_materials(dawn, msg);
+    print_materials(msg);
 }
 
 void cmd_market(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" sell (\\w+) (\\d+)")) {
         char *eptr;
         long amount = strtol(regex_group[2], &eptr, 10);
-        market_buysell(dawn, msg, 0, regex_group[1], amount);
+        market_buysell(msg, 0, regex_group[1], amount);
     } else if (matches_regex(msg->message, CMD_LIT" buy (\\w+) (\\d+)")) {
         char *eptr;
         long amount = strtol(regex_group[2], &eptr, 10);
-        market_buysell(dawn, msg, 1, regex_group[1], amount);
+        market_buysell(msg, 1, regex_group[1], amount);
     } else {
-        print_market(dawn);
+        print_market();
     }
 }
 
@@ -375,7 +391,7 @@ void cmd_gib(int pindex, struct Message * msg) {
 }
 
 void cmd_inv (int pindex __attribute__((unused)), struct Message * msg) {
-    print_inventory(dawn, msg);
+    print_inventory(msg);
 }
 
 void cmd_ghunt (int pindex __attribute__((unused)), struct Message * msg) {
@@ -388,16 +404,16 @@ void cmd_ghunt (int pindex __attribute__((unused)), struct Message * msg) {
         add_msg(out, strlen(out));
         free(out);
     } else {
-        call_monster(dawn, msg->sender_nick, 1);
+        call_monster(msg->sender_nick, 1);
     }
 }
 
 void cmd_melee (int pindex __attribute__((unused)), struct Message * msg) {
-    player_attacks(dawn, msg, 0);
+    player_attacks(msg, 0);
 }
 
 void cmd_fluctuate (int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
-    fluctuate_market(dawn);
+    fluctuate_market();
 }
 
 void cmd_drink(int pindex, struct Message * msg) {
@@ -428,7 +444,7 @@ void cmd_setauth(int pindex, struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if(matches_regex(msg->message, CMD_LIT " (\\w+) (\\w+)")) {
-        int useridx = get_pindex(dawn, regex_group[1]);
+        int useridx = get_pindex(regex_group[1]);
         if(useridx == -1) {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :This user does not exist.\r\n", msg->receiver);
             add_msg(out, strlen(out));

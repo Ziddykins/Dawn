@@ -1,5 +1,21 @@
 #include "include/status.h"
+
+#include "include/limits.h"
 #include "include/events.h"
+#include "include/monsters.h"
+#include "include/map.h"
+#include "include/inventory.h"
+#include "include/player.h"
+#include "include/persistence.h"
+#include "include/util.h"
+
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
+#include <assert.h>
 
 struct Bot * dawn;
 static EventList elist = 0; //currently selected list (there may only be one at a time)
@@ -242,7 +258,7 @@ void event_handler(int sig) {
             }
             case HOURLY:
             {
-                hourly_events(dawn);
+                hourly_events();
                 add_event(HOURLY, 0, 3600, NORMAL);
                 break;
             }
@@ -287,7 +303,6 @@ void save_events(char const * fn) {
     size_t len = 0, ret;
     if(!(file = fopen(fn, "wb"))) {
         PRINTWARN("Could not save events")
-        errno = 0;
     } else {
         if(elist == 0) {
             fprintf(stderr, WARN "status/save_events: tried to save but there was no event list\n");
@@ -298,21 +313,18 @@ void save_events(char const * fn) {
         while(tmp != 0) {
             if(!(ret = fwrite(&tmp->event_time, sizeof tmp->event_time, 1, file))) {
                 PRINTERR("fwrite")
-                errno = 0;
                 fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
             }
             len += ret * sizeof tmp->event_time;
             if(!(ret = fwrite(&tmp->elem->event, sizeof tmp->elem->event, 1, file))) {
                 PRINTERR("fwrite")
-                errno = 0;
                 fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
             }
             len += ret * sizeof tmp->elem->event;
             if(!(ret = fwrite(&tmp->elem->data, sizeof tmp->elem->data, 1, file))) {
                 PRINTERR("fwrite")
-                errno = 0;
                 fprintf(stderr, ERR "status/save_events: event file corrupted while saving - continuing");
                 break;
             }
@@ -330,7 +342,6 @@ void load_events(char const * fn) {
     if(!(file = fopen(fn, "rb"))) {
         select_list(init_event_list());
         fprintf(stderr, WARN "Could not load events\n");
-        errno = 0;
     } else {
         assert(elist == 0 && !eventQ_singleton);
         select_list(init_event_list());

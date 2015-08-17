@@ -1,25 +1,15 @@
 #ifndef STATUS_H_INCLUDED
 #define STATUS_H_INCLUDED
+
 #include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <assert.h>
 #include "limits.h"
-#include "monsters.h"
-#include "map.h"
-#include "inventory.h"
 #include "player.h"
-#include "persistence.h"
-#include "util.h"
+#include "monsters.h"
 
 extern struct Bot * dawn;
 
 //Prototypes
 void init_timers (struct Bot *, const char *);
-void print_location (struct Bot *, int);
 
 struct Market {
     int materials[MAX_MATERIAL_TYPE];

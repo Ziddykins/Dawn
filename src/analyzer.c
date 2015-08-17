@@ -1,4 +1,7 @@
 #include "include/analyzer.h"
+#include "include/tokenlist.h"
+#include "include/util.h"
+#include "include/colors.h"
 
 Analyzer init_analyzer(size_t markov_tier) {
     if(markov_tier == 0)

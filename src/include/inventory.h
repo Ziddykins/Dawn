@@ -11,6 +11,7 @@ struct Inventory {
    int type, rusted, equipped, equippable, attr_mana, rarity;
 };
 
-void print_inventory (struct Bot *, struct Message *);
-void equip_inventory (struct Bot *, struct Message *, int, int, int);
+void print_inventory(struct Message *);
+
+void equip_inventory(struct Message *, int, int, int);
 #endif

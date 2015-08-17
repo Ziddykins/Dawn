@@ -1,4 +1,16 @@
+#include "include/map.h"
+#include "include/network.h"
+#include "include/limits.h"
+#include "include/util.h"
 #include "include/status.h"
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <limits.h>
+#include <png.h>
+#include <assert.h>
 
 #define TRAVEL_TIME_MULT (1.0f)
 
@@ -40,9 +52,10 @@ enum entity_type { //ORDERING IMPORTANT, see rand_ent()
 struct entity {
     struct location pos;
     int type;
-    union data {
+    union _data {
+        int placeholder;
         //data
-    };
+    } data;
 };
 
 struct town {
@@ -421,16 +434,16 @@ void free_map() {
     free(global_map);
 }
 
-void print_location (struct Bot *b, int i) {
+void print_location(int i) {
     char out[MAX_MESSAGE_BUFFER];
-    sprintf(out, "PRIVMSG %s :%s, you are at %d,%d\r\n", b->active_room, b->players[i].username,
-            b->players[i].pos_x, b->players[i].pos_y);
+    sprintf(out, "PRIVMSG %s :%s, you are at %d,%d\r\n", dawn->active_room, dawn->players[i].username,
+            dawn->players[i].pos_x, dawn->players[i].pos_y);
     add_msg(out, strlen(out));
 }
 
-void move_player (struct Bot *b, struct Message *message, int x, int y) {
+void move_player(struct Message *message, int x, int y) {
     char out[MAX_MESSAGE_BUFFER];
-    int pindex = get_pindex(b, message->sender_nick);
+    int pindex = get_pindex(message->sender_nick);
     float travel_time;
     if (x < 0 || x >= global_map->dim || y < 0 || y >= global_map->dim) {
         sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, global_map->dim, global_map->dim);
@@ -443,8 +456,8 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
         return;
     }
 
-    int cx = b->players[pindex].pos_x;
-    int cy = b->players[pindex].pos_y;
+    int cx = dawn->players[pindex].pos_x;
+    int cy = dawn->players[pindex].pos_y;
 
     travel_time = pathlen(cx, cy, x, y)*TRAVEL_TIME_MULT;
     if(travel_time < 0) {
@@ -458,9 +471,9 @@ void move_player (struct Bot *b, struct Message *message, int x, int y) {
         return;
     }
     add_event(TRAVEL, pindex, (unsigned int)travel_time, UNIQUE);
-    b->players[pindex].travel_timer.pos.x = x;
-    b->players[pindex].travel_timer.pos.y = y;
-    b->players[pindex].travel_timer.active = 1;
+    dawn->players[pindex].travel_timer.pos.x = x;
+    dawn->players[pindex].travel_timer.pos.y = y;
+    dawn->players[pindex].travel_timer.active = 1;
 
     sprintf(out, "PRIVMSG %s :%s, you are traveling from (%d,%d) to (%d,%d). This will take %u seconds.\r\n",
             message->receiver, message->sender_nick, cx, cy, x, y, (unsigned int)travel_time);

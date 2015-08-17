@@ -1,4 +1,11 @@
 #include "include/tokenlist.h"
+#include "include/colors.h"
+#include "include/util.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <stdio.h>
 
 TokenList init_token_list() {
     struct token_list * new_list;

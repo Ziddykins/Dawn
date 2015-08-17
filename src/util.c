@@ -1,4 +1,10 @@
+#include <limits.h>
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include "include/colors.h"
 #include "include/util.h"
+
 
 double randd() {
     return ((double)(rand()))/INT_MAX;

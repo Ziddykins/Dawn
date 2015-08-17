@@ -1,13 +1,12 @@
 #ifndef ANALYZER_H_INCLUDED
 #define ANALYZER_H_INCLUDED
 
+#include "tokenlist.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
-#include "tokenlist.h"
-#include "colors.h"
-#include "util.h"
 
 #define CHAR_LEN 256
 //#define MAX_WORD_LEN 1024

@@ -1,12 +1,7 @@
 #ifndef LINKEDLIST_H_INCLUDED
 #define LINKEDLIST_H_INCLUDED
 
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <stdio.h>
-#include "colors.h"
-#include "util.h"
+#include <stddef.h>
 
 struct token_node {
     struct token_node * next, * prev;

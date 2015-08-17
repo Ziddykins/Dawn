@@ -1,5 +1,21 @@
 #include "include/parse.h"
 
+#include "include/network.h"
+#include "include/status.h"
+#include "include/player.h"
+#include "include/inventory.h"
+#include "include/combat.h"
+#include "include/items.h"
+#include "include/market.h"
+#include "include/util.h"
+
+#include <stdio.h>
+#include <pcre.h>
+#include <string.h>
+#include <stdlib.h>
+#include <inttypes.h>
+#include <openssl/sha.h>
+
 //All groupers from the regular expression
 //string will be stored here globally.
 char regex_group[15][2048];
@@ -111,35 +127,36 @@ void handle_login (char *nick, char *pass __attribute__((unused)), char *real, c
     //printf(INFO "Using password '%s'\n", pass); //TODO:quieting down warnings for now but this will be nickserv
 }
 
-void parse_private_message (struct Bot *b, struct Message *message) {
+void parse_private_message(struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
-    int pindex = get_pindex(b, message->sender_nick);
+    int pindex = get_pindex(message->sender_nick);
 
     if (pindex == -1) {
         sprintf(out, "PRIVMSG %s :You do not have an account\r\n", message->sender_nick);
         add_msg(out, strlen(out));
         return;
     }
-    if (b->players[pindex].max_auth >= AL_REG) {
+    if (dawn->players[pindex].max_auth >= AL_REG) {
         sprintf(out, "PRIVMSG %s :Please use ;auth\r\n", message->sender_nick);
         add_msg(out, strlen(out));
         return;
     }
     if (matches_regex(message->message, ";set password (\\w+)")) {
-        if (strcmp(message->sender_hostmask, b->players[pindex].hostmask) == 0) {
-            hash_pwd(b->players[pindex].pwd, b->players[pindex].salt, regex_group[1]);
+        if (strcmp(message->sender_hostmask, dawn->players[pindex].hostmask) == 0) {
+            hash_pwd(dawn->players[pindex].pwd, dawn->players[pindex].salt, regex_group[1]);
             sprintf(out, "PRIVMSG %s :Your password has been set\r\n", message->sender_nick);
         }
         add_msg(out, strlen(out));
     } else if (matches_regex(message->message, ";login (\\w+)")) {
-        if (b->players[pindex].auth_level < AL_USER) {
+        if (dawn->players[pindex].auth_level < AL_USER) {
             unsigned char hash[SHA256_DIGEST_LENGTH];
-            hash_pwd(hash, b->players[pindex].salt, regex_group[1]);
-            if (hash_cmp(hash, b->players[pindex].pwd)) {
-                strcpy(b->players[pindex].hostmask, message->sender_hostmask);
-                snprintf(out,  MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (USER)\r\n", b->active_room, message->sender_nick);
+            hash_pwd(hash, dawn->players[pindex].salt, regex_group[1]);
+            if (hash_cmp(hash, dawn->players[pindex].pwd)) {
+                strcpy(dawn->players[pindex].hostmask, message->sender_hostmask);
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (USER)\r\n", dawn->active_room,
+                         message->sender_nick);
                 add_msg(out, strlen(out));
-                b->players[pindex].auth_level = AL_USER;
+                dawn->players[pindex].auth_level = AL_USER;
                 snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Password correct\r\n", message->sender_nick);
             } else {
                 snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Incorrect password\r\n", message->sender_nick);
@@ -152,8 +169,8 @@ void parse_private_message (struct Bot *b, struct Message *message) {
 }
 
 //DEPRECATED
-int command_allowed (struct Bot *b, char * command, int pindex) { //command -> 16
-    if (b->players[pindex].travel_timer.active) {
+int command_allowed(char *command, int pindex) { //command -> 16
+    if (dawn->players[pindex].travel_timer.active) {
         char disallowed[2][16] = {"melee", "gmelee"}; //remember to change array limits
         for (int i=0; i<2; i++) {
             printf("recv '%s' iter '%s'\n", command, disallowed[i]);
@@ -163,15 +180,15 @@ int command_allowed (struct Bot *b, char * command, int pindex) { //command -> 1
     return 1;
 }
 
-void parse_room_message (struct Bot *b, struct Message *message) {
+void parse_room_message(struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
     if (strcmp(message->message, ";new") == 0) {
-        init_new_character(b, message);
+        init_new_character(message);
     }
 
     //Check if a user has an account and is logged in from the correct host
     if (matches_regex(message->message, "^;(.*)")) {
-        int pindex = get_pindex(b, message->sender_nick);
+        int pindex = get_pindex(message->sender_nick);
 
         //store command to check if user can execute it in current state
         matches_regex(message->message, "^;(.*?)\\s");
@@ -189,8 +206,8 @@ void parse_room_message (struct Bot *b, struct Message *message) {
             add_msg(out, strlen(out));
         }
 
-        if (strcmp(b->players[pindex].hostmask, message->sender_hostmask) != 0
-                && b->players[pindex].auth_level != 1) {
+        if (strcmp(dawn->players[pindex].hostmask, message->sender_hostmask) != 0
+            && dawn->players[pindex].auth_level != 1) {
             sprintf(out, "PRIVMSG %s :%s, I seem to recall you connecting from a different host. Please login "
                     "by sending me a private message containing: ;login <your_password>\r\n",
                     message->receiver, message->sender_nick);
@@ -198,7 +215,7 @@ void parse_room_message (struct Bot *b, struct Message *message) {
             return;
         }
 
-        if (!command_allowed(b, regex_group[1], pindex)) {
+        if (!command_allowed(regex_group[1], pindex)) {
             sprintf(out, "PRIVMSG %s :This command cannot be used at this time\r\n",  message->receiver);
             add_msg(out, strlen(out));
             return;

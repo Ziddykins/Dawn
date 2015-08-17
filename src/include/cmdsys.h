@@ -1,11 +1,10 @@
 #ifndef CMDSYS_H_INCLUDED
 #define CMDSYS_H_INCLUDED
 
+#include "network.h"
+
 #include <inttypes.h> //uint64_t
 #include <stddef.h> //size_t
-#include <assert.h>
-#include "network.h"
-#include "player.h"
 
 struct cmd_sys {
     size_t len, capacity; //info for array list

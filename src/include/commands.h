@@ -1,15 +1,7 @@
 #ifndef COMMANDS_H_INCLUDED
 #define COMMANDS_H_INCLUDED
 
-#include <stdlib.h>
-#include <stddef.h>
-#include <assert.h>
-#include "parse.h"
-#include "limits.h"
 #include "network.h"
-#include "cmdsys.h"
-#include "util.h"
-#include "spells.h"
 
 #define PREFIX ";"
 #define PREFIX_C ';'
