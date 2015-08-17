@@ -7,7 +7,7 @@
 
 
 double randd() {
-    return ((double)(rand()))/INT_MAX;
+    return ((double) (rand())) / RAND_MAX;
 }
 
 double gaussrand() {
