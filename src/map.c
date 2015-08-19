@@ -459,6 +459,12 @@ void move_player(struct Message *message, int x, int y) {
     int cx = dawn->players[pindex].pos_x;
     int cy = dawn->players[pindex].pos_y;
 
+    if (is_obstructed(cx, cy)) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You're stuck :(\r\n", message->receiver);
+        add_msg(out, strlen(out));
+        return;
+    }
+
     travel_time = pathlen(cx, cy, x, y)*TRAVEL_TIME_MULT;
     if(travel_time < 0) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, (%d,%d) cannot be reached :(\r\n", message->receiver, message->sender_nick, x, y);
