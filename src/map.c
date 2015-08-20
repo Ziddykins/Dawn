@@ -274,7 +274,7 @@ void generate_map() {
     free(copy);
 
     global_map->town_count = (int) (10 + gaussrand() * 3);
-    CALLEXIT(!(global_map->towns = calloc(global_map->town_count, sizeof *global_map->towns)))
+    CALLEXIT(!(global_map->towns = calloc((size_t) (global_map->town_count), sizeof *global_map->towns)))
     perlin_init();
     for (int i = 0; i < global_map->town_count; i++) {
         place_town(i);
