@@ -1,15 +1,10 @@
 #include "include/map.h"
-#include "include/network.h"
-#include "include/limits.h"
 #include "include/util.h"
 #include "include/status.h"
 
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <limits.h>
-#include <png.h>
 #include <assert.h>
 
 #define TRAVEL_TIME_MULT (1.0f)
@@ -42,15 +37,17 @@ enum shop_type {
 
 
 enum entity_type { //ORDERING IMPORTANT, see rand_ent()
+    ENT_START = 0,
+    ENT_NONE = 0,
     ENT_TOWN, //add road
     ENT_RESIDENTIAL,
     ENT_STABLES,
     ENT_SHOP,
     ENT_SHRINE,
+    ENT_END,
 };
 
 struct entity {
-    struct location pos;
     int type;
     union _data {
         int placeholder;
@@ -60,12 +57,13 @@ struct entity {
 
 struct town {
     float matdistr[MAT_COUNT]; //which materials are present in this town
-    struct entity * entities;
+    struct entity **t_ent; //point to m_ent entities
     int entitiy_count;
 };
 
 struct Map {
     float * heightmap; //dim*dim
+    struct entity *m_ent; //dim*dim
     struct town *towns;
     int town_count;
     float water_level;
@@ -114,10 +112,19 @@ void save_map(char const * const fn) {
     }
 }
 
-static inline int town_too_close(struct town *towns, int idx) {
+static inline struct location entity_location(struct entity *ent) {
+    int dim = global_map->dim;
+    return (struct location) {.x = (int) ((ent - global_map->m_ent) % dim), .y = (int) ((ent - global_map->m_ent) /
+                                                                                        dim)};
+}
+
+static inline int too_close_to_town(int x, int y) {
     for (int i = 0; i < global_map->town_count; i++) {
-        if(i != idx && towns[i].entities && sqrt(abs(towns[i].entities[0].pos.x-towns[idx].entities[0].pos.x)+abs(towns[i].entities[0].pos.y-towns[idx].entities[0].pos.y)) < 10) {
-            return 1;
+        if (global_map->towns[i].t_ent[0]) {
+            struct location t_pos = entity_location(global_map->towns[i].t_ent[0]);
+            if (sqrt(((t_pos.x - x) * (t_pos.x - x)) + ((t_pos.y - y) * (t_pos.y - y))) <= 10) {
+                return 1;
+            }
         }
     }
     return 0;
@@ -129,21 +136,24 @@ static inline void place_town(int idx) {
     struct town * _town = &(global_map->towns[idx]);
 
     _town->entitiy_count = (int)(10 + gaussrand() * 5);
-    CALLEXIT(!(_town->entities = calloc((size_t) (_town->entitiy_count), sizeof *_town->entities)))
-    _town->entities[0].type = ENT_TOWN;
+    CALLEXIT(!(_town->t_ent = calloc((size_t) (_town->entitiy_count), sizeof *_town->t_ent)))
+    int x = 0, y = 0;
     do {
-        _town->entities[0].pos.x = (int) (randd() * dim);
-        _town->entities[0].pos.y = (int) (randd() * dim);
-    } while (is_obstructed(_town->entities[0].pos.x, _town->entities[0].pos.y) ||
-             town_too_close(global_map->towns, idx));
-    for(int j = 0; j < MAT_COUNT; j++) {
-        _town->matdistr[j] = noise(_town->entities[0].pos.x * PERLIN_SCALE, _town->entities[0].pos.x * PERLIN_SCALE, j*PERLIN_V_SCALE);
+        x = (int) (randd() * dim);
+        y = (int) (randd() * dim);
+    } while (is_obstructed(x, y) ||
+             too_close_to_town(x, y));
+    _town->t_ent[0] = &global_map->m_ent[y * dim + x];
+    _town->t_ent[0]->type = ENT_TOWN;
+    for (int i = 0; i < MAT_COUNT; i++) {
+        _town->matdistr[i] = noise(x * PERLIN_SCALE, y * PERLIN_SCALE, i * PERLIN_V_SCALE);
     }
 }
 
 static inline void rand_ent(struct entity * e) {
     //generate entity
     float probs[] = {
+            0,   //0% none
             0,   //0% town
             0.6, //60% reditential houses
             0.7, //10% stables
@@ -202,53 +212,54 @@ static inline int queue_overlap(struct location *q, size_t start, size_t end, si
     return 0;
 }
 
-static inline int town_overlap(struct town *_town, int x, int y) {
-    for(int i = 0; i < _town->entitiy_count; i++) {
-        if(_town->entities[i].pos.x == x && _town->entities[i].pos.y == y) {
-            return 1;
-        }
-    }
-    return 0;
+static inline int entity_overlap(int x, int y) {
+    return global_map->m_ent[y * global_map->dim + x].type; //non-zero if entity exists
+}
+
+static inline int is_valid(int x, int y, int dim) {
+    return x >= 0 && x < dim && y >= 0 && y < dim;
 }
 
 //do not inline, essentially a horrible flood-fill
 static void grow_town(int idx) {
     struct town * _town = &(global_map->towns[idx]);
+    int dim = global_map->dim;
     size_t pos = 0;
     size_t q_size = (size_t)(4*(_town->entitiy_count+1));
     struct location *queue;
     CALLEXIT(!(queue = calloc(q_size, sizeof *queue)))
     size_t start = 0, end = 0;
 
-    q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x+1, .y =  _town->entities[0].pos.y});
-    q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x-1, .y =  _town->entities[0].pos.y});
-    q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x, .y =  _town->entities[0].pos.y+1});
-    q_append(queue, start, &end, q_size, (struct location) {.x = _town->entities[0].pos.x, .y =  _town->entities[0].pos.y-1});
-    while(pos < _town->entitiy_count) {
+    struct location t_pos = entity_location(_town->t_ent[0]);
+    q_append(queue, start, &end, q_size, (struct location) {.x = t_pos.x + 1, .y =  t_pos.y});
+    q_append(queue, start, &end, q_size, (struct location) {.x = t_pos.x - 1, .y =  t_pos.y});
+    q_append(queue, start, &end, q_size, (struct location) {.x = t_pos.x, .y =  t_pos.y + 1});
+    q_append(queue, start, &end, q_size, (struct location) {.x = t_pos.x, .y =  t_pos.y - 1});
+    while (pos < (size_t) (_town->entitiy_count)) {
         struct location *cur = q_pop(queue, &start, end, q_size);
         int x = cur->x;
         int y = cur->y;
-
-        rand_ent(&(_town->entities[pos]));
+        _town->t_ent[pos] = &(global_map->m_ent[y * dim + x]);
+        rand_ent(_town->t_ent[pos]);
 
         //check von neumann neighborhood
         int app_x = x+1, app_y = y;
-        if (!is_obstructed(app_x, app_y) && !town_overlap(_town, app_x, app_y) &&
+        if (is_valid(app_x, app_y, global_map->dim) && !is_obstructed(app_x, app_y) && !entity_overlap(app_x, app_y) &&
             !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
             q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
         }
         app_x = x-1, app_y = y;
-        if (!is_obstructed(app_x, app_y) && !town_overlap(_town, app_x, app_y) &&
+        if (is_valid(app_x, app_y, global_map->dim) && !is_obstructed(app_x, app_y) && !entity_overlap(app_x, app_y) &&
             !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
             q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
         }
         app_x = x, app_y = y+1;
-        if (!is_obstructed(app_x, app_y) && !town_overlap(_town, app_x, app_y) &&
+        if (is_valid(app_x, app_y, global_map->dim) && !is_obstructed(app_x, app_y) && !entity_overlap(app_x, app_y) &&
             !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
             q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
         }
         app_x = x, app_y = y-1;
-        if (!is_obstructed(app_x, app_y) && !town_overlap(_town, app_x, app_y) &&
+        if (is_valid(app_x, app_y, global_map->dim) && !is_obstructed(app_x, app_y) && !entity_overlap(app_x, app_y) &&
             !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
             q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
         }
@@ -273,21 +284,21 @@ void generate_map() {
     global_map->water_level = copy[(int)(1.0/6.0*dim*dim)];
     free(copy);
 
-    global_map->town_count = (int) (10 + gaussrand() * 3);
-    CALLEXIT(!(global_map->towns = calloc((size_t) (global_map->town_count), sizeof *global_map->towns)))
+    int town_count = (int) (10 + gaussrand() * 3);
+    global_map->town_count = 0;
+    CALLEXIT(!(global_map->towns = calloc((size_t) (town_count), sizeof *global_map->towns)))
+    CALLEXIT(!(global_map->m_ent = calloc((size_t) (dim * dim), sizeof *global_map->m_ent)))
     perlin_init();
-    for (int i = 0; i < global_map->town_count; i++) {
+    for (int i = 0; i < town_count; i++) {
         place_town(i);
+        global_map->town_count++;
     }
+    assert(town_count == global_map->town_count);
 
-    for (int i = 0; i < global_map->town_count; i++) {
+    for (int i = 0; i < town_count; i++) {
         grow_town(i);
     }
     perlin_cleanup();
-}
-
-static inline int is_valid(int x, int y, int dim) {
-    return x >= 0 && x < dim && y >= 0 && y < dim;
 }
 
 int is_water(int x, int y) {
@@ -428,9 +439,10 @@ float pathlen(int x1, int y1, int x2, int y2) {
 void free_map() {
     free(global_map->heightmap);
     for (int i = 0; i < global_map->town_count; i++) {
-        free(global_map->towns[i].entities);
+        free(global_map->towns[i].t_ent);
     }
     free(global_map->towns);
+    free(global_map->m_ent);
     free(global_map);
 }
 
