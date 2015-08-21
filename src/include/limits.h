@@ -27,6 +27,7 @@
 #define MAT_COUNT            (8)
 #define PERLIN_SCALE         (1.0f/(1<<8))
 #define PERLIN_V_SCALE       (3.25f)
+#define GENERATION_TRIALS    (10000)
 //Seconds
 #define HEALING_INTERVAL     (1800)
 #define SAVING_INTERVAL      (900)

@@ -49,10 +49,10 @@ enum entity_type { //ORDERING IMPORTANT, see rand_ent()
 
 struct entity {
     int type;
-    union _data {
+    union {
         int placeholder;
         //data
-    } data;
+    };
 };
 
 struct town {
@@ -72,28 +72,64 @@ struct Map {
 };
 
 void init_map(char const * const fn) {
-    CALLEXIT(!(global_map = malloc(sizeof *global_map)))
+    CALLEXIT(!(global_map = calloc(sizeof *global_map, 1)))
     global_map->dim = 1<<10;
     global_map->flags = 0;
-    CALLEXIT(!(global_map->heightmap = calloc(sizeof *global_map->heightmap, (size_t)(global_map->dim * global_map->dim))))
+
     FILE *file = fopen(fn, "rb");
     if(!file) {
         printf(INFO "Generating new heightmap\n");
         generate_map();
         save_map(fn);
     } else {
+
         CALLEXIT(!(fread(&global_map->dim, sizeof global_map->dim, 1, file)))
         CALLEXIT(!(fread(&global_map->flags, sizeof global_map->flags, 1, file)))
         CALLEXIT(!(fread(&global_map->water_level, sizeof global_map->water_level, 1, file)))
-        //CALLEXIT(!(fread(&global_map->towns, sizeof global_map->towns, 1, file)))
-        CALLEXIT(!(fread(global_map->heightmap, (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap, 1, file)))
+
+        int dim = global_map->dim;
+
+        size_t nmemb = (size_t) (dim * dim);
+        CALLEXIT(!(global_map->heightmap = malloc(nmemb * sizeof *global_map->heightmap)))
+        CALLEXIT(fread(global_map->heightmap, sizeof *global_map->heightmap, nmemb, file) != nmemb)
+
+        nmemb = (size_t) (dim * dim);
+        CALLEXIT(!(global_map->m_ent = malloc(nmemb * sizeof *global_map->m_ent)))
+        CALLEXIT(fread(global_map->m_ent, sizeof *global_map->m_ent, nmemb, file) != nmemb)
+
+        CALLEXIT(!(fread(&global_map->town_count, sizeof global_map->town_count, 1, file)))
+        CALLEXIT(!(global_map->towns = malloc(global_map->town_count * sizeof *global_map->towns)))
+
+        struct location e_pos;
+
+        for (int i = 0; i < global_map->town_count; i++) {
+            CALLEXIT(fread(global_map->towns[i].matdistr, sizeof *global_map->towns[i].matdistr, MAT_COUNT, file) !=
+                     MAT_COUNT)
+            CALLEXIT(
+                    !(fread(&(global_map->towns[i].entitiy_count), sizeof global_map->towns[i].entitiy_count, 1, file)))
+            CALLEXIT(!(global_map->towns[i].t_ent = malloc(
+                    global_map->towns[i].entitiy_count * sizeof *global_map->towns[i].t_ent)))
+            for (int j = 0; j < global_map->towns[i].entitiy_count; j++) {
+                CALLEXIT(!(fread(&e_pos, sizeof e_pos, 1, file)))
+                global_map->towns[i].t_ent[j] = &global_map->m_ent[e_pos.y * dim + e_pos.x];
+            }
+        }
+
         fclose(file);
         printf(INFO "Map loaded\n");
     }
 }
 
+static inline struct location entity_location(struct entity *ent) {
+    int dim = global_map->dim;
+    return (struct location) {
+            .x = (int) ((ent - global_map->m_ent) % dim),
+            .y = (int) ((ent - global_map->m_ent) / dim)
+    };
+}
+
 void save_map(char const * const fn) {
-    CALLEXIT(!global_map)
+    assert(global_map);
     if(global_map->flags & MAP_PRESENT && !(global_map->flags & MAP_SAVED)) {
         FILE *file = fopen(fn, "wb");
         if(!file) {
@@ -103,19 +139,31 @@ void save_map(char const * const fn) {
         CALLEXIT(!(fwrite(&global_map->dim, sizeof global_map->dim, 1, file)))
         CALLEXIT(!(fwrite(&global_map->flags, sizeof global_map->flags, 1, file)))
         CALLEXIT(!(fwrite(&global_map->water_level, sizeof global_map->water_level, 1, file)))
-        //CALLEXIT(!(fwrite(&global_map->towns, sizeof global_map->towns, 1, file)))
 
-        size_t size = (size_t)(global_map->dim * global_map->dim) * sizeof *global_map->heightmap;
-        CALLEXIT(!(fwrite(global_map->heightmap, size, 1, file)))
+        int dim = global_map->dim;
+
+        size_t nmemb = (size_t) (dim * dim);
+        CALLEXIT(fwrite(global_map->heightmap, sizeof *global_map->heightmap, nmemb, file) != nmemb)
+
+        nmemb = (size_t) (dim * dim);
+        CALLEXIT(fwrite(global_map->m_ent, sizeof *global_map->m_ent, nmemb, file) != nmemb)
+
+        CALLEXIT(!(fwrite(&global_map->town_count, sizeof global_map->town_count, 1, file)))
+        for (int i = 0; i < global_map->town_count; i++) {
+            CALLEXIT(fwrite(global_map->towns[i].matdistr, sizeof *global_map->towns[i].matdistr, MAT_COUNT, file) !=
+                     MAT_COUNT)
+            CALLEXIT(!(fwrite(&(global_map->towns[i].entitiy_count), sizeof global_map->towns[i].entitiy_count, 1,
+                              file)))
+            for (int j = 0; j < global_map->towns[i].entitiy_count; j++) {
+                struct location e_pos = entity_location(global_map->towns[i].t_ent[0]);
+                CALLEXIT(!(fwrite(&e_pos, sizeof e_pos, 1, file)))
+            }
+        }
+
+
         printf(INFO "Saved map\n");
         fclose(file);
     }
-}
-
-static inline struct location entity_location(struct entity *ent) {
-    int dim = global_map->dim;
-    return (struct location) {.x = (int) ((ent - global_map->m_ent) % dim), .y = (int) ((ent - global_map->m_ent) /
-                                                                                        dim)};
 }
 
 static inline int too_close_to_town(int x, int y) {
@@ -130,6 +178,10 @@ static inline int too_close_to_town(int x, int y) {
     return 0;
 }
 
+static inline int is_valid(int x, int y, int dim) {
+    return x >= 0 && x < dim && y >= 0 && y < dim;
+}
+
 //requires perlin noise
 static inline void place_town(int idx) {
     int dim = global_map->dim;
@@ -137,12 +189,17 @@ static inline void place_town(int idx) {
 
     _town->entitiy_count = (int)(10 + gaussrand() * 5);
     CALLEXIT(!(_town->t_ent = calloc((size_t) (_town->entitiy_count), sizeof *_town->t_ent)))
-    int x = 0, y = 0;
+    int x = 0, y = 0, counter = 0;
     do {
         x = (int) (randd() * dim);
         y = (int) (randd() * dim);
-    } while (is_obstructed(x, y) ||
-             too_close_to_town(x, y));
+        counter++;
+    } while ((!is_valid(x, y, dim) || is_obstructed(x, y) ||
+              too_close_to_town(x, y)) && counter < GENERATION_TRIALS);
+    if (counter >= GENERATION_TRIALS) {
+        PRINTERR("Map dimensions too small. Retry or increase map size.")
+        exit(1);
+    }
     _town->t_ent[0] = &global_map->m_ent[y * dim + x];
     _town->t_ent[0]->type = ENT_TOWN;
     for (int i = 0; i < MAT_COUNT; i++) {
@@ -216,16 +273,12 @@ static inline int entity_overlap(int x, int y) {
     return global_map->m_ent[y * global_map->dim + x].type; //non-zero if entity exists
 }
 
-static inline int is_valid(int x, int y, int dim) {
-    return x >= 0 && x < dim && y >= 0 && y < dim;
-}
-
 //do not inline, essentially a horrible flood-fill
 static void grow_town(int idx) {
     struct town * _town = &(global_map->towns[idx]);
     int dim = global_map->dim;
     size_t pos = 0;
-    size_t q_size = (size_t)(4*(_town->entitiy_count+1));
+    size_t q_size = (size_t) (5 * (_town->entitiy_count + 1));
     struct location *queue;
     CALLEXIT(!(queue = calloc(q_size, sizeof *queue)))
     size_t start = 0, end = 0;
@@ -271,6 +324,17 @@ static void grow_town(int idx) {
 }
 
 void generate_map() {
+    FILE *urandom;
+    CALLEXIT(!(urandom = fopen("/dev/urandom", "r")))
+
+    unsigned int seed;
+    CALLEXIT(!(fread(&seed, sizeof(seed), 1, urandom)))
+    srand(seed);
+    fclose(urandom);
+
+    global_map->dim = 1 << 10;
+    CALLEXIT(!(global_map->heightmap = calloc(sizeof *global_map->heightmap,
+                                              (size_t) (global_map->dim * global_map->dim))))
     diamond_square(global_map->heightmap, global_map->dim, 4000.0, global_map->dim);
     global_map->flags |= MAP_PRESENT;
 
@@ -283,7 +347,6 @@ void generate_map() {
     qsort(copy, (size_t) (dim*dim), sizeof *copy, &compare_float_asc);
     global_map->water_level = copy[(int)(1.0/6.0*dim*dim)];
     free(copy);
-
     int town_count = (int) (10 + gaussrand() * 3);
     global_map->town_count = 0;
     CALLEXIT(!(global_map->towns = calloc((size_t) (town_count), sizeof *global_map->towns)))
