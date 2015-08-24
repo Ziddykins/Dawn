@@ -1,14 +1,11 @@
 #include "include/cmdsys.h"
 
-#include "include/network.h"
 #include "include/player.h"
 #include "include/util.h"
-#include "include/colors.h"
 #include "include/status.h"
 
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 CmdSys commands;
@@ -187,7 +184,7 @@ void sort_cmd_sys(CmdSys cs) {
     CALLEXIT(!(helptexts = calloc(ccs->len, sizeof *ccs->helptexts)))
     int * auth_levels;
     CALLEXIT(!(auth_levels = calloc(ccs->len, sizeof *ccs->auth_levels)))
-    void (*(*fn))(int pindex, struct Message *msg);
+    cmd_func fn;
     CALLEXIT(!(fn = calloc(ccs->len, sizeof *ccs->fn)))
 
     for(size_t i = 0; i < ccs->len; i++) {
