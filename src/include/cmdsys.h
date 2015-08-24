@@ -63,7 +63,7 @@ void free_cmd_sys(CmdSys cs);
  * @param auth_level see player.h for authentication levels
  * @param fn the function to be called for this command
  */
-void register_cmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(int pindex, struct Message *msg));
+void register_cmd(CmdSys cs, char *cmd, char *helptext, int auth_level, cmd_func fn);
 
 /**
  * @brief call this when done adding commands
