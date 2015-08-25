@@ -41,6 +41,8 @@ int check_alive(struct Message *message) {
             dawn->players[pindex].deaths++;
             dawn->players[pindex].alive = 0;
             dawn->players[pindex].experience = (unsigned long long) newexp;
+            if (dawn->players[pindex].fullness <= 0)
+                dawn->players[pindex].fullness = 100;
             return 0;
         }
     }

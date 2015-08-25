@@ -15,6 +15,23 @@
 //Prototype
 void check_famine(int);
 
+static void gift_user (void) {
+    char out[MAX_MESSAGE_BUFFER];
+    int player = rand() % dawn->player_count;
+
+    while (dawn->players[player].available != 1 
+            || strcmp(dawn->players[player].username, dawn->nickname) == 0) {
+        player = rand() % dawn->player_count;
+    }
+
+    sprintf(out, "PRIVMSG %s :%s was generous enough to pass along the good luck to %s! +%ld gold\r\n",
+            dawn->active_room, dawn->nickname, dawn->players[player].username, dawn->players[0].gold);
+
+    dawn->players[player].gold += dawn->players[0].gold;
+    dawn->players[0].gold = 0;
+    add_msg(out, strlen(out));
+}
+
 static void random_shrine(char *username) { //username -> MAX_NICK_LENGTH
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(username);
@@ -95,6 +112,10 @@ static void random_reward(char *username) { //username -> MAX_NICK_LENGTH
         default:
             PRINTERR("INVALID REWARD")
     }
+
+    if (strcmp(dawn->players[index].username, dawn->nickname) == 0 && (which == 0 || which == 1))
+        gift_user();
+
 }
 
 static void random_punishment(char const *username) { //username -> MAX_NICK_LENGTH

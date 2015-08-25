@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <stdlib.h>
+#include <time.h>
 #include "include/status.h"
 #include "include/commands.h"
 #include "include/util.h"
@@ -19,6 +20,7 @@ char *auth_key;
 
 //Prototype
 void print_usage(char **);
+char* timestamp(void);
 
 int main (int argc, char **argv) {
     //For getops();
@@ -347,7 +349,7 @@ int main (int argc, char **argv) {
     free_map();
     free(dawn);
     if (auth_key_valid || auth_key) free(auth_key);
-    printf(INFO "Program exiting normally\n");
+    printf(INFO "Program exiting normally [%s]\n", timestamp());
     return 0;
 }
 
@@ -361,4 +363,14 @@ void print_usage (char **argv) {
     printf(WARN "\t-r <room>\t- Sets which room the bot will join - NOTE: OMIT THE #\n");
     printf(WARN "\t-s <server>\t- Specify the server the bot connects to -\n"
                 "\t\t\t  can be IP or hostname\n");
+}
+
+char *timestamp (void) {
+    static char timestamp[12];
+    time_t ltime;
+    ltime = time(NULL);
+    struct tm *tm;
+    tm = localtime(&ltime);
+    sprintf(timestamp,"%02d/%02d:%02d:%02d", tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+    return timestamp;
 }
