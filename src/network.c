@@ -1,14 +1,11 @@
 #include "include/network.h"
 
-#include "include/limits.h"
 #include "include/status.h"
 #include "include/util.h"
 
-#include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -196,7 +193,7 @@ void add_msg(char * msg, size_t len) {
  * @return char* character string to be freed by the callee
  * @see process_messages
  */
-char * retr_msg() {
+static char *retr_msg() {
     if(mlist == 0)
         return 0;
     struct msg_list * cmlist = mlist;
