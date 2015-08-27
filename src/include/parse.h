@@ -9,6 +9,8 @@ void handle_login(char *, char *, char *, char *);
 
 void parse_private_message(struct Message *message);
 
+void parse_room_message(struct Message *message);
+
 int command_allowed(char *command, int pindex);
 
 //char *nultrm   (char str[]);
