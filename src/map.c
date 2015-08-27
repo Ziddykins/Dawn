@@ -210,12 +210,12 @@ static inline void place_town(int idx) {
 static inline void rand_ent(struct entity * e) {
     //generate entity
     float probs[] = {
-            0,   //0% none
-            0,   //0% town
-            0.6, //60% reditential houses
-            0.7, //10% stables
-            0.9, //20% shops
-            1.0, //10% shrines
+            0.0f,   //0% none
+            0.0f,   //0% town
+            0.6f, //60% reditential houses
+            0.7f, //10% stables
+            0.9f, //20% shops
+            1.0f, //10% shrines
     };
     double rand_num = randd();
     int ent_type = 0;
