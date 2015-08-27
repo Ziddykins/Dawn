@@ -11,9 +11,9 @@
 #include "spells.h"
 
 //Prototypes
-void save_players();
+void save_players(void);
 
-void load_players();
+void load_players(void);
 
 void print_sheet(struct Message *);
 
