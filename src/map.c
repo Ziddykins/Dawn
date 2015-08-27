@@ -98,7 +98,7 @@ void init_map(char const * const fn) {
         CALLEXIT(fread(global_map->m_ent, sizeof *global_map->m_ent, nmemb, file) != nmemb)
 
         CALLEXIT(!(fread(&global_map->town_count, sizeof global_map->town_count, 1, file)))
-        CALLEXIT(!(global_map->towns = malloc(global_map->town_count * sizeof *global_map->towns)))
+        CALLEXIT(!(global_map->towns = malloc((size_t) (global_map->town_count) * sizeof *global_map->towns)))
 
         struct location e_pos;
 
@@ -108,7 +108,7 @@ void init_map(char const * const fn) {
             CALLEXIT(
                     !(fread(&(global_map->towns[i].entitiy_count), sizeof global_map->towns[i].entitiy_count, 1, file)))
             CALLEXIT(!(global_map->towns[i].t_ent = malloc(
-                    global_map->towns[i].entitiy_count * sizeof *global_map->towns[i].t_ent)))
+                    (size_t) (global_map->towns[i].entitiy_count) * sizeof *global_map->towns[i].t_ent)))
             for (int j = 0; j < global_map->towns[i].entitiy_count; j++) {
                 CALLEXIT(!(fread(&e_pos, sizeof e_pos, 1, file)))
                 global_map->towns[i].t_ent[j] = &global_map->m_ent[e_pos.y * dim + e_pos.x];
