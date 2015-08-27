@@ -3,8 +3,8 @@
 
 #include "status.h"
 
-void persistent_save();
+void persistent_save(void);
 
-void persistent_load();
+void persistent_load(void);
 
 #endif // PERSISTENCE_H_INCLUDED
