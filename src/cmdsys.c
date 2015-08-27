@@ -184,7 +184,7 @@ void sort_cmd_sys(CmdSys cs) {
     CALLEXIT(!(helptexts = calloc(ccs->len, sizeof *ccs->helptexts)))
     int * auth_levels;
     CALLEXIT(!(auth_levels = calloc(ccs->len, sizeof *ccs->auth_levels)))
-    cmd_func fn;
+    cmd_func *fn;
     CALLEXIT(!(fn = calloc(ccs->len, sizeof *ccs->fn)))
 
     for(size_t i = 0; i < ccs->len; i++) {

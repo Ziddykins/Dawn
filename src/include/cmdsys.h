@@ -6,7 +6,7 @@
 #include <inttypes.h> //uint64_t
 #include <stddef.h> //size_t
 
-typedef void (*(*cmd_func))(int, struct Message *);
+typedef void (*cmd_func)(int, struct Message *);
 
 struct cmd_sys {
     size_t len, capacity; //info for array list
@@ -14,7 +14,7 @@ struct cmd_sys {
     char ** cmds; //command strings e.g. ";help"
     char ** helptexts;
     int * auth_levels;
-    cmd_func fn; //array of function pointers
+    cmd_func *fn; //array of function pointers
     size_t flags; //alignment + safety checks
 };
 
