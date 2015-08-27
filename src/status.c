@@ -1,17 +1,10 @@
 #include "include/status.h"
 
-#include "include/limits.h"
 #include "include/events.h"
-#include "include/monsters.h"
-#include "include/map.h"
-#include "include/inventory.h"
-#include "include/player.h"
 #include "include/persistence.h"
 #include "include/util.h"
 
-#include <time.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
@@ -252,7 +245,7 @@ void event_handler(int sig) {
             }
             case SAVING:
             {
-                persistent_save(dawn);
+                persistent_save();
                 add_event(SAVING, 0, SAVING_INTERVAL, NORMAL);
                 break;
             }

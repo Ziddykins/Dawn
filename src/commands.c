@@ -1,7 +1,6 @@
 #include "include/commands.h"
 
 #include "include/parse.h"
-#include "include/limits.h"
 #include "include/cmdsys.h"
 #include "include/util.h"
 #include "include/spells.h"
@@ -12,7 +11,6 @@
 #include "include/market.h"
 #include "include/persistence.h"
 
-#include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 
@@ -392,7 +390,7 @@ void cmd_market(int pindex __attribute__((unused)), struct Message * msg) {
 void cmd_save(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
-    persistent_save(dawn);
+    persistent_save();
     snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Saved.\r\n", msg->receiver);
     add_msg(out, strlen(out));
     free(out);

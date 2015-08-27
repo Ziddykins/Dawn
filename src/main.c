@@ -46,7 +46,7 @@ int main (int argc, char **argv) {
     strcpy(dawn->password, "temp");
     strcpy(dawn->active_room, "#stacked");
     //Load players
-    persistent_load(dawn);
+    persistent_load();
 
     while ((opt = getopt(argc, argv, "hm:n:p:r:s:")) != -1) {
         switch (opt) {
