@@ -41,7 +41,7 @@ void free_cmd_sys(CmdSys cs) {
     free(ccs);
 }
 
-void register_cmd(CmdSys cs, char *cmd, char *helptext, int auth_level, cmd_func fn) {
+void register_cmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (*fn)(int pindex, struct Message *msg)) {
     struct cmd_sys * ccs = cs ? cs : commands;
     assert(ccs && cmd && helptext && fn);
     ccs->flags = CMD_REGISTERED;

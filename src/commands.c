@@ -39,6 +39,7 @@ void init_cmds() {
     register_cmd(NULL, ";equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
     register_cmd(NULL, ";gcheck", "Check whether there is a global monster", AL_USER, cmd_gcheck);
     register_cmd(NULL, ";ghunt", "Summons a global monster in to the room; if one exists it will need to be killed by attacks or ;gslay first", AL_USER, cmd_ghunt);
+    register_cmd(NULL, ";give", "Give a user some gold", AL_USER, cmd_give);
     register_cmd(NULL, ";gmelee", "Performs a melee attack on a global monster", AL_USER, cmd_gmelee);
     register_cmd(NULL, ";gslay", "[gold amount] | Contribute to slaying a global monster or check how much is needed", AL_USER, cmd_gslay);
     register_cmd(NULL, ";hunt", "Hunt for a personal monster which only you can attack", AL_USER, cmd_hunt);
@@ -265,6 +266,28 @@ void cmd_location(int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_slay(int pindex __attribute__((unused)), struct Message * msg) {
     slay_monster(msg->sender_nick, 0, 0);
+}
+
+void cmd_give(int pindex, struct Message * msg) {
+    char *out, *endptr;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+    if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s(\\d+)")) {
+        int tindex = get_pindex(regex_group[1]);
+        if (tindex != -1) {
+            int amount = strtol(regex_group[2], &endptr, 10);
+            if (amount <= dawn->players[pindex].gold) {
+                dawn->players[pindex].gold -= amount;
+                dawn->players[tindex].gold += amount;
+                sprintf(out, "PRIVMSG %s :%s has sent %s %d gold!\r\n",
+                        dawn->active_room, msg->sender_nick, regex_group[1], amount);
+            } else {
+                sprintf(out, "PRIVMSG %s :%s, you don't have that much gold\r\n", dawn->active_room, msg->sender_nick);
+            }
+        } else {
+            sprintf(out, "PRIVMSG %s :Invalid user\r\n", dawn->active_room);
+        }
+        add_msg(out, strlen(out));
+    }
 }
 
 void cmd_cast(int pindex, struct Message * msg) {
@@ -496,3 +519,4 @@ void cmd_weather (int pindex __attribute__((unused)), struct Message *msg) {
     add_msg(out, strlen(out));
     free(out);
 }
+

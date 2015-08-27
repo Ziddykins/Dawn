@@ -31,7 +31,7 @@ int main (int argc, char **argv) {
     //or values are specified on the command line
     char *monsters = "monsters.raw";
     char *port     = "6667";
-    char *server   = "108.61.240.240";
+    char *server   = "208.64.121.187";
     //char *password = "none";
     int mflag, sflag, pflag;
     mflag = sflag = pflag = 0;
