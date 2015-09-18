@@ -42,6 +42,8 @@ void cmd_market(int pindex, struct Message * msg);
 void cmd_save(int pindex, struct Message * msg);
 void cmd_cry(int pindex, struct Message * msg);
 void cmd_fslay(int pindex, struct Message * msg);
+void cmd_london(int pindex, struct Message * msg);
+void cmd_china(int pindex, struct Message * msg);
 void cmd_give(int pindex, struct Message * msg);
 void cmd_gib(int pindex, struct Message * msg);
 void cmd_inv(int pindex, struct Message * msg);

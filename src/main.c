@@ -230,6 +230,7 @@ int main (int argc, char **argv) {
                                 dawn->players[pindex].username,
                                 auth_level_to_str((enum auth_level)(dawn->players[pindex].auth_level)));
                             add_msg(out, strlen(out));
+
                         } else {
                             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already verified. (%s)\r\n",
                                 dawn->active_room,
