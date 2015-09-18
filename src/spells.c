@@ -169,6 +169,13 @@ void cast_fireball(const char *username, const char *target) {
     add_msg(out, strlen(out));
 }
 
+void cast_teleport(const char *username, int x, int y) {
+    struct Message temp;
+    strcpy(temp.sender_nick, username);
+    strcpy(temp.receiver, dawn->active_room);
+    move_player(&temp, x, y, 1);
+}
+
 void cast_rain(const char *username) {
     int pindex = get_pindex(username);
     char out[MAX_MESSAGE_BUFFER];
@@ -232,6 +239,11 @@ void check_learn_spells(const char *username) {
             dawn->players[pindex].spellbook.fireball.learned = 1;
             dawn->players[pindex].spellbook.fireball.level = 1;
             strcpy(spell, "Fireball");
+            break;
+        case 21:
+            dawn->players[pindex].spellbook.teleport.learned = 1;
+            dawn->players[pindex].spellbook.teleport.level = 1;
+            strcpy(spell, "Teleport");
             break;
         default:
             return;

@@ -321,7 +321,7 @@ void cmd_cast(int pindex, struct Message * msg) {
         add_msg(out, strlen(out));
         return;
     }
-    if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s?(\\w+)?")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s?([a-zA-Z0-9]+)?\\s?([a-zA-Z0-9]+)?")) {
         if (strcmp(regex_group[1], "heal") == 0) {
             cast_heal(msg->sender_nick, to_lower(regex_group[2]));
         } else if (strcmp(regex_group[1], "rain") == 0) {
@@ -330,6 +330,8 @@ void cmd_cast(int pindex, struct Message * msg) {
             cast_fireball(msg->sender_nick, to_lower(regex_group[2]));
         } else if (strcmp(regex_group[1], "revive") == 0) {
             cast_revive(msg->sender_nick, to_lower(regex_group[2]));
+        } else if (strcmp(regex_group[1], "teleport") == 0) {
+            cast_teleport(msg->sender_nick, atoi(regex_group[2]), atoi(regex_group[3]));
         }
     }
     free(out);
@@ -385,7 +387,7 @@ void cmd_ap(int pindex, struct Message * msg) {
 
 void cmd_travel(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+),(\\d+)")) {
-        move_player(msg, atoi(regex_group[1]), atoi(regex_group[2]));
+        move_player(msg, atoi(regex_group[1]), atoi(regex_group[2]), 0);
     }
 }
 /* DEPRECATED
