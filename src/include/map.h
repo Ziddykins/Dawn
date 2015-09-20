@@ -6,7 +6,7 @@
 //Prototypes
 struct Message;
 
-void move_player(struct Message *, int, int);
+void move_player(struct Message *, int, int, int);
 
 void print_location(int);
 

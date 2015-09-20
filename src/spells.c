@@ -53,6 +53,55 @@ void cast_heal(const char *username, const char *target) {
     add_msg(out, strlen(out));
 }
 
+void cast_revive(const char *username, const char *target) {
+    int pindex = get_pindex(username);
+    int tindex = get_pindex(target);
+    char out[MAX_MESSAGE_BUFFER];
+
+    if (tindex == -1) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Invalid target\r\n", dawn->active_room);
+        add_msg(out, strlen(out));
+        return;
+    }
+
+    if (!dawn->players[pindex].spellbook.revive.learned) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you do not know this spell\r\n",
+                dawn->active_room, username);
+        add_msg(out, strlen(out));
+        return;
+    }
+
+    if (dawn->players[tindex].alive) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, %s is already alive\r\n",
+                dawn->active_room, username, target);
+        add_msg(out, strlen(out));
+        return;
+    }
+
+    if (strcmp(username, target) == 0) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you can't revive yourself... You're dead.\r\n",
+                dawn->active_room, username);
+        add_msg(out, strlen(out));
+        return;
+    }
+
+    int revive_cost = 1 + dawn->players[pindex].spellbook.revive.level * 6;
+
+    if (dawn->players[pindex].mana >= revive_cost) {
+        dawn->players[pindex].mana -= revive_cost;
+        dawn->players[tindex].alive = 1;
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has revived %s from the dead!\r\n",
+                dawn->active_room, username, target);
+        add_msg(out, strlen(out));
+    } else {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you do not have the required %d mana to cast this spell\r\n",
+                dawn->active_room, username, revive_cost);
+        add_msg(out, strlen(out));
+    }
+}
+
+
+
 void cast_fireball(const char *username, const char *target) {
     int pindex = get_pindex(username);
     int tindex = get_pindex(target);
@@ -120,6 +169,13 @@ void cast_fireball(const char *username, const char *target) {
     add_msg(out, strlen(out));
 }
 
+void cast_teleport(const char *username, int x, int y) {
+    struct Message temp;
+    strcpy(temp.sender_nick, username);
+    strcpy(temp.receiver, dawn->active_room);
+    move_player(&temp, x, y, 1);
+}
+
 void cast_rain(const char *username) {
     int pindex = get_pindex(username);
     char out[MAX_MESSAGE_BUFFER];
@@ -174,10 +230,20 @@ void check_learn_spells(const char *username) {
             dawn->players[pindex].spellbook.rain.level = 1;
             strcpy(spell, "Rain");
             break;
+        case 10:
+            dawn->players[pindex].spellbook.revive.learned = 1;
+            dawn->players[pindex].spellbook.revive.level = 1;
+            strcpy(spell, "Revive");
+            break;
         case 17:
             dawn->players[pindex].spellbook.fireball.learned = 1;
             dawn->players[pindex].spellbook.fireball.level = 1;
             strcpy(spell, "Fireball");
+            break;
+        case 21:
+            dawn->players[pindex].spellbook.teleport.learned = 1;
+            dawn->players[pindex].spellbook.teleport.level = 1;
+            strcpy(spell, "Teleport");
             break;
         default:
             return;

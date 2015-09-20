@@ -516,7 +516,7 @@ void print_location(int i) {
     add_msg(out, strlen(out));
 }
 
-void move_player(struct Message *message, int x, int y) {
+void move_player(struct Message *message, int x, int y, int teleport) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(message->sender_nick);
     float travel_time;
@@ -551,6 +551,25 @@ void move_player(struct Message *message, int x, int y) {
         add_msg(out, strlen(out));
         return;
     }
+
+    if (teleport) {
+        int teleport_cost = (int)(travel_time / 2.0f);
+        if (dawn->players[pindex].mana > teleport_cost) {
+            dawn->players[pindex].mana -= teleport_cost;
+            dawn->players[pindex].pos_x = x;
+            dawn->players[pindex].pos_y = y;
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you have teleported to %d,%d, saving you %u travel time!\r\n",
+                    message->receiver, message->sender_nick, x, y, (unsigned int)travel_time);
+            add_msg(out, strlen(out));
+            return;
+        } else {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you do not have the required %u mana to teleport to %d, %d!\r\n",
+                    dawn->active_room, message->sender_nick, (unsigned int)(travel_time / 2.0f), x, y);
+            add_msg(out, strlen(out));
+            return;
+        }
+    }
+
     add_event(TRAVEL, pindex, (unsigned int)travel_time, UNIQUE);
     dawn->players[pindex].travel_timer.pos.x = x;
     dawn->players[pindex].travel_timer.pos.y = y;

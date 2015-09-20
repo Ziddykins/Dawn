@@ -66,6 +66,8 @@ void init_cmds() {
     register_cmd(NULL, ";setauth", "Set a users authentication level. (noauth, user, reg, admin, root)", AL_ADMIN, cmd_setauth);
 
     //AL_ROOT
+    register_cmd(NULL, ";london", "L O N D O N", AL_ROOT, cmd_london);
+    register_cmd(NULL, ";china", "C H I N A - can't stump the trump", AL_ROOT, cmd_china);
     register_cmd(NULL, ";stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
 
     finalize_cmd_sys(0);
@@ -158,8 +160,30 @@ void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
     free(out);
 }
 
+void cmd_london(int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
+    char out[MAX_MESSAGE_BUFFER];
+    sprintf(out, "PRIVMSG %s :LONDON\r\nPRIVMSG %s :O\r\nPRIVMSG %s :N\r\n"
+            "PRIVMSG %s :D\r\nPRIVMSG %s :O\r\nPRIVMSG %s :N\r\n",
+            dawn->active_room, dawn->active_room, dawn->active_room, 
+            dawn->active_room, dawn->active_room, dawn->active_room);
+    add_msg(out, strlen(out));
+}
+
+void cmd_china(int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
+    char out[MAX_MESSAGE_BUFFER];
+    sprintf(out, "PRIVMSG %s :CHINA\r\nPRIVMSG %s :H\r\nPRIVMSG %s :I\r\n"
+            "PRIVMSG %s :N\r\nPRIVMSG %s :A\r\n",
+            dawn->active_room, dawn->active_room, dawn->active_room, 
+            dawn->active_room, dawn->active_room);
+    add_msg(out, strlen(out));
+}
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
-    if (matches_regex(msg->message, CMD_LIT" (\\w+)")) {
+    if (matches_regex(msg->message, CMD_LIT" (.*)")) {
+        if (strcmp(regex_group[1], dawn->nickname) == 0) {
+            strncpy(msg->sender_nick, regex_group[1], MAX_NICK_LENGTH);
+            print_sheet(msg);
+            return;
+        }
         strncpy(msg->sender_nick, to_lower(regex_group[1]), MAX_NICK_LENGTH);
         if (get_pindex(regex_group[1]) != -1) {
             print_sheet(msg);
@@ -297,13 +321,17 @@ void cmd_cast(int pindex, struct Message * msg) {
         add_msg(out, strlen(out));
         return;
     }
-    if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s?(\\w+)?")) {
+    if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s?([a-zA-Z0-9]+)?\\s?([a-zA-Z0-9]+)?")) {
         if (strcmp(regex_group[1], "heal") == 0) {
             cast_heal(msg->sender_nick, to_lower(regex_group[2]));
         } else if (strcmp(regex_group[1], "rain") == 0) {
             cast_rain(msg->sender_nick);
         } else if (strcmp(regex_group[1], "fireball") == 0) {
             cast_fireball(msg->sender_nick, to_lower(regex_group[2]));
+        } else if (strcmp(regex_group[1], "revive") == 0) {
+            cast_revive(msg->sender_nick, to_lower(regex_group[2]));
+        } else if (strcmp(regex_group[1], "teleport") == 0) {
+            cast_teleport(msg->sender_nick, atoi(regex_group[2]), atoi(regex_group[3]));
         }
     }
     free(out);
@@ -359,7 +387,7 @@ void cmd_ap(int pindex, struct Message * msg) {
 
 void cmd_travel(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+),(\\d+)")) {
-        move_player(msg, atoi(regex_group[1]), atoi(regex_group[2]));
+        move_player(msg, atoi(regex_group[1]), atoi(regex_group[2]), 0);
     }
 }
 /* DEPRECATED
