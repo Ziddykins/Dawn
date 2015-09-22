@@ -1,12 +1,12 @@
 CC=gcc
-CFLAGS=-c -Wall -std=gnu11 -Wpedantic -Wextra -O3 -g
+CFLAGS=-c -Wall -std=gnu11 -Wpedantic -Wextra -Ofast -mtune=native -march=native -g
 LDFLAGS=-lpcre -lm -lssl -lcrypto
 SRCDIR=src
 SOURCES=$(wildcard $(SRCDIR)/*.c) 
 HEADERS=$(wildcard $(SRCDIR)/include/*.h)
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=dawn
-PREFIX=/usr/bin
+PREFIX=/usr/local/bin
 
 all: $(SOURCES) $(EXECUTABLE)
 
