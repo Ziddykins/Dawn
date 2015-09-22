@@ -521,7 +521,7 @@ void move_player(struct Message *message, int x, int y, int teleport) {
     int pindex = get_pindex(message->sender_nick);
     float travel_time;
     if (x < 0 || x >= global_map->dim || y < 0 || y >= global_map->dim) {
-        sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, global_map->dim, global_map->dim);
+        sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, global_map->dim-1, global_map->dim-1);
         add_msg(out, strlen(out));
         return;
     }

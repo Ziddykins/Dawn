@@ -52,6 +52,7 @@ void init_cmds() {
     register_cmd(NULL, ";revive", "Flourish once again when you have passed", AL_USER, cmd_revive);
     register_cmd(NULL, ";sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
     register_cmd(NULL, ";slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
+    register_cmd(NULL, ";spellbook", "Displays which spells you have learned along with their level and experience", AL_USER, cmd_spellbook);
     register_cmd(NULL, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
     register_cmd(NULL, ";unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
     register_cmd(NULL, ";unequipall", "Uneqippes all pieces of equipment from your inventory", AL_USER, cmd_unequipall);
@@ -143,6 +144,44 @@ void cmd_auth(int pindex, struct Message * msg) {
     free(out);
 }
 
+void cmd_spellbook(int pindex, struct Message * msg) {
+    char *out;
+    char append[25] = {0};
+
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+    sprintf(out, "PRIVMSG %s :[%s's spellbook] ", msg->receiver, msg->sender_nick);
+    if (dawn->players[pindex].spellbook.heal.learned) {
+        snprintf(append, 25, "[Heal: Lv %d] ", dawn->players[pindex].spellbook.heal.level);
+        strcat(out, append);
+    } else {
+        snprintf(append, 25, "[Empty]");
+        strcat(out, append);
+    }
+    if (dawn->players[pindex].spellbook.frost.learned) {
+        snprintf(append, 25, "[Frost: Lv %d] ", dawn->players[pindex].spellbook.frost.level);
+        strcat(out, append);
+    }
+    if (dawn->players[pindex].spellbook.rain.learned) {
+        snprintf(append, 25, "[Rain: Lv %d] ", dawn->players[pindex].spellbook.rain.level);
+        strcat(out, append);
+    }
+    if (dawn->players[pindex].spellbook.revive.learned) {
+        snprintf(append, 25, "[Revive: Lv %d] ", dawn->players[pindex].spellbook.revive.level);
+        strcat(out, append);
+    }
+    if (dawn->players[pindex].spellbook.fireball.learned) {
+        snprintf(append, 25, "[Fireball: Lv %d] ", dawn->players[pindex].spellbook.fireball.level);
+        strcat(out, append);
+    }
+    if (dawn->players[pindex].spellbook.teleport.learned) {
+        snprintf(append, 25, "[Teleport: Lv %d] ", dawn->players[pindex].spellbook.teleport.level);
+        strcat(out, append);
+    }
+    strcat(out, "\r\n\0");
+    add_msg(out, strlen(out));
+    free(out);
+}
+   
 void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
@@ -177,6 +216,7 @@ void cmd_china(int pindex __attribute__((unused)), struct Message * msg __attrib
             dawn->active_room, dawn->active_room);
     add_msg(out, strlen(out));
 }
+
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (.*)")) {
         if (strcmp(regex_group[1], dawn->nickname) == 0) {

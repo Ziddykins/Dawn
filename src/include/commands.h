@@ -48,6 +48,7 @@ void cmd_give(int pindex, struct Message * msg);
 void cmd_gib(int pindex, struct Message * msg);
 void cmd_inv(int pindex, struct Message * msg);
 void cmd_ghunt(int pindex, struct Message * msg);
+void cmd_spellbook(int pindex, struct Message * msg);
 void cmd_melee(int pindex, struct Message * msg);
 void cmd_fluctuate(int pindex, struct Message * msg);
 void cmd_drink(int pindex, struct Message * msg);
