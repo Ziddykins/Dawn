@@ -136,11 +136,13 @@ void parse_private_message(struct Message *message) {
         add_msg(out, strlen(out));
         return;
     }
-    if (dawn->players[pindex].max_auth >= AL_REG) {
+/*    if (dawn->players[pindex].max_auth >= AL_REG) {
         sprintf(out, "PRIVMSG %s :Please use ;auth\r\n", message->sender_nick);
         add_msg(out, strlen(out));
         return;
     }
+Explain yourself*/
+
     if (matches_regex(message->message, ";set password (\\w+)")) {
         if (strcmp(message->sender_hostmask, dawn->players[pindex].hostmask) == 0) {
             hash_pwd(dawn->players[pindex].pwd, dawn->players[pindex].salt, regex_group[1]);
@@ -165,6 +167,15 @@ void parse_private_message(struct Message *message) {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :I already recognize you, no need to log in\r\n", message->sender_nick);
         }
         add_msg(out, strlen(out));
+    }
+
+    if (dawn->players[pindex].auth_level >= AL_ADMIN) {
+        if (matches_regex(message->message, ";say (.*)")) {
+            char out[MAX_MESSAGE_BUFFER];
+            snprintf(out, MAX_MESSAGE_BUFFER-2, "PRIVMSG %s :%s", dawn->active_room, regex_group[1]);
+            strcat(out, "\r\n");
+            add_msg(out, strlen(out));
+        }
     }
 }
 

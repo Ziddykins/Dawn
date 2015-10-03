@@ -88,8 +88,16 @@ void init_new_character(struct Message *message) {
     np.auth_level = AL_USER;
     np.max_auth = AL_USER;
     memset(np.inventory, 0, sizeof np.inventory);
-    struct Inventory sword  = {"Wooden Sword", 0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 1, 0, 0};
-    struct Inventory shield = {"Wooden Shield", 5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 1, 0, 0, 1, 5, 0};
+    //Name, hp, def, int, str, mdef, reqlvl, weight, soc1,2,3, type, mana, rarity
+    struct Inventory sword  = {"Wooden Sword", 0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 0};
+    struct Inventory shield = {"Wooden Shield", 5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 1, 5, 0, 0};
+    //see inventory.h
+    sword.bitfield  &= ~(1 << RUSTED);
+    sword.bitfield  &= ~(1 << EQUIPPED);
+    sword.bitfield  |=  (1 << EQUIPPABLE);
+    shield.bitfield &= ~(1 << RUSTED);
+    shield.bitfield &= ~(1 << EQUIPPED);
+    shield.bitfield |=  (1 << EQUIPPABLE);
     np.inventory[0] = sword;
     np.inventory[1] = shield;
 

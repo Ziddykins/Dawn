@@ -5,11 +5,12 @@
 #include "include/network.h"
 #include "include/player.h"
 #include "include/stats.h"
+#include "include/inventory.h"
 
 void get_stat(struct Message *m, int stats[6]) {
     int i = get_pindex(m->sender_nick);
     for (int j = 0; j < (MAX_INVENTORY_SLOTS - dawn->players[i].available_slots); j++) {
-        if (dawn->players[i].inventory[j].equipped) {
+        if (is_equipped(i, j)) {
             stats[0] += dawn->players[i].inventory[j].attr_health;
             stats[1] += dawn->players[i].inventory[j].attr_mana;
             stats[2] += dawn->players[i].inventory[j].attr_strength;

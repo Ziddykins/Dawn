@@ -162,10 +162,14 @@ void generate_drop(struct Message *message) {
     item_dropped.socket_one = 0;
     item_dropped.socket_two = 0;
     item_dropped.socket_three = 0;
-    item_dropped.rusted = 0;
-    item_dropped.equipped = 0;
-    item_dropped.equippable = 1;
     item_dropped.attr_mana = 0;
+
+    //see inventory.h
+    item_dropped.bitfield &= ~(1 << RUSTED);     //Not rusted
+    item_dropped.bitfield &= ~(1 << EQUIPPED);   //Not equipped
+    item_dropped.bitfield |=  (1 << EQUIPPABLE); //Equippable
+    item_dropped.bitfield |=  (1 << NEW);        //New
+
 
     for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
         if (strlen(dawn->players[p_index].inventory[i].name) < 2) {
@@ -194,8 +198,14 @@ void drop_item(struct Message *message, int slot) {
     int total_items = MAX_INVENTORY_SLOTS - dawn->players[pindex].available_slots;
     struct Inventory empty;
 
-    item_name[0] = '\0';
-    empty.name[0] = '\0';
+    if (is_favorite(pindex, slot)) {
+        sprintf(out, "PRIVMSG %s :%s, %s is a favorite item and can not be dropped\r\n",
+                dawn->active_room, dawn->players[pindex].username, dawn->players[pindex].inventory[slot].name);
+        add_msg(out, strlen(out));
+        return;
+    }
+
+    item_name[0]   = '\0';
     strcpy(item_name, dawn->players[pindex].inventory[slot].name);
 
     if (total_items > 0 && slot < total_items && slot > -1) {
@@ -219,12 +229,12 @@ void get_item_info(struct Message *message, int slot) {
     char out[MAX_MESSAGE_BUFFER];
     int index = get_pindex(message->sender_nick);
     int total_items = MAX_INVENTORY_SLOTS - dawn->players[index].available_slots;
-    int str = dawn->players[index].inventory[slot].attr_strength;
-    int intel = dawn->players[index].inventory[slot].attr_intelligence;
-    int def = dawn->players[index].inventory[slot].attr_defense;
-    int mdef = dawn->players[index].inventory[slot].attr_mdef;
-    int hp = dawn->players[index].inventory[slot].attr_health;
-    int mp = dawn->players[index].inventory[slot].attr_mana;
+    int str    = dawn->players[index].inventory[slot].attr_strength;
+    int intel  = dawn->players[index].inventory[slot].attr_intelligence;
+    int def    = dawn->players[index].inventory[slot].attr_defense;
+    int mdef   = dawn->players[index].inventory[slot].attr_mdef;
+    int hp     = dawn->players[index].inventory[slot].attr_health;
+    int mp     = dawn->players[index].inventory[slot].attr_mana;
     int weight = dawn->players[index].inventory[slot].weight;
     int reqlvl = dawn->players[index].inventory[slot].req_level;
 

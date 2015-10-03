@@ -481,7 +481,19 @@ void cmd_gib(int pindex, struct Message * msg) {
 }
 
 void cmd_inv (int pindex __attribute__((unused)), struct Message * msg) {
-    print_inventory(msg);
+    char *out, action[12];
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+
+    if (matches_regex(msg->message, CMD_LIT" fav (\\d+)")) {
+        is_favorite(pindex, atoi(regex_group[1])) ? strcpy(action, "unfavorited") : strcpy(action, "favorited");
+        favorite_toggle(pindex, atoi(regex_group[1]));
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you have %s %s\r\n",
+                dawn->active_room, msg->sender_nick, action, dawn->players[pindex].inventory[atoi(regex_group[1])].name);
+        add_msg(out, strlen(out));
+        free(out);
+    } else {
+        print_inventory(msg);
+    }
 }
 
 void cmd_ghunt (int pindex __attribute__((unused)), struct Message * msg) {
