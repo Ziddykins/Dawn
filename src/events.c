@@ -105,7 +105,7 @@ static void random_reward(char *username) { //username -> MAX_NICK_LENGTH
         case 2:
             dawn->players[index].fullness += 5;
             if (dawn->players[index].fullness > 100) dawn->players[index].fullness = 100;
-            sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. You decide to try a "
+            sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. They decide to try a "
                     "wedge, and it is delicious! Fullness +5\r\n", dawn->active_room, username);
             add_msg(out, strlen(out));
             break;

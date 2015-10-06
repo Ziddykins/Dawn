@@ -45,7 +45,7 @@ void init_cmds() {
     register_cmd(NULL, ";inv", "Displays the items currently in your inventory", AL_USER, cmd_inv);
     //registerCmd(0, ";locate", "<building> | Find out where a certain sight is located", AL_USER, cmd_locate); //DEPRECATED
     register_cmd(NULL, ";location", "Ascertain knowledge about your current location", AL_USER, cmd_location);
-    register_cmd(NULL, ";make", "snow angles | Make snow angles!", AL_USER, cmd_make);
+    register_cmd(NULL, ";make", "snow angels | Make snow angels!", AL_USER, cmd_make);
     register_cmd(NULL, ";market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
     register_cmd(NULL, ";materials", "Discover what materials you are a proud owner of", AL_USER, cmd_materials);
     register_cmd(NULL, ";melee", "Performs a melee attack on a personal monster", AL_USER, cmd_melee);
@@ -312,6 +312,16 @@ void cmd_make(int pindex __attribute__((unused)), struct Message * msg) {
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if (matches_regex(msg->message, CMD_LIT" snow angels")) {
         if (dawn->weather == SNOWING) {
+            int yeti_chance = rand() % 100;
+            if (yeti_chance >= 75) {
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s falls to the ground and begins making snow angels!"
+                        " Unfortunately, they were mauled by a yeti in the process. -25 HP\r\n", msg->receiver,
+                        msg->sender_nick);
+                dawn->players[pindex].health -= 25;
+                add_msg(out, strlen(out));
+                check_alive(msg);
+                return;
+            }
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s falls to the ground and begins making snow angels!\r\n",
                     msg->receiver, msg->sender_nick);
             add_msg(out, strlen(out));

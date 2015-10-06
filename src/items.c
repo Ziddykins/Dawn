@@ -169,6 +169,7 @@ void generate_drop(struct Message *message) {
     item_dropped.bitfield &= ~(1 << EQUIPPED);   //Not equipped
     item_dropped.bitfield |=  (1 << EQUIPPABLE); //Equippable
     item_dropped.bitfield |=  (1 << NEW);        //New
+    item_dropped.bitfield &= ~(1 << FAVORITE);  //Not favorite
 
 
     for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {

@@ -120,7 +120,7 @@ int main (int argc, char **argv) {
     if (access(monsters, F_OK) != -1) {
         FILE *file = fopen(monsters, "r");
         char line[1024];
-        char name[100];
+        char name[64];
         int count = 0;
         int hp, str, def, intel, mdef, gold, exp, mhp, drop_level;
         if (!file) {
@@ -134,7 +134,7 @@ int main (int argc, char **argv) {
                 fprintf(stderr, ERR "main: Malformed monster file at line %d\n", count);
                 return 1;
             }
-            strcpy(dawn->monsters[count].name, name);
+            strncpy(dawn->monsters[count].name, name, 63);
             dawn->monsters[count].hp     = hp;
             dawn->monsters[count].str    = str;
             dawn->monsters[count].def    = def;
