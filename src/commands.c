@@ -307,7 +307,7 @@ void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
     }
 }
 
-void cmd_make(int pindex __attribute__((unused)), struct Message * msg) {
+void cmd_make(int pindex, struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     if (matches_regex(msg->message, CMD_LIT" snow angels")) {
@@ -346,11 +346,11 @@ void cmd_give(int pindex, struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s(\\d+)")) {
         int tindex = get_pindex(regex_group[1]);
         if (tindex != -1) {
-            int amount = strtol(regex_group[2], &endptr, 10);
+            long amount = strtol(regex_group[2], &endptr, 10);
             if (amount <= dawn->players[pindex].gold) {
                 dawn->players[pindex].gold -= amount;
                 dawn->players[tindex].gold += amount;
-                sprintf(out, "PRIVMSG %s :%s has sent %s %d gold!\r\n",
+                sprintf(out, "PRIVMSG %s :%s has sent %s %ld gold!\r\n",
                         dawn->active_room, msg->sender_nick, regex_group[1], amount);
             } else {
                 sprintf(out, "PRIVMSG %s :%s, you don't have that much gold\r\n", dawn->active_room, msg->sender_nick);
@@ -490,7 +490,7 @@ void cmd_gib(int pindex, struct Message * msg) {
     }
 }
 
-void cmd_inv (int pindex __attribute__((unused)), struct Message * msg) {
+void cmd_inv (int pindex, struct Message * msg) {
     char *out, action[12];
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
 

@@ -19,6 +19,7 @@ struct Market {
 struct Bot {
     char nickname[64], realname[64], ident[64], password[64], active_room[64];
     int login_sent, in_rooms, player_count, weather;
+    long long lottery;
     struct Player players[100];
     struct Monsters monsters[MAX_MONSTERS];
     struct Monsters global_monster;
@@ -27,8 +28,9 @@ struct Bot {
 
 enum Events  {
     HEALING, SAVING, HOURLY,
-    TRAVEL,
-    MSGSEND,
+    TRAVEL, MSGSEND,
+    LOTTERY_COLLECT,
+    LOTTERY_REWARD,
 };
 
 enum Weather {

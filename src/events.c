@@ -253,3 +253,31 @@ void check_famine(int whom) {
         check_alive(&temp);
     }
 }
+
+void lottery_collect (void) {
+    char out[MAX_MESSAGE_BUFFER];
+    for (int i=0; i<dawn->player_count; i++) {
+        if (dawn->players[i].gold <= 50) continue;
+        long long amount = ( (long long)((2.0f/100) * dawn->players[i].gold) );
+        dawn->lottery += amount;
+        dawn->players[i].gold -= amount;
+    }
+    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Lottery collection time!\r\n", dawn->active_room);
+    add_msg(out, strlen(out));
+}
+
+void lottery_reward (void) {
+    char out[MAX_MESSAGE_BUFFER];
+    int player = rand() % dawn->player_count;
+
+    while (dawn->players[player].available != 1) {
+        player = rand() % dawn->player_count;
+    }
+
+    dawn->players[player].gold += dawn->lottery;
+    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Congratulations, %s! You've won the lottery and"
+            " have been awarded with %lld gold pieces!!!\r\n", dawn->active_room, dawn->players[player].username,
+            dawn->lottery);
+    dawn->lottery = 0;
+    add_msg(out, strlen(out));
+}

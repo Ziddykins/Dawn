@@ -20,7 +20,7 @@ char *auth_key;
 
 //Prototype
 void print_usage(char **);
-char* timestamp(void);
+char *timestamp(void);
 
 int main (int argc, char **argv) {
     //For getops();
@@ -372,6 +372,6 @@ char *timestamp (void) {
     ltime = time(NULL);
     struct tm *tm;
     tm = localtime(&ltime);
-    sprintf(timestamp,"%02d/%02d:%02d:%02d", tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+    sprintf(timestamp, "%02d/%02d:%02d:%02d", tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
     return timestamp;
 }

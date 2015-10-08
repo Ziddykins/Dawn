@@ -171,7 +171,6 @@ Explain yourself*/
 
     if (dawn->players[pindex].auth_level >= AL_ADMIN) {
         if (matches_regex(message->message, ";say (.*)")) {
-            char out[MAX_MESSAGE_BUFFER];
             snprintf(out, MAX_MESSAGE_BUFFER-2, "PRIVMSG %s :%s", dawn->active_room, regex_group[1]);
             strcat(out, "\r\n");
             add_msg(out, strlen(out));

@@ -25,9 +25,11 @@ void init_timers (struct Bot *b, char const * fn) {
 
     load_events(fn);
     dawn = b;
-    add_event(HEALING, 0, HEALING_INTERVAL, UNIQUE | KEEP);
-    add_event(SAVING, 0, SAVING_INTERVAL, UNIQUE | KEEP);
-    add_event(HOURLY, 0, 3600, UNIQUE | KEEP);
+    add_event(HEALING,         0, HEALING_INTERVAL,         UNIQUE | KEEP);
+    add_event(SAVING,          0, SAVING_INTERVAL,          UNIQUE | KEEP);
+    add_event(HOURLY,          0, 3600,                     UNIQUE | KEEP);
+    add_event(LOTTERY_COLLECT, 0, LOTTERY_COLLECT_INTERVAL, UNIQUE | KEEP);
+    add_event(LOTTERY_REWARD,  0, LOTTERY_REWARD_INTERVAL,  UNIQUE | KEEP);
     printf(INFO "Timers started\n");
 }
 
@@ -269,6 +271,18 @@ void event_handler(int sig) {
                 }
                 break;
             }
+            case LOTTERY_COLLECT:
+            {
+                lottery_collect();
+                add_event(LOTTERY_COLLECT, 0, LOTTERY_COLLECT_INTERVAL, NORMAL);
+                break;
+            }
+            case LOTTERY_REWARD:
+            {
+                lottery_reward();
+                add_event(LOTTERY_REWARD, 0, LOTTERY_REWARD_INTERVAL, NORMAL);
+                break;
+            }
         }
         free(e);
     } while(is_next_due());
@@ -286,6 +300,10 @@ char * event_to_str(enum Events x) {
             return "TRAVEL";
         case MSGSEND:
             return "MSGSEND";
+        case LOTTERY_COLLECT:
+            return "LOTTERYCOLLECT";
+        case LOTTERY_REWARD:
+            return "LOTTERYREWARD";
     }
     return "NONE";
 }
