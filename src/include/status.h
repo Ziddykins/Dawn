@@ -5,6 +5,7 @@
 #include "limits.h"
 #include "player.h"
 #include "monsters.h"
+#include "bounty.h"
 
 extern struct Bot * dawn;
 
@@ -20,6 +21,7 @@ struct Bot {
     char nickname[64], realname[64], ident[64], password[64], active_room[64];
     int login_sent, in_rooms, player_count, weather;
     long long lottery;
+    struct Bounty gbounty;
     struct Player players[100];
     struct Monsters monsters[MAX_MONSTERS];
     struct Monsters global_monster;
@@ -31,6 +33,8 @@ enum Events  {
     TRAVEL, MSGSEND,
     LOTTERY_COLLECT,
     LOTTERY_REWARD,
+    BOUNTY_RESET,
+    BOUNTY_INIT,
 };
 
 enum Weather {

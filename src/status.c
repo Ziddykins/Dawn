@@ -30,6 +30,8 @@ void init_timers (struct Bot *b, char const * fn) {
     add_event(HOURLY,          0, 3600,                     UNIQUE | KEEP);
     add_event(LOTTERY_COLLECT, 0, LOTTERY_COLLECT_INTERVAL, UNIQUE | KEEP);
     add_event(LOTTERY_REWARD,  0, LOTTERY_REWARD_INTERVAL,  UNIQUE | KEEP);
+    add_event(BOUNTY_RESET,    0, BOUNTY_RESET_INTERVAL,    UNIQUE | KEEP);
+    add_event(BOUNTY_INIT,     0, 15,                       UNIQUE | KEEP);
     printf(INFO "Timers started\n");
 }
 
@@ -283,6 +285,20 @@ void event_handler(int sig) {
                 add_event(LOTTERY_REWARD, 0, LOTTERY_REWARD_INTERVAL, NORMAL);
                 break;
             }
+            case BOUNTY_RESET:
+            {
+                dawn->gbounty.amount = 0;
+                gen_global_bounty();
+                add_event(BOUNTY_RESET, 0, BOUNTY_RESET_INTERVAL, NORMAL);
+                break;
+            }
+            case BOUNTY_INIT:
+            {
+
+                memset(&dawn->gbounty, 0, sizeof(dawn->gbounty));
+                gen_global_bounty();
+                break;
+            }
         }
         free(e);
     } while(is_next_due());
@@ -304,6 +320,10 @@ char * event_to_str(enum Events x) {
             return "LOTTERYCOLLECT";
         case LOTTERY_REWARD:
             return "LOTTERYREWARD";
+        case BOUNTY_RESET:
+            return "BOUNTYRESET";
+        case BOUNTY_INIT:
+            return "BOUNTYINIT";
     }
     return "NONE";
 }

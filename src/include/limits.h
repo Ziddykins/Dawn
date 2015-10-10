@@ -32,6 +32,7 @@
 #define HEALING_INTERVAL     (1800)
 #define SAVING_INTERVAL      (900)
 #define AUTH_KEY_LEN         (24)
+#define BOUNTY_RESET_INTERVAL (86400)
 #define LOTTERY_COLLECT_INTERVAL (1800)
 #define LOTTERY_REWARD_INTERVAL  (43200)
 extern unsigned int MAX_NICK_LENGTH;

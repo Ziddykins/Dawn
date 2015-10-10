@@ -85,6 +85,7 @@ void init_new_character(struct Message *message) {
     np.available_slots = 23;
     np.available_capacity = 70;
     np.travel_timer.active = 0;
+    np.bounty = 0;
     np.auth_level = AL_USER;
     np.max_auth = AL_USER;
     memset(np.inventory, 0, sizeof np.inventory);

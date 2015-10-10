@@ -55,7 +55,7 @@ struct Player {
     struct Monsters personal_monster;
     struct travel_timer travel_timer;
     struct SpellBook spellbook;
-    int pos_x, pos_y;
+    int pos_x, pos_y, bounty;
     //wood, leather, ore, stone, bronze, mail, steel, diamond
     long materials[8];
     long kills, deaths, gold, health;

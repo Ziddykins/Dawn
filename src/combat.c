@@ -8,6 +8,7 @@
 #include "include/player.h"
 #include "include/items.h"
 #include "include/combat.h"
+#include "include/bounty.h"
 
 void monster_attacks(struct Message *, int, int);
 
@@ -67,6 +68,7 @@ int check_alive(struct Message *message) {
                 add_msg(out, strlen(out));
                 dawn->players[i].kills++;
                 check_levelup(message);
+                check_bounty(message);
                 if (drop_chance < 85) {
                     generate_drop(message);
                 }
