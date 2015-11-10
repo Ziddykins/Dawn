@@ -7,7 +7,7 @@
 #include "include/stats.h"
 #include "include/inventory.h"
 
-void get_stat(struct Message *m, int stats[6]) {
+void get_stat(struct Message *m, int stats[7]) {
     int i = get_pindex(m->sender_nick);
     for (int j = 0; j < (MAX_INVENTORY_SLOTS - dawn->players[i].available_slots); j++) {
         if (is_equipped(i, j)) {
@@ -19,4 +19,5 @@ void get_stat(struct Message *m, int stats[6]) {
             stats[5] += dawn->players[i].inventory[j].attr_defense;
         }
     }
+    stats[6] = dawn->players[i].alignment;
 }

@@ -6,12 +6,12 @@
 
 static char *get_monstring (enum MonsterType type, char *temp) {
     switch (type) {
-        case BERSERKER: snprintf(temp, 100, "%s%s%s\r\n", IRC_RED, "Berserker (2x Stats)", IRC_NORMAL); break;
-        case ELDER:     snprintf(temp, 100, "%s%s%s\r\n", IRC_GREEN, "Elder (3x Experience)", IRC_NORMAL); break;
-        case THIEF:     snprintf(temp, 100, "%s%s%s\r\n", IRC_ORANGE, "Thief (5x Gold)", IRC_NORMAL); break;
-        case TANK:      snprintf(temp, 100, "%s%s%s\r\n", IRC_DBLUE, "Tank (4x Defense)", IRC_NORMAL); break;
-        case BOSS:      snprintf(temp, 100, "%s%s%s\r\n", IRC_BROWN, "BOSS (10x ALL 6x Payout)", IRC_NORMAL); break;
-        case DEFMON:    snprintf(temp, 100, "\r\n");
+        case BERSERKER: snprintf(temp, 100, "%s%s%s", IRC_RED, "Berserker (2x Stats)", IRC_NORMAL); break;
+        case ELDER:     snprintf(temp, 100, "%s%s%s", IRC_GREEN, "Elder (3x Experience)", IRC_NORMAL); break;
+        case THIEF:     snprintf(temp, 100, "%s%s%s", IRC_ORANGE, "Thief (5x Gold)", IRC_NORMAL); break;
+        case TANK:      snprintf(temp, 100, "%s%s%s", IRC_DBLUE, "Tank (4x Defense)", IRC_NORMAL); break;
+        case BOSS:      snprintf(temp, 100, "%s%s%s", IRC_BROWN, "BOSS (10x ALL 6x Payout)", IRC_NORMAL); break;
+        case DEFMON:    snprintf(temp, 1, "%c", '\0');
     }
     return temp;
 }
@@ -52,11 +52,14 @@ void call_monster(char const *username, int global) { //username -> MAX_NICK_LEN
     char out[MAX_MESSAGE_BUFFER];
     char monspecial[100];
     char pstring[64];
-    int i, pindex, chance;
+    int i, pindex, chance, alignchance;
     i = pindex = 0;
 
     //There will be a 15% chance of encountering a special monster
-    chance = rand() % 100;
+    //There will be a 10% chance a monster has a special alignment (good vs evil)
+    alignchance = rand() % 100;
+    chance      = rand() % 100;
+
     
     if (global) {
         if (dawn->global_monster.active) {
@@ -92,14 +95,28 @@ void call_monster(char const *username, int global) { //username -> MAX_NICK_LEN
         enum MonsterType type = (enum MonsterType)(rand() % MAX_SPECIAL_MONSTERS);
         global ? (dawn->global_monster.type = type) : (dawn->players[pindex].personal_monster.type = type);
         monster_buff(type, pindex, global);
-        global ? tmp = dawn->global_monster : dawn->players[pindex].personal_monster;
+        global ? (tmp = dawn->global_monster) : (tmp = dawn->players[pindex].personal_monster);
+    }
+    char align[15] = "\0";
+
+    if (alignchance < 90) {
+        enum Alignment good_evil = rand() % 3;
+        if (good_evil == GOOD) {
+            global ? (dawn->global_monster.alignment = GOOD) : (dawn->players[pindex].personal_monster.alignment = GOOD);
+            sprintf(align, "%sGOOD%s", IRC_YELLOW, IRC_NORMAL);
+        } else if (good_evil == EVIL) {
+            global ? (dawn->global_monster.alignment = EVIL) : (dawn->players[pindex].personal_monster.alignment = EVIL);
+            sprintf(align, "%sEVIL%s", IRC_RED, IRC_NORMAL);
+        } else {
+            global ? (dawn->global_monster.alignment = NEUTRAL) : (dawn->players[pindex].personal_monster.alignment = NEUTRAL);
+        }
     }
 
     //Construct the final output string and send to server
     sprintf(out, "PRIVMSG %s :Monster spawned in room%s [%s] [%d/%d %sHP%s] - [%d STR] - [%d DEF] - [%d INT] -"
-                 " [%d MDEF] %s",
+                 " [%d MDEF] %s %s\r\n",
             dawn->active_room, pstring, tmp.name, tmp.hp, tmp.mhp, IRC_RED, IRC_NORMAL, tmp.str, tmp.def,
-                 tmp.intel, tmp.mdef, get_monstring(tmp.type, monspecial));
+                 tmp.intel, tmp.mdef, get_monstring(tmp.type, monspecial), align);
     add_msg(out, strlen(out));
 }
 
@@ -122,7 +139,7 @@ void slay_monster(char const *username, int global, int amount) { //username -> 
                             "the monster. %d gold still has to be raised!\r\n", dawn->active_room, username, amount,
                     dawn->global_monster.slay_cost);
         } else {
-            sprintf(out, "PRIVMSG %s :%s, you do not have that much gold\r\n", dawn->active_room, username);
+            sprintf(out, "PRIVMSG %s :%s, you do not have that much gold\r\n", dawn->active_room, username);    
         }
 
         add_msg(out, strlen(out));

@@ -163,14 +163,15 @@ unsigned long long get_nextlvl_exp(char const *username) { //username -> MAX_NIC
 void print_sheet(struct Message *message) {
     int i = get_pindex(message->sender_nick);
     char out[MAX_MESSAGE_BUFFER];
-    int stats[6] = {dawn->players[i].max_health, dawn->players[i].max_mana,
+    int stats[7] = {dawn->players[i].max_health, dawn->players[i].max_mana,
                     dawn->players[i].strength, dawn->players[i].intelligence,
-                    dawn->players[i].m_def, dawn->players[i].defense};
+                    dawn->players[i].m_def, dawn->players[i].defense, dawn->players[i].alignment};
     get_stat(message, stats);
 
     sprintf(out,
-            "PRIVMSG %s :[%s (Lv: %d)] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
+            "PRIVMSG %s :[%s (%s%d%s)(Lv: %d)] [%ld/%d \0034HP\003] - [%d/%d \00310MP\003] Str: %d - Int: %d - MDef: %d"
             " - Def: %d (%ldK/%ldD) [EXP: %llu / %llu %s - Gold: %s%ld%s] [Fullness: %hd%%]\r\n", message->receiver, message->sender_nick,
+            dawn->players[i].alignment > 25 ? IRC_YELLOW : dawn->players[i].alignment < -25 ? IRC_RED : IRC_NORMAL, stats[6], IRC_NORMAL,
             dawn->players[i].level, dawn->players[i].health, stats[0], dawn->players[i].mana, stats[1],
             stats[2], stats[3], stats[4], stats[5], dawn->players[i].kills, dawn->players[i].deaths,
             dawn->players[i].experience, get_nextlvl_exp(dawn->players[i].username),

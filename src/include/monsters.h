@@ -10,6 +10,7 @@ void call_monster(const char *, int);
 void print_monster(const char *, int);
 
 enum MonsterType {BERSERKER, ELDER, THIEF, TANK, BOSS, DEFMON};
+enum Alignment   {GOOD, EVIL, NEUTRAL};
 
 struct Monsters {
     char name[64];
@@ -17,6 +18,7 @@ struct Monsters {
     int gold, exp, drop_level, active;
     int slay_cost, which;
     enum MonsterType type;
+    enum Alignment alignment;
 };
 
 #endif

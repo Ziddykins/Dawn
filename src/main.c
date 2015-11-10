@@ -135,18 +135,19 @@ int main (int argc, char **argv) {
                 return 1;
             }
             strncpy(dawn->monsters[count].name, name, 63);
-            dawn->monsters[count].hp     = hp;
-            dawn->monsters[count].str    = str;
-            dawn->monsters[count].def    = def;
-            dawn->monsters[count].intel  = intel;
-            dawn->monsters[count].mdef   = mdef;
-            dawn->monsters[count].gold   = gold;
-            dawn->monsters[count].exp    = exp;
-            dawn->monsters[count].mhp    = mhp;
+            dawn->monsters[count].hp         = hp;
+            dawn->monsters[count].str        = str;
+            dawn->monsters[count].def        = def;
+            dawn->monsters[count].intel      = intel;
+            dawn->monsters[count].mdef       = mdef;
+            dawn->monsters[count].gold       = gold;
+            dawn->monsters[count].exp        = exp;
+            dawn->monsters[count].mhp        = mhp;
             dawn->monsters[count].drop_level = drop_level;
             dawn->monsters[count].slay_cost  = gold;
-            dawn->monsters[count].active = 0;
-            dawn->monsters[count].type = DEFMON;
+            dawn->monsters[count].active     = 0;
+            dawn->monsters[count].type       = DEFMON;
+            dawn->monsters[count].alignment  = NEUTRAL;
             count++;
         }
         fclose(file);

@@ -57,6 +57,7 @@ int check_alive(struct Message *message) {
                 double percent = ((float) dawn->players[i].contribution / (float) dawn->global_monster.mhp);
                 double expgain = percent * dawn->global_monster.exp;
                 double goldgain = percent * dawn->global_monster.gold;
+
                 //Need to change the sender_nick so the proper drops are awarded as well as level checking
                 strcpy(message->sender_nick, dawn->players[i].username);
                 dawn->players[i].experience += (unsigned long long) expgain;
@@ -69,9 +70,25 @@ int check_alive(struct Message *message) {
                 dawn->players[i].kills++;
                 check_levelup(message);
                 check_bounty(message);
+
                 if (drop_chance < 85) {
                     generate_drop(message);
                 }
+
+                if (dawn->global_monster.alignment == GOOD) {
+                    dawn->players[pindex].alignment--;
+                    if (dawn->players[pindex].alignment > 25) {
+                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is enveloped by a glowing aura!\r\n", 
+                                dawn->active_room, dawn->players[i].username);
+                    }
+                } else if (dawn->global_monster.alignment == EVIL) {
+                    dawn->players[pindex].alignment++;
+                    if (dawn->players[pindex].alignment > 25) {
+                        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has grown horns and the town grows worrisome\r\n", 
+                                dawn->active_room, dawn->players[i].username);
+                    }
+                }
+                add_msg(out, strlen(out));
             }
         }
         return 0;
