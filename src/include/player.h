@@ -63,6 +63,7 @@ struct Player {
     int alive, available, level, contribution, max_health, max_mana;
     int available_slots, available_capacity, mana, strength;
     int intelligence, defense, m_def, alignment, attr_pts;
+    int cheese;
     unsigned char auth_level, max_auth;
     short fullness;
 

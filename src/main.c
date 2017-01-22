@@ -31,7 +31,7 @@ int main (int argc, char **argv) {
     //or values are specified on the command line
     char *monsters = "monsters.raw";
     char *port     = "6667";
-    char *server   = "208.64.121.187";
+    char *server   = "irc.dal.net";
     //char *password = "none";
     int mflag, sflag, pflag;
     mflag = sflag = pflag = 0;
@@ -40,7 +40,7 @@ int main (int argc, char **argv) {
     CALLEXIT(!(dawn = calloc(1, sizeof *dawn)))
 
     //Initial settings
-    strcpy(dawn->nickname, "Dawn-18");
+    strcpy(dawn->nickname, "Dawn-19");
     strcpy(dawn->realname, "dongs");
     strcpy(dawn->ident,    "hehe");
     strcpy(dawn->password, "temp");
@@ -166,6 +166,7 @@ int main (int argc, char **argv) {
 
             //Handle keepalive pings from the server
             if (matches_regex(buffer, "PING :(.*)")) {
+                printf("PONG: %s\n", regex_group[1]);
                 sprintf(out, "PONG :%s\r\n", regex_group[1]);
                 add_msg(out, strlen(out));
             }

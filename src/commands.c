@@ -24,20 +24,23 @@ void init_cmds() {
     register_cmd(NULL, ";[", "Express your pure sadness", AL_NOAUTH, cmd_cry);
     register_cmd(NULL, ";auth", "Authenticate your account to use Dawn", AL_NOAUTH, cmd_auth);
     register_cmd(NULL, ";help", "[command] | Prints general help or for a specific command | [] = optional, <> = necessary", AL_NOAUTH, cmd_help);
-    register_cmd(NULL, ";new", "Create a new account for this nick", AL_NOAUTH, cmd_new);
+    register_cmd(NULL, ";new", "Create a new account for your current nick", AL_NOAUTH, cmd_new);
 
     //AL_USER
     register_cmd(NULL, ";ap", "Learn how many attribute points you have left to spend", AL_USER, cmd_ap);
-    register_cmd(NULL, ";assign", "<type> <amount> | assign attribute points to your stats", AL_USER, cmd_assign);
+    register_cmd(NULL, ";assign", "<str|def|int|mdef> <amount> | assign attribute points to your stats", AL_USER, cmd_assign);
     register_cmd(NULL, ";check", "Check whether there is a personal monster in this room", AL_USER, cmd_check);
+    register_cmd(NULL, ";cheese", "Check how many wedges of cheese you have", AL_USER, cmd_cheese);
     register_cmd(NULL, ";cast", "<spell> [target] | cast a specified spell; spell may require a target", AL_USER, cmd_cast);
-    register_cmd(NULL, ";drink", "Get some rest and drink some good cold beer", AL_USER, cmd_drink);
+    register_cmd(NULL, ";drink", "<beer> Get some rest and drink some good cold beer", AL_USER, cmd_drink);
     register_cmd(NULL, ";drop", "<inventory slot> | Discard of an item in your inventory", AL_USER, cmd_drop);
+//    register_cmd(NULL, ";dungeon", "Continue deeper into the dungeon", AL_USER, cmd_dungeon);
+    register_cmd(NULL, ";eat", "<food> | Eat some food you fat shit", AL_USER, cmd_eat);
     register_cmd(NULL, ";equip", "<inventory slot> | Equip an item from your inventory", AL_USER, cmd_equip);
     register_cmd(NULL, ";equipall", "Equips all pieces of equipment in your inventory", AL_USER, cmd_equipall);
     register_cmd(NULL, ";gcheck", "Check whether there is a global monster", AL_USER, cmd_gcheck);
     register_cmd(NULL, ";ghunt", "Summons a global monster in to the room; if one exists it will need to be killed by attacks or ;gslay first", AL_USER, cmd_ghunt);
-    register_cmd(NULL, ";give", "Give a user some gold", AL_USER, cmd_give);
+    register_cmd(NULL, ";give", "<user> <amount> Give a user some gold", AL_USER, cmd_give);
     register_cmd(NULL, ";gmelee", "Performs a melee attack on a global monster", AL_USER, cmd_gmelee);
     register_cmd(NULL, ";gslay", "[gold amount] | Contribute to slaying a global monster or check how much is needed", AL_USER, cmd_gslay);
     register_cmd(NULL, ";hunt", "Hunt for a personal monster which only you can attack", AL_USER, cmd_hunt);
@@ -49,11 +52,12 @@ void init_cmds() {
     register_cmd(NULL, ";market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
     register_cmd(NULL, ";materials", "Discover what materials you are a proud owner of", AL_USER, cmd_materials);
     register_cmd(NULL, ";melee", "Performs a melee attack on a personal monster", AL_USER, cmd_melee);
-    register_cmd(NULL, ";revive", "Flourish once again when you have passed", AL_USER, cmd_revive);
+    register_cmd(NULL, ";revive", "Flourish once again after ya git rekt; must be at a shrine", AL_USER, cmd_revive);
     register_cmd(NULL, ";sheet", "[user] | Ascertain knowledge of your or another players' stats", AL_USER, cmd_sheet);
     register_cmd(NULL, ";slay", "<gold amount> | For a bit of gold you can have someone help you out in battle", AL_USER, cmd_slay);
     register_cmd(NULL, ";spellbook", "Displays which spells you have learned along with their level and experience", AL_USER, cmd_spellbook);
-    register_cmd(NULL, ";travel", "<x> <y> | Travel to a location on the map", AL_USER, cmd_travel);
+    register_cmd(NULL, ";travel", "<x>,<y> | Travel to a location on the map", AL_USER, cmd_travel);
+    register_cmd(NULL, ";umbrella", "Throw up an umbrella for the rain!", AL_USER, cmd_umbrella);
     register_cmd(NULL, ";unequip", "<inventory slot> | Unequip an item", AL_USER, cmd_unequip);
     register_cmd(NULL, ";unequipall", "Uneqippes all pieces of equipment from your inventory", AL_USER, cmd_unequipall);
     register_cmd(NULL, ";weather", "Checks the current weather", AL_USER, cmd_weather);
@@ -70,6 +74,7 @@ void init_cmds() {
     register_cmd(NULL, ";london", "L O N D O N", AL_ROOT, cmd_london);
     register_cmd(NULL, ";china", "C H I N A - can't stump the trump", AL_ROOT, cmd_china);
     register_cmd(NULL, ";stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
+    register_cmd(NULL, ";fdel", "Clear an inventory slot", AL_ROOT, cmd_fdel);
 
     finalize_cmd_sys(0);
 }
@@ -220,7 +225,7 @@ void cmd_china(int pindex __attribute__((unused)), struct Message * msg __attrib
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (.*)")) {
         if (strcmp(regex_group[1], dawn->nickname) == 0) {
-            strncpy(msg->sender_nick, regex_group[1], MAX_NICK_LENGTH);
+            strncpy(msg->sender_nick, to_lower(regex_group[1]), MAX_NICK_LENGTH);
             print_sheet(msg);
             return;
         }
@@ -231,6 +236,31 @@ void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
     } else {
         print_sheet(msg);
     }
+}
+
+void cmd_fdel(int pindex, struct Message * msg) {
+    char * out;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+    struct Inventory empty = {0};
+    puts("in fdel");
+    if (matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
+        puts("regex matched");
+        pindex = get_pindex(regex_group[1]);
+        if (pindex == -1) {
+            puts("pindex -1");
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Invalid user\r\n", msg->receiver);
+            add_msg(out, strlen(out));
+            return;
+        } else {
+            puts("good");
+            printf("user %s slot %s\n", regex_group[1], regex_group[2]);
+            int slot = atoi(regex_group[2]);
+            dawn->players[pindex].inventory[slot] = empty;
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Slot cleared\r\n", msg->receiver);
+            add_msg(out, strlen(out));
+        }
+    }
+    free(out);
 }
 
 void cmd_equip(int pindex __attribute__((unused)), struct Message * msg) {
@@ -273,6 +303,24 @@ void cmd_drop(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
         int slot = atoi(regex_group[1]);
         drop_item(msg, slot);
+    } else if (matches_regex(msg->message, CMD_LIT" (\\w+)")) {
+        if (strcmp(regex_group[1], "common") == 0) {
+            puts("common match");
+            int flag = 1;
+            int pindex = get_pindex(msg->sender_nick);
+            while (flag == 1) {
+                puts("in while");
+                flag = 0;
+                for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
+                    if (dawn->players[pindex].inventory[i].rarity == 1) {
+                        flag = 1;
+                        drop_item(msg, i);
+                        puts("dropped\n");
+                        puts("breaking");
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -360,6 +408,7 @@ void cmd_give(int pindex, struct Message * msg) {
         }
         add_msg(out, strlen(out));
     }
+    free(out);
 }
 
 void cmd_cast(int pindex, struct Message * msg) {
@@ -373,7 +422,7 @@ void cmd_cast(int pindex, struct Message * msg) {
     }
     if (matches_regex(msg->message, CMD_LIT" (\\w+)\\s?([a-zA-Z0-9]+)?\\s?([a-zA-Z0-9]+)?")) {
         if (strcmp(regex_group[1], "heal") == 0) {
-            cast_heal(msg->sender_nick, to_lower(regex_group[2]));
+            cast_heal(msg->sender_nick, regex_group[2]);
         } else if (strcmp(regex_group[1], "rain") == 0) {
             cast_rain(msg->sender_nick);
         } else if (strcmp(regex_group[1], "fireball") == 0) {
@@ -474,6 +523,19 @@ void cmd_save(int pindex __attribute__((unused)), struct Message * msg) {
     free(out);
 }
 
+void cmd_cheese(int pindex, struct Message *msg) {
+    char *out;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+
+    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you currently have %d wedges of cheese\r\n", 
+            msg->receiver, msg->sender_nick, dawn->players[pindex].cheese);
+    add_msg(out, strlen(out));
+    free(out);
+}
+
+
+    
+
 void cmd_cry(int pindex __attribute__((unused)), struct Message * msg) {
     char * out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
@@ -504,10 +566,10 @@ void cmd_inv (int pindex, struct Message * msg) {
     } else {
         print_inventory(msg);
     }
+    free(out);
 }
 
 void cmd_ghunt (int pindex __attribute__((unused)), struct Message * msg) {
-
     if (dawn->global_monster.active) {
         char *out;
         CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
@@ -545,10 +607,43 @@ void cmd_drink(int pindex, struct Message * msg) {
         if(dawn->players[pindex].fullness > 100)
             dawn->players[pindex].fullness = 100;
 
-    } else if(matches_regex(msg->message, CMD_LIT)) {
-        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You can drink some beer if you like.\r\n", msg->receiver);
+    } else if (matches_regex(msg->message, CMD_LIT " tea")) {
+        if (dawn->players[pindex].fullness + 5 > 100) {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Now is not the time for tea, %s\r\n", msg->receiver, msg->sender_nick);
+            add_msg(out, strlen(out));
+            return;
+        }
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You sip tea with your pinkie out. Fullness +6\r\n", msg->receiver);
+        dawn->players[pindex].fullness += 6;
+        if (dawn->players[pindex].fullness > 100)
+            dawn->players[pindex].fullness = 100;
     }
     add_msg(out, strlen(out));
+    free(out);
+}
+
+void cmd_eat (int pindex, struct Message *msg) {
+    char *out;
+    CALLEXIT(!(out=malloc(MAX_MESSAGE_BUFFER)))
+
+    if (matches_regex(msg->message, CMD_LIT " cheese")) {
+        if (dawn->players[pindex].cheese > 0) {
+            if (dawn->players[pindex].fullness + 10 > 100) {
+                snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s decides it would be a good idea not to have anymore cheese.\r\n", msg->receiver, msg->sender_nick);
+                add_msg(out, strlen(out));
+                return;
+            }
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s eats a large wedge of cheese. Mmm, cheese. Fullness +10!\r\n", msg->receiver, msg->sender_nick);
+            dawn->players[pindex].fullness += 10;
+            dawn->players[pindex].cheese -= 1;
+            if (dawn->players[pindex].fullness > 100)
+                dawn->players[pindex].fullness = 100;
+            add_msg(out, strlen(out));
+        } else {
+            snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you have no cheese left :(\r\n", msg->receiver, msg->sender_nick);
+            add_msg(out, strlen(out));
+        }
+    }
     free(out);
 }
 
@@ -608,3 +703,16 @@ void cmd_weather (int pindex __attribute__((unused)), struct Message *msg) {
     free(out);
 }
 
+void cmd_umbrella (int pindex __attribute__((unused)), struct Message *msg) {
+    char *out;
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
+    if (dawn->weather == RAINING) {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s throws up an umbrella and becomes a little less wet\r\n",
+                dawn->active_room, msg->sender_nick);
+        add_msg(out, strlen(out));
+    } else {
+        snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :You throw up your umbrella. You look silly.\r\n", dawn->active_room);
+        add_msg(out, strlen(out));
+    }
+    free(out);
+}

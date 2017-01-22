@@ -88,10 +88,11 @@ void init_new_character(struct Message *message) {
     np.bounty = 0;
     np.auth_level = AL_USER;
     np.max_auth = AL_USER;
+    np.cheese = 1;
     memset(np.inventory, 0, sizeof np.inventory);
     //Name, hp, def, int, str, mdef, reqlvl, weight, soc1,2,3, type, mana, rarity
-    struct Inventory sword  = {"Wooden Sword", 0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 0};
-    struct Inventory shield = {"Wooden Shield", 5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 1, 5, 0, 0};
+    struct Inventory sword  = {"Wooden Sword", 0, 0, 0, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 1};
+    struct Inventory shield = {"Wooden Shield", 5, 5, 5, 5, 5, 1, 15, 0, 0, 0, 1, 5, 0, 1};
     //see inventory.h
     sword.bitfield  &= ~(1 << RUSTED);
     sword.bitfield  &= ~(1 << EQUIPPED);
@@ -147,7 +148,7 @@ static const char *progress_bar(char const *username) { //username -> MAX_NICK_L
     long double temp_cyan = ((dawn->players[i].experience / (long double) nextlvl_exp) * 100) / 10;
     int blue_count  = 9  - (int)temp_cyan;
     int cyan_count  = 10 - blue_count;
-    sprintf(bar, "%s,10%0*d%s,02%0*d%s", IRC_CYAN, cyan_count, 0, IRC_DBLUE, blue_count, 0, IRC_NORMAL);
+    snprintf(bar, 47, "%s,10%0*d%s,02%0*d%s", IRC_CYAN, cyan_count, 0, IRC_DBLUE, blue_count, 0, IRC_NORMAL);
     return bar;
 }
 
@@ -156,7 +157,7 @@ unsigned long long get_nextlvl_exp(char const *username) { //username -> MAX_NIC
     if (curr_level > 10) {
         return (500ULL * curr_level * curr_level * curr_level - 500ULL * curr_level);
     } else {
-        return (100ULL * curr_level * curr_level * curr_level - 100ULL * curr_level);
+        return (100ULL * curr_level *curr_level * curr_level - 100ULL * curr_level);
     }
 }
 

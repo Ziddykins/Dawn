@@ -9,6 +9,9 @@
 
 void get_stat(struct Message *m, int stats[7]) {
     int i = get_pindex(m->sender_nick);
+    if (i == -1) {
+        return;
+    }
     for (int j = 0; j < (MAX_INVENTORY_SLOTS - dawn->players[i].available_slots); j++) {
         if (is_equipped(i, j)) {
             stats[0] += dawn->players[i].inventory[j].attr_health;

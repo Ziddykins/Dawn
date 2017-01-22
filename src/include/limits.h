@@ -18,7 +18,7 @@
 #define MAX_REWARD_TYPE      (3)
 #define MAX_PUNISHMENT_TYPE  (3)
 #define MAX_ITEM_TYPE        (3)
-#define MAX_WEAPON_TYPE      (7)
+#define MAX_WEAPON_TYPE      (12)
 #define MAX_SHIELD_TYPE      (5)
 #define MAX_MATERIAL_TYPE    (8)
 #define MAX_WEATHER_TYPE     (3)

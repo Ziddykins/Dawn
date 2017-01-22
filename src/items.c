@@ -23,7 +23,7 @@
 void generate_drop(struct Message *message) {
     char out[MAX_MESSAGE_BUFFER];
     const char *rarity[]  = {NULL, "Common ", "Uncommon ", "Rare ", "Mythical ", "Epic ", "Legendary ", "Godly ", "Forsaken "};
-    const char *weapons[] = {"Sword", "Mace", "Scimitar", "Axe", "Club", "Staff", "Wand"};
+    const char *weapons[] = {"Sword", "Mace", "Scimitar", "Axe", "Club", "Staff", "Wand", "Pike", "Polearm", "Lance", "Spear", "Floppy Dildo"};
     const char *shields[] = {"Tower Shield", "Round Shield", "Small Shield", "Large Shield", "Medium Shield"};
     const char *armor[]   = {"Leather Armor", "Breastplate Armor", "Fullplate Armor", "Chainmail Armor", "Cloth Armor"};
     char item_name[200];
@@ -33,8 +33,8 @@ void generate_drop(struct Message *message) {
     int type_chance     = rand()%MAX_ITEM_TYPE;
     int p_index = get_pindex(message->sender_nick);
     int drop_level = dawn->global_monster.drop_level;
-    int str, def, intel, mdef;
-    str = def = intel = mdef = 0;
+    int str, def, intel, mdef, hp;
+    str = def = intel = mdef = hp = 0;
 
     if (dawn->players[p_index].available_slots == 0) {
         sprintf(out, "PRIVMSG %s :%s has found an item, but has no more room in his inventory!\r\n",
@@ -148,15 +148,23 @@ void generate_drop(struct Message *message) {
             PRINTERR("ITEM ERROR")
     }
 
+    if (item_dropped.rarity >= 3) {
+        hp = 1 + rand() % ((drop_level * dawn->players[p_index].level) * 2 * item_dropped.rarity);
+    }
+
+        
     strcat(item_name, IRC_NORMAL);
-    strcpy(item_name, item_name);
+    //strcpy(item_name, item_name); programming drunk. not even once.
+    size_t len = strlen(item_name);
+    item_name[len+1] = '\0';
+
     strcpy(item_dropped.name, item_name);
 
     item_dropped.attr_strength     = str;
     item_dropped.attr_defense      = def;
     item_dropped.attr_intelligence = intel;
     item_dropped.attr_mdef         = mdef;
-    item_dropped.attr_health = 0;
+    item_dropped.attr_health = hp;
     item_dropped.req_level = 1;
     item_dropped.weight = 5;
     item_dropped.socket_one = 0;
@@ -173,10 +181,12 @@ void generate_drop(struct Message *message) {
 
 
     for (int i=0; i<MAX_INVENTORY_SLOTS; i++) {
+        printf("%d. '%s'\n", i, dawn->players[p_index].inventory[i].name);
         if (strlen(dawn->players[p_index].inventory[i].name) < 2) {
             if (dawn->players[p_index].available_slots > 0) {
                 dawn->players[p_index].inventory[i] = item_dropped;
                 dawn->players[p_index].available_slots--;
+                printf("%s got %s %d slots left\n", message->sender_nick, item_dropped.name, dawn->players[p_index].available_slots);
                 break;
             } else {
                 sprintf(out, "PRIVMSG %s :%s, you have no room in your inventory!\r\n",
@@ -184,6 +194,8 @@ void generate_drop(struct Message *message) {
                 add_msg(out, strlen(out));
                 return;
             }
+        } else {
+            printf("wat?\n");
         }
     }
 

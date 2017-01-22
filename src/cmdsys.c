@@ -219,6 +219,7 @@ size_t get_cmd_id(CmdSys cs, char * cmd) {
     int valid = 0;
 
     while(max >= min) {
+        if (min == 0) min += 1;
         mid = (min+max)/2;
         if(ccs->hashes[mid] == hash) {
             valid = 1; break;

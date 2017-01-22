@@ -5,17 +5,24 @@
 #include "include/spells.h"
 #include "include/limits.h"
 #include "include/combat.h"
+#include "include/stats.h"
 
 void cast_heal(const char *username, const char *target) {
     int pindex = get_pindex(username);
     int tindex = get_pindex(target);
+    int stats[7] = {0};
+    struct Message temp = {0};
     char out[MAX_MESSAGE_BUFFER];
-
+    strcpy(temp.sender_nick, target);
+    
     if (tindex == -1) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Invalid target\r\n", dawn->active_room);
         add_msg(out, strlen(out));
         return;
     }
+    
+    get_stat(&temp, stats);
+    printf("%s stat0: %d\n", temp.sender_nick, stats[0]);
 
     if (!dawn->players[pindex].spellbook.heal.learned) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you do not know this spell\r\n",
@@ -31,7 +38,7 @@ void cast_heal(const char *username, const char *target) {
         return;
     }
 
-    if (dawn->players[tindex].health == dawn->players[tindex].max_health) {
+    if (dawn->players[tindex].health == dawn->players[tindex].max_health+stats[0]) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already at full health\r\n",
                  dawn->active_room, target);
         add_msg(out, strlen(out));
@@ -39,12 +46,12 @@ void cast_heal(const char *username, const char *target) {
     }
 
     int heal_cost = 1 + dawn->players[pindex].spellbook.heal.level * 5;
-    int heal_amount = 1 + rand() % (dawn->players[pindex].spellbook.heal.level * 5);
+    int heal_amount = 10 + rand() % (dawn->players[pindex].level * 3);
 
     if (dawn->players[pindex].mana >= heal_cost) {
         dawn->players[tindex].health += heal_amount;
-        if (dawn->players[tindex].health >= dawn->players[tindex].max_health)
-            dawn->players[tindex].health = dawn->players[tindex].max_health;
+        if (dawn->players[tindex].health >= dawn->players[tindex].max_health + stats[0])
+            dawn->players[tindex].health = dawn->players[tindex].max_health + stats[0];
         sprintf(out, "PRIVMSG %s :%s has healed %s for %d HP!\r\n", dawn->active_room, username, target, heal_amount);
     } else {
         sprintf(out, "PRIVMSG %s :%s, you don't have enough mana to cast this spell\r\n", dawn->active_room, username);

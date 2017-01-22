@@ -103,10 +103,9 @@ static void random_reward(char *username) { //username -> MAX_NICK_LENGTH
             break;
         }
         case 2:
-            dawn->players[index].fullness += 5;
-            if (dawn->players[index].fullness > 100) dawn->players[index].fullness = 100;
-            sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. They decide to try a "
-                    "wedge, and it is delicious! Fullness +5\r\n", dawn->active_room, username);
+            dawn->players[index].cheese += 1;
+            sprintf(out, "PRIVMSG %s :%s comes across a vendor giving out free cheese samples. They decide to take a "
+                    "wedge. Cheese +1!\r\n", dawn->active_room, username);
             add_msg(out, strlen(out));
             break;
         default:
@@ -257,9 +256,9 @@ void check_famine(int whom) {
 void lottery_collect (void) {
     for (int i=0; i<dawn->player_count; i++) {
         if (dawn->players[i].gold <= 50) continue;
-        long long amount = ( (long long)((2.0f/100) * dawn->players[i].gold) );
+        long long amount = rand() % 45000; //( (long long)((2.0f/100) * dawn->players[i].gold) );
         dawn->lottery += amount;
-        dawn->players[i].gold -= amount;
+        //dawn->players[i].gold -= amount;
     }
 }
 

@@ -66,7 +66,6 @@ int check_alive(struct Message *message) {
                                 " for their efforts!\r\n", message->receiver, dawn->players[i].username, (int) expgain,
                         (int) goldgain);
                 dawn->global_monster.active = 0;
-                add_msg(out, strlen(out));
                 dawn->players[i].kills++;
                 check_levelup(message);
                 check_bounty(message);
@@ -75,15 +74,15 @@ int check_alive(struct Message *message) {
                     generate_drop(message);
                 }
 
-                if (dawn->global_monster.alignment == GOOD) {
-                    dawn->players[pindex].alignment--;
-                    if (dawn->players[pindex].alignment > 25) {
+                if (dawn->global_monster.alignment == EVIL) {
+                    dawn->players[pindex].alignment++;
+                    if (dawn->players[pindex].alignment == 26) {
                         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is enveloped by a glowing aura!\r\n", 
                                 dawn->active_room, dawn->players[i].username);
                     }
-                } else if (dawn->global_monster.alignment == EVIL) {
-                    dawn->players[pindex].alignment++;
-                    if (dawn->players[pindex].alignment > 25) {
+                } else if (dawn->global_monster.alignment == GOOD) {
+                    dawn->players[pindex].alignment--;
+                    if (dawn->players[pindex].alignment == 26) {
                         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has grown horns and the town grows worrisome\r\n", 
                                 dawn->active_room, dawn->players[i].username);
                     }
