@@ -14,8 +14,6 @@
 #include <assert.h>
 #include <string.h>
 
-char regex_group[15][2048];
-
 void init_cmds() {
     init_global_cmd_sys();
 
@@ -120,7 +118,6 @@ void cmd_new(int pindex, struct Message * msg) {
     free(out);
 }
 
-char * auth_key;
 int auth_key_valid;
 
 void cmd_auth(int pindex, struct Message * msg) {

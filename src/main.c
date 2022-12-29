@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <time.h>
+#include "include/player.h"
 #include "include/status.h"
 #include "include/commands.h"
 #include "include/util.h"
@@ -17,7 +18,6 @@
 unsigned int MAX_CHANNEL_LENGTH = 64;
 unsigned int MAX_NICK_LENGTH    = 64;
 char *auth_key;
-
 //Prototype
 void print_usage(char **);
 char *timestamp(void);
