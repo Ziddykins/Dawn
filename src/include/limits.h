@@ -24,6 +24,7 @@
 #define MAX_WEATHER_TYPE     (3)
 #define MAX_ARMOR_TYPE       (5)
 #define MAX_SLAY_GOLD        (INT_MAX)
+#define MAX_BUILDINGS        (64) /* per town/map */
 #define MAT_COUNT            (8)
 #define PERLIN_SCALE         (1.0f/(1<<8))
 #define PERLIN_V_SCALE       (3.25f)

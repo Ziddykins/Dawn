@@ -13,3 +13,6 @@ bin/
 *.bin
 *.txt
 *.map
+.vscode/launch.json
+.gitignore
+.vscode/c_cpp_properties.json

@@ -124,6 +124,7 @@ int main (int argc, char **argv) {
         char name[64];
         int count = 0;
         int hp, str, def, intel, mdef, gold, exp, mhp, drop_level;
+        
         if (!file) {
             fprintf(stderr, ERR "Error opening raw monsters\n");
             return 1;

@@ -2,6 +2,7 @@
 #define MAP_H_INCLUDED
 
 #include "network.h"
+#include "limits.h"
 
 //Prototypes
 struct Message;
@@ -30,10 +31,12 @@ float pathlen(int x1, int y1, int x2, int y2);
 struct Building {
     char name[64];
     int x, y;
+    int width;
+    int height;
 };
 
 struct Location {
-    struct Building buildings[64];
+    struct Building buildings[MAX_BUILDINGS];
     char name[64];
     int max_x, max_y;
     int x, y;

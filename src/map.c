@@ -589,16 +589,20 @@ void find_building (struct Bot *b, struct Message *message, char *location) {
     int bindex = get_bindex(b, message->sender_nick, location);
 
     if (bindex != -1) {
-        sprintf(out, "PRIVMSG %s :The %s in %s is located at %d,%d\r\n", message->receiver, location,
-                b->players[pindex].current_map.name, b->players[pindex].current_map.buildings[bindex].x,
-                b->players[pindex].current_map.buildings[bindex].y);
+        sprintf(out, "PRIVMSG %s :The %s in %s is located at %d,%d\r\n",
+            message->receiver,
+            location,
+            b->players[pindex].current_map.name,
+            b->players[pindex].current_map.buildings[bindex].x,
+            b->players[pindex].current_map.buildings[bindex].y
+        );
     } else {
         sprintf(out, "PRIVMSG %s :Unknown location '%s'\r\n", message->receiver, location);
     }
     add_msg(out, strlen(out));
 }
 
-/*void check_special_location (struct Bot *b, int pindex) {
+void check_special_location (struct Bot *b, int pindex) {
     char out[MAX_MESSAGE_BUFFER];
     int cur_x = b->players[pindex].current_map.cur_x;
     int cur_y = b->players[pindex].current_map.cur_y;
@@ -620,7 +624,7 @@ void find_building (struct Bot *b, struct Message *message, char *location) {
             add_msg(out, strlen(out));
         }
     }
-}*/
+}
 
 void diamond_square(float *heightmap, int dim, float sigma, int level) {
     if (level < 1) return;
