@@ -44,7 +44,7 @@ void init_cmds() {
     register_cmd(NULL, ";hunt", "Hunt for a personal monster which only you can attack", AL_USER, cmd_hunt);
     register_cmd(NULL, ";info", "<inventory slot> | Ascertain info on an item in your inventory", AL_USER, cmd_info);
     register_cmd(NULL, ";inv", "Displays the items currently in your inventory", AL_USER, cmd_inv);
-    //registerCmd(0, ";locate", "<building> | Find out where a certain sight is located", AL_USER, cmd_locate); //DEPRECATED
+    /*register_cmd(NULL, ";locate", "<building> | Find out where a certain sight is located", AL_USER, cmd_locate); //DEPRECATEDi*/
     register_cmd(NULL, ";location", "Ascertain knowledge about your current location", AL_USER, cmd_location);
     register_cmd(NULL, ";make", "snow angels | Make snow angels!", AL_USER, cmd_make);
     register_cmd(NULL, ";market", "[buy|sell] [material] [amount] | Check what the prices are, buy or sell materials", AL_USER, cmd_market);
@@ -69,8 +69,6 @@ void init_cmds() {
     register_cmd(NULL, ";setauth", "Set a users authentication level. (noauth, user, reg, admin, root)", AL_ADMIN, cmd_setauth);
 
     //AL_ROOT
-    register_cmd(NULL, ";london", "L O N D O N", AL_ROOT, cmd_london);
-    register_cmd(NULL, ";china", "C H I N A - can't stump the trump", AL_ROOT, cmd_china);
     register_cmd(NULL, ";stop", "Gracefully stops the server", AL_ROOT, cmd_stop);
     register_cmd(NULL, ";fdel", "Clear an inventory slot", AL_ROOT, cmd_fdel);
 
@@ -201,24 +199,6 @@ void cmd_stop(int pindex __attribute__((unused)), struct Message * msg) {
     free(out);
 }
 
-void cmd_london(int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
-    char out[MAX_MESSAGE_BUFFER];
-    sprintf(out, "PRIVMSG %s :LONDON\r\nPRIVMSG %s :O\r\nPRIVMSG %s :N\r\n"
-            "PRIVMSG %s :D\r\nPRIVMSG %s :O\r\nPRIVMSG %s :N\r\n",
-            dawn->active_room, dawn->active_room, dawn->active_room, 
-            dawn->active_room, dawn->active_room, dawn->active_room);
-    add_msg(out, strlen(out));
-}
-
-void cmd_china(int pindex __attribute__((unused)), struct Message * msg __attribute__((unused))) {
-    char out[MAX_MESSAGE_BUFFER];
-    sprintf(out, "PRIVMSG %s :CHINA\r\nPRIVMSG %s :H\r\nPRIVMSG %s :I\r\n"
-            "PRIVMSG %s :N\r\nPRIVMSG %s :A\r\n",
-            dawn->active_room, dawn->active_room, dawn->active_room, 
-            dawn->active_room, dawn->active_room);
-    add_msg(out, strlen(out));
-}
-
 void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (.*)")) {
         if (strcmp(regex_group[1], dawn->nickname) == 0) {
@@ -235,8 +215,8 @@ void cmd_sheet(int pindex __attribute__((unused)), struct Message * msg) {
     }
 }
 
-void cmd_fdel(int pindex, struct Message * msg) {
-    char * out;
+void cmd_fdel(int pindex, struct Message *msg) {
+    char *out;
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
     struct Inventory empty = {0};
     puts("in fdel");
@@ -344,8 +324,8 @@ void cmd_givexp(int pindex __attribute__((unused)), struct Message * msg) {
 
         while (dawn->players[index].experience > get_nextlvl_exp(username)) {
             struct Message temp;
-            strcpy(temp.sender_nick, username);
-            strcpy(temp.receiver, dawn->active_room);
+            strncpy(temp.sender_nick, username, MAX_NICK_LENGTH);
+            strncpy(temp.receiver, dawn->active_room, MAX_CHANNEL_LENGTH);
             check_levelup(&temp);
         }
         free(username);
@@ -486,13 +466,13 @@ void cmd_travel(int pindex __attribute__((unused)), struct Message * msg) {
         move_player(msg, atoi(regex_group[1]), atoi(regex_group[2]), 0);
     }
 }
-/* DEPRECATED
-void cmd_locate(int pindex __attribute__((unused)), struct Message * msg) {
+
+/*void cmd_locate(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\w+)")) {
         find_building(dawn, msg, to_lower(regex_group[1]));
     }
-}
-*/
+}*/
+
 void cmd_materials(int pindex __attribute__((unused)), struct Message * msg) {
     print_materials(msg);
 }

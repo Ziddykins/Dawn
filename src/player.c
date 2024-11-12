@@ -26,9 +26,8 @@ int get_pindex(char const *username) { //username -> MAX_NICK_LENGTH
     return -1;
 }
 
-/* DEPRECATED
 int get_bindex (struct Bot *b, char const * username, char const * location) { //username -> MAX_NICK_LENGTH, location -> 64
-    int pindex = get_pindex(b, username);
+    int pindex = get_pindex(username);
     for (int i=0; i<MAX_BUILDINGS; i++) {
         if (strcmp(location, dawn->players[pindex].current_map.buildings[i].name) == 0) {
             return i;
@@ -36,7 +35,6 @@ int get_bindex (struct Bot *b, char const * username, char const * location) { /
     }
     return -1;
 }
-*/
 
 void init_new_character(struct Message *message) {
     //Check if user exists
@@ -55,14 +53,16 @@ void init_new_character(struct Message *message) {
     np.pos_x = 0;
     np.pos_y = 1;
 
-    strncpy(np.username, message->sender_nick, MAX_NICK_LENGTH-1);
+    strncpy(np.username, message->sender_nick, MAX_NICK_LENGTH);
     gen_salt(np.salt, 16);
     hash_pwd(np.pwd, np.salt, tmp_pwd);
     strcpy(np.hostmask, message->sender_hostmask);
-    strcpy(np.first_class, "None");
-    strcpy(np.second_class, "None");
-    strcpy(np.title, "Newbie");
+    strncpy(np.first_class, "None\0", 5);
+    strncpy(np.second_class, "None\0", 5);
+    strncpy(np.title, "Newbie\0", 7);
+
     bzero(np.materials, sizeof np.materials);
+
     np.health       = 100;
     np.fullness     = 100;
     np.alignment    = 0;

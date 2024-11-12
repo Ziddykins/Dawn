@@ -62,8 +62,8 @@ static void random_shrine(char *username) { //username -> MAX_NICK_LENGTH
         {
             int experience_gain = rand() % (dawn->players[index].level * 10) + 1;
             struct Message temp;
-            strcpy(temp.sender_nick, username);
-            strcpy(temp.receiver, dawn->active_room);
+            strncpy(temp.sender_nick, username, MAX_NICK_LENGTH);
+            strncpy(temp.receiver, dawn->active_room, MAX_CHANNEL_LENGTH);
             dawn->players[index].experience += (unsigned long long) experience_gain;
             check_levelup(&temp);
             sprintf(out, "PRIVMSG %s :%s has come across a spring! They notice etchings all around the spring."
@@ -127,8 +127,8 @@ static void random_punishment(char const *username) { //username -> MAX_NICK_LEN
         {
             int damage_taken = rand() % 25 + 1;
             struct Message temp;
-            strcpy(temp.sender_nick, username);
-            strcpy(temp.receiver, dawn->active_room);
+            strncpy(temp.sender_nick, username, MAX_NICK_LENGTH);
+            strncpy(temp.receiver, dawn->active_room, MAX_CHANNEL_LENGTH);
             dawn->players[index].health -= damage_taken;
             sprintf(out, "PRIVMSG %s :A pack of wolves corner %s and munch on them a little bit. HP -%d\r\n",
                     dawn->active_room, username, damage_taken);
@@ -140,8 +140,8 @@ static void random_punishment(char const *username) { //username -> MAX_NICK_LEN
         {
             int damage_taken = rand() % 45 + 1;
             struct Message temp;
-            strcpy(temp.sender_nick, username);
-            strcpy(temp.receiver, dawn->active_room);
+            strncpy(temp.sender_nick, username, MAX_NICK_LENGTH);
+            strncpy(temp.receiver, dawn->active_room, MAX_CHANNEL_LENGTH);
             dawn->players[index].health -= damage_taken;
             sprintf(out, "PRIVMSG %s :While walking, %s was struck by lightning! HP -%d\r\n",
                     dawn->active_room, username, damage_taken);
@@ -166,8 +166,11 @@ static void random_punishment(char const *username) { //username -> MAX_NICK_LEN
 //be a receiver. If the room happens to be empty,
 //the bot will be chosen
 void hourly_events(void) {
+    if (!dawn->player_count) {
+        return;
+    }
+
     int event  = rand() % MAX_EVENT_TYPE;
-    if (!dawn->player_count) return;
     int player = rand() % dawn->player_count;
 
     while (dawn->players[player].available != 1) {
@@ -242,20 +245,23 @@ void check_famine(int whom) {
     struct Message temp;
     if (whom == -1) {
         for (int i = 0; i < dawn->player_count; i++) {
-            strcpy(temp.sender_nick, dawn->players[i].username);
-            strcpy(temp.receiver, dawn->active_room);
+            strncpy(temp.sender_nick, dawn->players[i].username, MAX_NICK_LENGTH);
+            strncpy(temp.receiver, dawn->active_room, MAX_CHANNEL_LENGTH);
             check_alive(&temp);
         }
     } else {
-        strcpy(temp.sender_nick, dawn->players[whom].username);
-        strcpy(temp.receiver, dawn->active_room);
+        strncpy(temp.sender_nick, dawn->players[whom].username, MAX_NICK_LENGTH);
+        strncpy(temp.receiver, dawn->active_room, MAX_CHANNEL_LENGTH);
         check_alive(&temp);
     }
 }
 
 void lottery_collect (void) {
     for (int i=0; i<dawn->player_count; i++) {
-        if (dawn->players[i].gold <= 50) continue;
+        if (dawn->players[i].gold <= 50) {
+            continue;
+        }
+
         long long amount = rand() % 45000; //( (long long)((2.0f/100) * dawn->players[i].gold) );
         dawn->lottery += amount;
         //dawn->players[i].gold -= amount;
@@ -271,9 +277,16 @@ void lottery_reward (void) {
     }
 
     dawn->players[player].gold += dawn->lottery;
-    snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Congratulations, %s! You've won the lottery and"
-            " have been awarded with %lld gold pieces!!!\r\n", dawn->active_room, dawn->players[player].username,
-            dawn->lottery);
+    
+    snprintf(
+        out,
+        MAX_MESSAGE_BUFFER,
+        "PRIVMSG %s :Congratulations, %s! You've won the lottery and have been awarded with %lld gold pieces!!!\r\n",
+        dawn->active_room,
+        dawn->players[player].username,
+        dawn->lottery
+    );
+
     dawn->lottery = 0;
     add_msg(out, strlen(out));
 }

@@ -100,6 +100,7 @@ int main (int argc, char **argv) {
         do {
             auth_key[i] = (char)(rand() % 32);
         } while(auth_key[i] >= 26);
+        
         if(rand()%2) {
             auth_key[i] += 'a';
         } else {
@@ -305,18 +306,18 @@ int main (int argc, char **argv) {
                     }
                     if (dawn->player_count == 0) {
                         struct Message temp;
-                        strcpy(temp.sender_nick, dawn->nickname);
-                        strcpy(temp.sender_hostmask, regex_group[3]);
+                        strncpy(temp.sender_nick, dawn->nickname, MAX_NICK_LENGTH);
+                        strncpy(temp.sender_hostmask, regex_group[3], MAX_CHANNEL_LENGTH);
                         init_new_character(&temp);
                     }
                 }
 
                 //Regular messages and notices
                 if (matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n")) {
-                    strncpy(message.sender_nick,     to_lower(regex_group[1]), 64);
+                    strncpy(message.sender_nick,     to_lower(regex_group[1]), MAX_NICK_LENGTH);
                     strncpy(message.sender_ident,    regex_group[2], 64);
                     strncpy(message.sender_hostmask, regex_group[3], 64);
-                    strncpy(message.receiver,        regex_group[5], 64);
+                    strncpy(message.receiver,        regex_group[5], MAX_NICK_LENGTH);
                     strncpy(message.message,         regex_group[6], MAX_MESSAGE_BUFFER);
                     if (strcmp(regex_group[4], "PRIVMSG") == 0) {
                         if(matches_regex(message.message, CMD_LIT)) {
@@ -339,11 +340,21 @@ int main (int argc, char **argv) {
         return 1;
     }
 
-    if (len != -1) close(con_socket);
+    if (len != -1) {
+        close(con_socket);
+    }
 
-    if (sflag) free(server);
-    if (pflag) free(port);
-    if (mflag) free(monsters); 
+    if (sflag) {
+         free(server);
+    }
+
+    if (pflag) {
+        free(port);
+    }
+
+    if (mflag) {
+        free(monsters); 
+    }
 
     free_msg_hist_list();
     free_msg_list();
@@ -351,8 +362,13 @@ int main (int argc, char **argv) {
     free_cmds();
     free_map();
     free(dawn);
-    if (auth_key_valid || auth_key) free(auth_key);
+
+    if (auth_key_valid || auth_key) {
+        free(auth_key);
+    }
+
     printf(INFO "Program exiting normally [%s]\n", timestamp());
+    
     return 0;
 }
 

@@ -100,7 +100,7 @@ void init_map(char const * const fn) {
         CALLEXIT(!(fread(&global_map->town_count, sizeof global_map->town_count, 1, file)))
         CALLEXIT(!(global_map->towns = malloc((size_t) (global_map->town_count) * sizeof *global_map->towns)))
 
-        struct location e_pos;
+        struct Location e_pos;
 
         for (int i = 0; i < global_map->town_count; i++) {
             CALLEXIT(fread(global_map->towns[i].matdistr, sizeof *global_map->towns[i].matdistr, MAT_COUNT, file) !=
@@ -120,9 +120,9 @@ void init_map(char const * const fn) {
     }
 }
 
-static inline struct location entity_location(struct entity *ent) {
+static inline struct Location entity_location(struct entity *ent) {
     int dim = global_map->dim;
-    return (struct location) {
+    return (struct Location) {
             .x = (int) ((ent - global_map->m_ent) % dim),
             .y = (int) ((ent - global_map->m_ent) / dim)
     };
@@ -155,11 +155,10 @@ void save_map(char const * const fn) {
             CALLEXIT(!(fwrite(&(global_map->towns[i].entitiy_count), sizeof global_map->towns[i].entitiy_count, 1,
                               file)))
             for (int j = 0; j < global_map->towns[i].entitiy_count; j++) {
-                struct location e_pos = entity_location(global_map->towns[i].t_ent[0]);
+                struct Location e_pos = entity_location(global_map->towns[i].t_ent[0]);
                 CALLEXIT(!(fwrite(&e_pos, sizeof e_pos, 1, file)))
             }
         }
-
 
         printf(INFO "Saved map\n");
         fclose(file);
@@ -169,7 +168,7 @@ void save_map(char const * const fn) {
 static inline int too_close_to_town(int x, int y) {
     for (int i = 0; i < global_map->town_count; i++) {
         if (global_map->towns[i].t_ent[0]) {
-            struct location t_pos = entity_location(global_map->towns[i].t_ent[0]);
+            struct Location t_pos = entity_location(global_map->towns[i].t_ent[0]);
             if (sqrt(((t_pos.x - x) * (t_pos.x - x)) + ((t_pos.y - y) * (t_pos.y - y))) <= 10) {
                 return 1;
             }
@@ -217,12 +216,16 @@ static inline void rand_ent(struct entity * e) {
             0.9f, //20% shops
             1.0f, //10% shrines
     };
+
     double rand_num = randd();
     int ent_type = 0;
+
     while(probs[ent_type] < rand_num) {
         ent_type++;
     }
+
     e->type = ent_type;
+
     switch(ent_type) {
         case ENT_TOWN:
             PRINTERR("Entity generation FATAL")
@@ -246,21 +249,21 @@ static inline void rand_ent(struct entity * e) {
 }
 
 //unsafe, use with caution - must store retrieved values elsewhere before appending again
-static inline struct location* q_pop(struct location *q, size_t *start, size_t end, size_t len) {
+static inline struct Location* q_pop(struct Location *q, size_t *start, size_t end, size_t len) {
     assert(*start != end);
-    struct location *rop = &q[*start];
+    struct Location *rop = &q[*start];
     *start = ((*start)+1)%len;
     return rop;
 }
 
-static inline void q_append(struct location *q, size_t start, size_t *end, size_t len, struct location elem) {
+static inline void q_append(struct Location *q, size_t start, size_t *end, size_t len, struct Location elem) {
     q[*end].x = elem.x;
     q[*end].y = elem.y;
     (*end) = ((*end)+1)%len;
     assert(*end != start);
 }
 
-static inline int queue_overlap(struct location *q, size_t start, size_t end, size_t len, int x, int y) {
+static inline int queue_overlap(struct Location *q, size_t start, size_t end, size_t len, int x, int y) {
     for(size_t i = start; i != end; i = (i+1)%len) {
         if(q[i].x == x && q[i].y == y) {
             return 1;
@@ -279,17 +282,17 @@ static void grow_town(int idx) {
     int dim = global_map->dim;
     size_t pos = 0;
     size_t q_size = (size_t) (5 * (_town->entitiy_count + 1));
-    struct location *queue;
+    struct Location *queue;
     CALLEXIT(!(queue = calloc(q_size, sizeof *queue)))
     size_t start = 0, end = 0;
 
-    struct location t_pos = entity_location(_town->t_ent[0]);
-    q_append(queue, start, &end, q_size, (struct location) {.x = t_pos.x + 1, .y =  t_pos.y});
-    q_append(queue, start, &end, q_size, (struct location) {.x = t_pos.x - 1, .y =  t_pos.y});
-    q_append(queue, start, &end, q_size, (struct location) {.x = t_pos.x, .y =  t_pos.y + 1});
-    q_append(queue, start, &end, q_size, (struct location) {.x = t_pos.x, .y =  t_pos.y - 1});
+    struct Location t_pos = entity_location(_town->t_ent[0]);
+    q_append(queue, start, &end, q_size, (struct Location) {.x = t_pos.x + 1, .y =  t_pos.y});
+    q_append(queue, start, &end, q_size, (struct Location) {.x = t_pos.x - 1, .y =  t_pos.y});
+    q_append(queue, start, &end, q_size, (struct Location) {.x = t_pos.x, .y =  t_pos.y + 1});
+    q_append(queue, start, &end, q_size, (struct Location) {.x = t_pos.x, .y =  t_pos.y - 1});
     while (pos < (size_t) (_town->entitiy_count)) {
-        struct location *cur = q_pop(queue, &start, end, q_size);
+        struct Location *cur = q_pop(queue, &start, end, q_size);
         int x = cur->x;
         int y = cur->y;
         _town->t_ent[pos] = &(global_map->m_ent[y * dim + x]);
@@ -299,22 +302,22 @@ static void grow_town(int idx) {
         int app_x = x+1, app_y = y;
         if (is_valid(app_x, app_y, global_map->dim) && !is_obstructed(app_x, app_y) && !entity_overlap(app_x, app_y) &&
             !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
-            q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
+            q_append(queue, start, &end, q_size, (struct Location){.x = app_x, .y = app_y});
         }
         app_x = x-1, app_y = y;
         if (is_valid(app_x, app_y, global_map->dim) && !is_obstructed(app_x, app_y) && !entity_overlap(app_x, app_y) &&
             !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
-            q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
+            q_append(queue, start, &end, q_size, (struct Location){.x = app_x, .y = app_y});
         }
         app_x = x, app_y = y+1;
         if (is_valid(app_x, app_y, global_map->dim) && !is_obstructed(app_x, app_y) && !entity_overlap(app_x, app_y) &&
             !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
-            q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
+            q_append(queue, start, &end, q_size, (struct Location){.x = app_x, .y = app_y});
         }
         app_x = x, app_y = y-1;
         if (is_valid(app_x, app_y, global_map->dim) && !is_obstructed(app_x, app_y) && !entity_overlap(app_x, app_y) &&
             !queue_overlap(queue, start, end, q_size, app_x, app_y)) {
-            q_append(queue, start, &end, q_size, (struct location){.x = app_x, .y = app_y});
+            q_append(queue, start, &end, q_size, (struct Location){.x = app_x, .y = app_y});
         }
 
         pos++;
@@ -424,10 +427,10 @@ static inline float manhattan(int x1, int y1, int x2, int y2) {
     return (absf(x1-x2)+absf(y1-y2));
 }
 
-static float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int flags) {
+static float runpath(struct Location ** rop, int x1, int y1, int x2, int y2, int flags) {
     int dim = global_map->dim;
 
-    struct location * came_from;
+    struct Location * came_from;
     CALLEXIT(!(came_from = malloc((unsigned int)(dim*dim) * sizeof *came_from)))
     for(int i = 0; i < dim*dim; i++) {
         came_from->x = -1;
@@ -445,13 +448,13 @@ static float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int
     cost[y1*dim+x1] = 0;
 
     PriorityQueue pq = init_priority_queue();
-    struct location * start;
+    struct Location * start;
     CALLEXIT(!(start = malloc(sizeof *start)))
     start->x = x1;
     start->y = y1;
     priority_insert(pq, 0, start);
     while(!priority_empty(pq)) {
-        struct location * current = priority_remove_min(pq);
+        struct Location * current = priority_remove_min(pq);
         int x = current->x, y = current->y;
         free(current);
 
@@ -474,8 +477,8 @@ static float runpath(struct location ** rop, int x1, int y1, int x2, int y2, int
                 cost[cur_y*dim+cur_x] = new_cost;
                 came_from[cur_y*dim+cur_x].x = x;
                 came_from[cur_y*dim+cur_x].y = y;
-                struct location * nloc;
-                //dynamic memory to avoid filling stack space with &((struct location){.x = x-1, .y = y})
+                struct Location * nloc;
+                //dynamic memory to avoid filling stack space with &((struct Location){.x = x-1, .y = y})
                 CALLEXIT(!(nloc = malloc(sizeof *nloc)))
                 nloc->x = cur_x;
                 nloc->y = cur_y;
@@ -580,10 +583,9 @@ void move_player(struct Message *message, int x, int y, int teleport) {
     add_msg(out, strlen(out));
 }
 
-/* DEPRECATED
-void find_building (struct Bot *b, struct Message *message, char location[48]) {
+void find_building (struct Bot *b, struct Message *message, char *location) {
     char out[MAX_MESSAGE_BUFFER];
-    int pindex = get_pindex(b, message->sender_nick);
+    int pindex = get_pindex(message->sender_nick);
     int bindex = get_bindex(b, message->sender_nick, location);
 
     if (bindex != -1) {
@@ -595,24 +597,31 @@ void find_building (struct Bot *b, struct Message *message, char location[48]) {
     }
     add_msg(out, strlen(out));
 }
-*/
-/* DEPRECATED
-void check_special_location (struct Bot *b, int pindex) {
+
+/*void check_special_location (struct Bot *b, int pindex) {
     char out[MAX_MESSAGE_BUFFER];
     int cur_x = b->players[pindex].current_map.cur_x;
     int cur_y = b->players[pindex].current_map.cur_y;
 
     for (int i=0; i<MAX_BUILDINGS; i++) {
-        if (b->players[pindex].current_map.buildings[i].x == cur_x &&
-                b->players[pindex].current_map.buildings[i].y == cur_y) {
-            if (cur_x == 0 && cur_y == 0) continue;
+        if (b->players[pindex].current_map.buildings[i].x == cur_x
+                && b->players[pindex].current_map.buildings[i].y == cur_y) {
+            
+            if (cur_x == 0 && cur_y == 0) {
+                continue;
+            }
+            
             sprintf(out, "PRIVMSG %s :%s stands in front of the %s\r\n",
-                    b->active_room, b->players[pindex].username, b->players[pindex].current_map.buildings[i].name);
+                b->active_room,
+                b->players[pindex].username,
+                b->players[pindex].current_map.buildings[i].name
+            );
+
             add_msg(out, strlen(out));
         }
     }
-}
-*/
+}*/
+
 void diamond_square(float *heightmap, int dim, float sigma, int level) {
     if (level < 1) return;
 

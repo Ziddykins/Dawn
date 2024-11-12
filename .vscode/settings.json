@@ -1,0 +1,10 @@
+{
+    "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+        "clang-diagnostic-implicit-function-declaration"
+    ],
+    "files.associations": {
+        "player.h": "c",
+        "limits.h": "c",
+        "map.h": "c"
+    }
+}

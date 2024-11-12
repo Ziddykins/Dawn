@@ -1,0 +1,29 @@
+
+245:            strcpy(temp.sender_nick, dawn->players[i].username);
+250:        strcpy(temp.sender_nick, dawn->players[whom].username);
+===tokenlist.c===
+
+===player.c===
+
+===main.c===
+
+43:    strcpy(dawn->nickname, "Dawn-19");
+308:                        strcpy(temp.sender_nick, dawn->nickname);
+===combat.c===
+
+62:                strcpy(message->sender_nick, dawn->players[i].username);
+===monsters.c===
+
+===bounty.c===
+
+===spells.c===
+
+16:    strcpy(temp.sender_nick, target);
+166:            strcpy(tmpmsg.sender_nick, target);
+181:    strcpy(temp.sender_nick, username);
+===analyzer.c===
+
+===network.c===
+
+===items.c===
+

@@ -28,6 +28,11 @@
 #define PERLIN_SCALE         (1.0f/(1<<8))
 #define PERLIN_V_SCALE       (3.25f)
 #define GENERATION_TRIALS    (10000)
+
+/* Upper bounds for map dimensions */
+#define MAXIMUM_XSIZE_MAP    (1024)
+#define MAXIMUM_YSIZE_MAP    (1024)
+
 //Seconds
 #define HEALING_INTERVAL     (1800)
 #define SAVING_INTERVAL      (900)

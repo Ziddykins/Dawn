@@ -10,7 +10,7 @@ void move_player(struct Message *, int, int, int);
 
 void print_location(int);
 
-void find_building(struct Message *, char []);
+void find_building(struct Bot *, struct Message *);
 //void check_special_location (struct Bot *, int); //DEPRECATED
 void diamond_square(float *heightmap, int dim, float sigma, int level);
 
@@ -27,12 +27,21 @@ int iter_to_dirflag(int iter);
 
 float pathlen(int x1, int y1, int x2, int y2);
 
-struct location {
+struct Building {
+    char name[64];
+    int x, y;
+};
+
+struct Location {
+    struct Building buildings[64];
+    char name[64];
+    int max_x, max_y;
     int x, y;
 };
 
 struct travel_timer {
-    struct location pos;
+    struct Location pos;
     int active;
 };
+
 #endif

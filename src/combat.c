@@ -59,7 +59,7 @@ int check_alive(struct Message *message) {
                 double goldgain = percent * dawn->global_monster.gold;
 
                 //Need to change the sender_nick so the proper drops are awarded as well as level checking
-                strcpy(message->sender_nick, dawn->players[i].username);
+                strncpy(message->sender_nick, dawn->players[i].username, MAX_NICK_LENGTH);
                 dawn->players[i].experience += (unsigned long long) expgain;
                 dawn->players[i].gold += (int) goldgain;
                 sprintf(out, "PRIVMSG %s :%s has helped defeat the foe and receives %d experience and %d gold"
