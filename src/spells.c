@@ -13,7 +13,7 @@ void cast_heal(const char *username, const char *target) {
     int stats[7] = {0};
     struct Message temp = {0};
     char out[MAX_MESSAGE_BUFFER];
-    strcpy(temp.sender_nick, target);
+    strncpy(temp.sender_nick, target, MAX_NICK_LENGTH);
     
     if (tindex == -1) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Invalid target\r\n", dawn->active_room);
