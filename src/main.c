@@ -40,11 +40,12 @@ int main (int argc, char **argv) {
     CALLEXIT(!(dawn = calloc(1, sizeof *dawn)))
 
     //Initial settings
-    strcpy(dawn->nickname, "Dawn-19");
+    strncpy(dawn->nickname, "Dawn-19", MAX_NICK_LENGTH);
     strcpy(dawn->realname, "dongs");
     strcpy(dawn->ident,    "hehe");
     strcpy(dawn->password, "temp");
-    strcpy(dawn->active_room, "#stacked");
+    strncpy(dawn->active_room, "#stacked", MAX_CHANNEL_LENGTH);
+    
     //Load players
     persistent_load();
 
