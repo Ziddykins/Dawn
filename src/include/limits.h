@@ -3,12 +3,18 @@
 
 #include <limits.h>
 
-//networking
-#define MAX_MESSAGE_BUFFER  (400) //Max length of a single message
-#define MAX_RECV_BUFFER     (4096)
-#define MAX_SENDQ_SIZE (500) //Max length of all messages sent in last SENDQ_INTERVAL seconds
-#define MAX_MSGS_IN_INTERVAL (10) //Max number of messages sent in last SENDQ_INTERVAL seconds
-#define SENDQ_INTERVAL (5) //Time a message lives inside the Message History List
+//networking + RFC/Server-defined limits
+#define MAX_MESSAGE_BUFFER   (400)        /* Max length of a single outgoing message */
+#define MAX_RECV_BUFFER      (4096)       /* Max received packet size by the server */
+#define MAX_SENDQ_SIZE       (500)        /* Max length of all messages sent in last SENDQ_INTERVAL seconds */
+#define MAX_MSGS_IN_INTERVAL (10)         /* Max number of messages sent in last SENDQ_INTERVAL seconds */
+#define SENDQ_INTERVAL       (5)          /* Time a message lives inside the Message History List */
+#define MAX_HOSTNAME_LENGTH  (63)         /* Max length of a hostname by itself (i.e. ident!nickname@->HOSTNAME<-) */
+
+extern unsigned int MAX_NICK_LENGTH;      /* IRCd-specific, so parse for it on connect */
+extern unsigned int MAX_CHANNEL_LENGTH;   /* IRCd-specific, so parse for it on connect */
+
+#define AUTH_KEY_LEN         (24)
 
 #define MAX_INVENTORY_SLOTS  (25)
 #define MAX_MONSTERS         (40)
@@ -26,6 +32,7 @@
 #define MAX_SLAY_GOLD        (INT_MAX)
 #define MAX_BUILDINGS        (64) /* per town/map */
 #define MAT_COUNT            (8)
+
 #define PERLIN_SCALE         (1.0f/(1<<8))
 #define PERLIN_V_SCALE       (3.25f)
 #define GENERATION_TRIALS    (10000)
@@ -34,13 +41,11 @@
 #define MAXIMUM_XSIZE_MAP    (1024)
 #define MAXIMUM_YSIZE_MAP    (1024)
 
-//Seconds
+// Intervals in seconds
 #define HEALING_INTERVAL     (1800)
 #define SAVING_INTERVAL      (900)
-#define AUTH_KEY_LEN         (24)
 #define BOUNTY_RESET_INTERVAL (86400)
 #define LOTTERY_COLLECT_INTERVAL (1800)
 #define LOTTERY_REWARD_INTERVAL  (43200)
-extern unsigned int MAX_NICK_LENGTH;
-extern unsigned int MAX_CHANNEL_LENGTH;
+
 #endif
