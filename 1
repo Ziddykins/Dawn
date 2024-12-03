@@ -54,17 +54,12 @@ void hash_pwd(unsigned char * digest, char const * salt, char const * password) 
     CALLEXIT(!(concat = malloc(concatlen)))
     snprintf(concat, concatlen, "!%s%s", password, salt);
 
-    EVP_MD_CTX *ctx;
-    ctx = EVP_MD_CTX_new();
-
-    EVP_DigestInit(ctx, EVP_sha256());
-    EVP_DigestUpdate(ctx, concat, concatlen);
-    EVP_DigestFinal(ctx, digest, &outLen);
-
-    printf("concat %s - concatlen: %zu - salt: %s - pass: %s - digest: %s\n", concat, concatlen, salt, password, digest);
+    EVP_CTX *sha_256;
+    EVP_DigestInit(&sha256, EVP_sha256());
+    EVP_DigestUpdate(&sha256, concat, concatlen);
+    EVP_DigestFinal(&sha256, digest, &outLen);
 
 	free(concat);
-    EVP_MD_CTX_free(ctx);
 }
 
 int hash_cmp(unsigned char const * s1, unsigned char const * s2) {

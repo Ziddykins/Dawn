@@ -209,7 +209,7 @@ void drop_item(struct Message *message, int slot) {
     char item_name[128];
     int pindex = get_pindex(message->sender_nick);
     int total_items = MAX_INVENTORY_SLOTS - dawn->players[pindex].available_slots;
-    struct Inventory empty;
+    static const struct Inventory empty;
 
     if (is_favorite(pindex, slot)) {
         sprintf(out, "PRIVMSG %s :%s, %s is a favorite item and can not be dropped\r\n",

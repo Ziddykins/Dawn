@@ -1,7 +1,7 @@
 #ifndef PLAYER_H_INCLUDED
 #define PLAYER_H_INCLUDED
 
-#include <openssl/sha.h>
+#include <openssl/evp.h>
 
 #include "limits.h"
 #include "inventory.h"
@@ -47,15 +47,16 @@ extern int auth_key_valid;
 extern struct Map *global_map;
 
 struct Player {
-    char username[64], hostmask[128]; // limits used in parse.c
+    char username[64];
+    char hostmask[MAX_HOSTNAME_LENGTH]; // limits used in parse.c
     char salt[16];                    // limits used in parse.c and player.c
-    unsigned char pwd[SHA256_DIGEST_LENGTH];
+    unsigned char pwd[EVP_MAX_MD_SIZE];
     char first_class[64], second_class[64], title[64];
     struct Inventory inventory[MAX_INVENTORY_SLOTS];
     struct Monsters personal_monster;
     struct travel_timer travel_timer;
     struct SpellBook spellbook;
-    struct Location current_map;
+    struct MapLocation current_map;
 
     int pos_x, pos_y, bounty;
     // wood, leather, ore, stone, bronze, mail, steel, diamond

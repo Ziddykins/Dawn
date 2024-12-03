@@ -3,18 +3,19 @@
 
 #include <limits.h>
 
-//networking + RFC/Server-defined limits
+/* networking + RFC/Server-defined limits */
 #define MAX_MESSAGE_BUFFER   (400)        /* Max length of a single outgoing message */
 #define MAX_RECV_BUFFER      (4096)       /* Max received packet size by the server */
 #define MAX_SENDQ_SIZE       (500)        /* Max length of all messages sent in last SENDQ_INTERVAL seconds */
 #define MAX_MSGS_IN_INTERVAL (10)         /* Max number of messages sent in last SENDQ_INTERVAL seconds */
 #define SENDQ_INTERVAL       (5)          /* Time a message lives inside the Message History List */
+#define MAX_MONSTER_LENGTH   (64)         /* Max length of monster nickname */
 #define MAX_HOSTNAME_LENGTH  (63)         /* Max length of a hostname by itself (i.e. ident!nickname@->HOSTNAME<-) */
-
-extern unsigned int MAX_NICK_LENGTH;      /* IRCd-specific, so parse for it on connect */
-extern unsigned int MAX_CHANNEL_LENGTH;   /* IRCd-specific, so parse for it on connect */
-
+#define MAX_IDENT_LENGTH     (10)         /* Max length of username/ident */
 #define AUTH_KEY_LEN         (24)
+extern unsigned int MAX_NICK_LENGTH; /* IRCd-specific, so parse for it on connect */
+extern unsigned int MAX_CHANNEL_LENGTH; /* IRCd-specific, so parse for it on connect */
+
 
 #define MAX_INVENTORY_SLOTS  (25)
 #define MAX_MONSTERS         (40)

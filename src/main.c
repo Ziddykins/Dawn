@@ -17,6 +17,7 @@
 //Determined by server - if values not received on connect, default to 64
 unsigned int MAX_CHANNEL_LENGTH = 64;
 unsigned int MAX_NICK_LENGTH    = 64;
+
 char *auth_key;
 //Prototype
 void print_usage(char **);
@@ -45,7 +46,7 @@ int main (int argc, char **argv) {
     strcpy(dawn->ident,    "hehe");
     strcpy(dawn->password, "temp");
     strncpy(dawn->active_room, "#stacked", MAX_CHANNEL_LENGTH);
-    
+
     //Load players
     persistent_load();
 
@@ -101,8 +102,8 @@ int main (int argc, char **argv) {
         do {
             auth_key[i] = (char)(rand() % 32);
         } while(auth_key[i] >= 26);
-        
-        if(rand()%2) {
+
+        if (rand()%2) {
             auth_key[i] += 'a';
         } else {
             auth_key[i] += 'A';
@@ -121,11 +122,11 @@ int main (int argc, char **argv) {
 
     if (access(monsters, F_OK) != -1) {
         FILE *file = fopen(monsters, "r");
-        char line[1024];
-        char name[64];
+        char line[MAX_MESSAGE_BUFFER];
+        char name[MAX_MONSTER_LENGTH];
         int count = 0;
         int hp, str, def, intel, mdef, gold, exp, mhp, drop_level;
-        
+
         if (!file) {
             fprintf(stderr, ERR "Error opening raw monsters\n");
             return 1;
@@ -137,7 +138,7 @@ int main (int argc, char **argv) {
                 fprintf(stderr, ERR "main: Malformed monster file at line %d\n", count);
                 return 1;
             }
-            strncpy(dawn->monsters[count].name, name, 63);
+            strncpy(dawn->monsters[count].name, name, 64);
             dawn->monsters[count].hp         = hp;
             dawn->monsters[count].str        = str;
             dawn->monsters[count].def        = def;
@@ -187,8 +188,9 @@ int main (int argc, char **argv) {
             //Nickname is in use, add a random suffix
             if (matches_regex(buffer, ":.*?\\s433\\s*\\s.*")) {
                 int rand_suffix = rand() % 10;
-                fprintf(stderr, WARN "Username %s in use\n", dawn->nickname);
                 size_t nicklen = strlen(dawn->nickname);
+
+                fprintf(stderr, WARN "Username %s in use\n", dawn->nickname);
                 snprintf(dawn->nickname+nicklen, MAX_NICK_LENGTH-nicklen, "%d", rand_suffix);
                 handle_login(dawn->nickname, dawn->password, dawn->realname, dawn->ident);
             }
@@ -198,6 +200,7 @@ int main (int argc, char **argv) {
             //welcome message, join the rooms
             if (!dawn->in_rooms && dawn->login_sent == 1) {
                 match = matches_regex(buffer, ":(.*?)\\s001(.*)");
+
                 if (match) {
                     printf(INFO "Got welcome message from server, joining rooms\n");
                     sprintf(out, "JOIN %s\r\n", dawn->active_room);
@@ -224,18 +227,19 @@ int main (int argc, char **argv) {
                 //Check if user is identified
                 if (matches_regex(buffer, ":(.*?)\\s307\\s(.*?)\\s(.*?)\\s:")) {
                     int pindex = get_pindex(regex_group[3]);
-                    if(pindex != -1 && (dawn->players[pindex].max_auth > AL_USER || dawn->players[pindex].auth_level > AL_NOAUTH)) {
-                        if(dawn->players[pindex].max_auth < AL_REG) { //upgrade
+
+                    if (pindex != -1 && (dawn->players[pindex].max_auth > AL_USER || dawn->players[pindex].auth_level > AL_NOAUTH)) {
+                        if (dawn->players[pindex].max_auth < AL_REG) { //upgrade
                             dawn->players[pindex].max_auth = AL_REG;
                         }
-                        if(dawn->players[pindex].auth_level < dawn->players[pindex].max_auth) {
+
+                        if (dawn->players[pindex].auth_level < dawn->players[pindex].max_auth) {
                             dawn->players[pindex].auth_level = dawn->players[pindex].max_auth;
                             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s has been verified. (%s)\r\n",
                                 dawn->active_room,
                                 dawn->players[pindex].username,
                                 auth_level_to_str((enum auth_level)(dawn->players[pindex].auth_level)));
                             add_msg(out, strlen(out));
-
                         } else {
                             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s is already verified. (%s)\r\n",
                                 dawn->active_room,
@@ -309,7 +313,7 @@ int main (int argc, char **argv) {
                     if (dawn->player_count == 0) {
                         struct Message temp;
                         strncpy(temp.sender_nick, dawn->nickname, MAX_NICK_LENGTH);
-                        strncpy(temp.sender_hostmask, regex_group[3], MAX_CHANNEL_LENGTH);
+                        strncpy(temp.sender_hostmask, regex_group[3], MAX_HOSTNAME_LENGTH);
                         init_new_character(&temp);
                     }
                 }
@@ -317,12 +321,13 @@ int main (int argc, char **argv) {
                 //Regular messages and notices
                 if (matches_regex(buffer, ":(.*?)!~?(.*?)@(.*?)\\s(.*?)\\s(.*?)\\s:(.*)\r\n")) {
                     strncpy(message.sender_nick,     to_lower(regex_group[1]), MAX_NICK_LENGTH);
-                    strncpy(message.sender_ident,    regex_group[2], 64);
-                    strncpy(message.sender_hostmask, regex_group[3], 64);
+                    strncpy(message.sender_ident,    regex_group[2], MAX_IDENT_LENGTH);
+                    strncpy(message.sender_hostmask, regex_group[3], MAX_HOSTNAME_LENGTH);
                     strncpy(message.receiver,        regex_group[5], MAX_NICK_LENGTH);
                     strncpy(message.message,         regex_group[6], MAX_MESSAGE_BUFFER);
+
                     if (strcmp(regex_group[4], "PRIVMSG") == 0) {
-                        if(matches_regex(message.message, CMD_LIT)) {
+                        if (matches_regex(message.message, CMD_LIT)) {
                             if (message.receiver[0] == '#') {
                                 invoke_cmd(0, get_pindex(message.sender_nick), regex_group[0], &message, CMD_EXEC);
                             } else {
@@ -355,7 +360,7 @@ int main (int argc, char **argv) {
     }
 
     if (mflag) {
-        free(monsters); 
+        free(monsters);
     }
 
     free_msg_hist_list();
@@ -370,7 +375,7 @@ int main (int argc, char **argv) {
     }
 
     printf(INFO "Program exiting normally [%s]\n", timestamp());
-    
+
     return 0;
 }
 

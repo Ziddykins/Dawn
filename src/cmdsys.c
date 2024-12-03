@@ -62,7 +62,7 @@ void register_cmd(CmdSys cs, char * cmd, char * helptext, int auth_level, void (
 
     ccs->hashes[ccs->len] = hash_code(cmd);
 
-    size_t len = strlen(cmd);
+    size_t len = strlen(cmd) + 1;
     assert(len < MAX_MESSAGE_BUFFER);
     CALLEXIT(!(ccs->cmds[ccs->len] = calloc(len+1, 1)))
     strncpy(ccs->cmds[ccs->len], cmd, len);
@@ -95,8 +95,8 @@ void invoke_cmd(CmdSys cs, int pindex, char * cmd, struct Message * msg, int mod
     assert(ccs->flags == CMD_FINALIZED);
 
     char * out;
-    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
-    if(pindex == -1 && strcmp(cmd, ";new") != 0) {
+    CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER+175)))
+    if (pindex == -1 && strcmp(cmd, ";new") != 0) {
         sprintf(out, "PRIVMSG %s :Please create a new account by issuing ';new'\r\n", msg->receiver);
         add_msg(out, strlen(out));
     } else {

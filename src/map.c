@@ -1,3 +1,4 @@
+#include "include/player.h"
 #include "include/map.h"
 #include "include/util.h"
 #include "include/status.h"
@@ -77,12 +78,11 @@ void init_map(char const * const fn) {
     global_map->flags = 0;
 
     FILE *file = fopen(fn, "rb");
-    if(!file) {
+    if (!file) {
         printf(INFO "Generating new heightmap\n");
         generate_map();
         save_map(fn);
     } else {
-
         CALLEXIT(!(fread(&global_map->dim, sizeof global_map->dim, 1, file)))
         CALLEXIT(!(fread(&global_map->flags, sizeof global_map->flags, 1, file)))
         CALLEXIT(!(fread(&global_map->water_level, sizeof global_map->water_level, 1, file)))
@@ -327,43 +327,48 @@ static void grow_town(int idx) {
 }
 
 void generate_map() {
-    FILE *urandom;
-    CALLEXIT(!(urandom = fopen("/dev/urandom", "r")))
-
+    int dim = global_map->dim;
     unsigned int seed;
+    FILE *urandom;
+    float *copy;
+
+
+    CALLEXIT(!(urandom = fopen("/dev/urandom", "r")))
     CALLEXIT(!(fread(&seed, sizeof(seed), 1, urandom)))
     srand(seed);
     fclose(urandom);
 
     global_map->dim = 1 << 10;
-    CALLEXIT(!(global_map->heightmap = calloc(sizeof *global_map->heightmap,
-                                              (size_t) (global_map->dim * global_map->dim))))
+    CALLEXIT(!(global_map->heightmap = calloc(sizeof *global_map->heightmap, (size_t) (global_map->dim * global_map->dim))))
     diamond_square(global_map->heightmap, global_map->dim, 4000.0, global_map->dim);
     global_map->flags |= MAP_PRESENT;
-
-    float * copy;
-    int dim = global_map->dim;
     CALLEXIT(!(copy = malloc((size_t)(dim*dim) * sizeof *copy)))
+
     for(int i = 0; i < dim*dim; i++) {
         copy[i] = global_map->heightmap[i];
     }
+
     qsort(copy, (size_t) (dim*dim), sizeof *copy, &compare_float_asc);
     global_map->water_level = copy[(int)(1.0/6.0*dim*dim)];
     free(copy);
+
     int town_count = (int) (10 + gaussrand() * 3);
     global_map->town_count = 0;
     CALLEXIT(!(global_map->towns = calloc((size_t) (town_count), sizeof *global_map->towns)))
     CALLEXIT(!(global_map->m_ent = calloc((size_t) (dim * dim), sizeof *global_map->m_ent)))
     perlin_init();
+
     for (int i = 0; i < town_count; i++) {
         place_town(i);
         global_map->town_count++;
     }
+
     assert(town_count == global_map->town_count);
 
     for (int i = 0; i < town_count; i++) {
         grow_town(i);
     }
+
     perlin_cleanup();
 }
 
@@ -371,11 +376,10 @@ int is_water(int x, int y) {
     return global_map->heightmap[y*global_map->dim+x] < global_map->water_level;
 }
 
-int is_obstructed(int x, int y) { //will also handle rocks or other unreachable area
+int is_obstructed(int x, int y) {
     return is_water(x,y);
 }
 
-//(x2,y2) may only have a distance of sqrt(2) from (x1,y1)
 static inline float transfer_cost(int x1, int y1, int x2, int y2) {
     int dim = global_map->dim;
     float dist = ((abs(x2-x1)+abs(y2-y1) < 2) ? 1 : (float)sqrt(2));
@@ -386,15 +390,15 @@ static inline void move_step(int *rop_x, int *rop_y, int x, int y, int dir) {
     *rop_x = x;
     *rop_y = y;
 
-    if(dir & NORTH) {
+    if (dir & NORTH) {
         (*rop_y)--;
     } else if(dir & SOUTH) {
         (*rop_y)++;
     }
 
-    if(dir & EAST) {
+    if (dir & EAST) {
         (*rop_x)++;
-    } else if(dir & WEST) {
+    } else if (dir & WEST) {
         (*rop_x)--;
     }
 }
@@ -429,16 +433,18 @@ static inline float manhattan(int x1, int y1, int x2, int y2) {
 
 static float runpath(struct Location ** rop, int x1, int y1, int x2, int y2, int flags) {
     int dim = global_map->dim;
+    struct Location *came_from;
+    float *cost;
 
-    struct Location * came_from;
     CALLEXIT(!(came_from = malloc((unsigned int)(dim*dim) * sizeof *came_from)))
-    for(int i = 0; i < dim*dim; i++) {
+
+    for(int i=0; i<dim*dim; i++) {
         came_from->x = -1;
         came_from->y = -1;
     }
 
-    float *cost;
     CALLEXIT(!(cost = malloc((unsigned int)(dim*dim) * sizeof *cost)))
+
     for(int i = 0; i < dim*dim; i++) {
         cost[i] = -1;
     }
@@ -453,12 +459,13 @@ static float runpath(struct Location ** rop, int x1, int y1, int x2, int y2, int
     start->x = x1;
     start->y = y1;
     priority_insert(pq, 0, start);
-    while(!priority_empty(pq)) {
+
+    while (!priority_empty(pq)) {
         struct Location * current = priority_remove_min(pq);
         int x = current->x, y = current->y;
         free(current);
 
-        if(x == x2 && y == y2 && !(flags & ALL_TARGETS)) {
+        if (x == x2 && y == y2 && !(flags & ALL_TARGETS)) {
             break;
         }
 
@@ -486,7 +493,8 @@ static float runpath(struct Location ** rop, int x1, int y1, int x2, int y2, int
             }
         }
     }
-    if(flags & RECONSTRUCT) {
+
+    if (flags & RECONSTRUCT) {
         *rop = came_from;
     } else {
         free(came_from);
@@ -504,9 +512,11 @@ float pathlen(int x1, int y1, int x2, int y2) {
 
 void free_map() {
     free(global_map->heightmap);
+
     for (int i = 0; i < global_map->town_count; i++) {
         free(global_map->towns[i].t_ent);
     }
+
     free(global_map->towns);
     free(global_map->m_ent);
     free(global_map);
@@ -523,12 +533,14 @@ void move_player(struct Message *message, int x, int y, int teleport) {
     char out[MAX_MESSAGE_BUFFER];
     int pindex = get_pindex(message->sender_nick);
     float travel_time;
+
     if (x < 0 || x >= global_map->dim || y < 0 || y >= global_map->dim) {
         sprintf(out, "PRIVMSG %s :Invalid location, this map is %dx%d\r\n", message->receiver, global_map->dim-1, global_map->dim-1);
         add_msg(out, strlen(out));
         return;
     }
-    if(is_obstructed(x, y)) {
+
+    if (is_obstructed(x, y)) {
         snprintf(out, MAX_MESSAGE_BUFFER,"PRIVMSG %s :(%d,%d) is obstructed :(\r\n", message->receiver, x, y);
         add_msg(out, strlen(out));
         return;
@@ -544,12 +556,14 @@ void move_player(struct Message *message, int x, int y, int teleport) {
     }
 
     travel_time = pathlen(cx, cy, x, y)*TRAVEL_TIME_MULT;
-    if(travel_time < 0) {
+
+    if (travel_time < 0) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, (%d,%d) cannot be reached :(\r\n", message->receiver, message->sender_nick, x, y);
         add_msg(out, strlen(out));
         return;
     }
-    if((unsigned int)travel_time >= (unsigned int)((((unsigned int)1<<(sizeof(unsigned int) * 8 - 1))-1)/TRAVEL_TIME_MULT)) {
+
+    if ((unsigned int)travel_time >= (unsigned int)((((unsigned int)1<<(sizeof(unsigned int) * 8 - 1))-1)/TRAVEL_TIME_MULT)) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you cannot travel that far! It would take %.2f hours!\r\n", message->receiver, message->sender_nick, travel_time/60/60);
         add_msg(out, strlen(out));
         return;
@@ -557,6 +571,7 @@ void move_player(struct Message *message, int x, int y, int teleport) {
 
     if (teleport) {
         int teleport_cost = (int)(travel_time / 2.0f);
+
         if (dawn->players[pindex].mana > teleport_cost) {
             dawn->players[pindex].mana -= teleport_cost;
             dawn->players[pindex].pos_x = x;
@@ -564,16 +579,19 @@ void move_player(struct Message *message, int x, int y, int teleport) {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you have teleported to %d,%d, saving you %u travel time!\r\n",
                     message->receiver, message->sender_nick, x, y, (unsigned int)travel_time);
             add_msg(out, strlen(out));
+
             return;
         } else {
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you do not have the required %u mana to teleport to %d, %d!\r\n",
                     dawn->active_room, message->sender_nick, (unsigned int)(travel_time / 2.0f), x, y);
             add_msg(out, strlen(out));
+
             return;
         }
     }
 
     add_event(TRAVEL, pindex, (unsigned int)travel_time, UNIQUE);
+
     dawn->players[pindex].travel_timer.pos.x = x;
     dawn->players[pindex].travel_timer.pos.y = y;
     dawn->players[pindex].travel_timer.active = 1;
@@ -604,25 +622,35 @@ void find_building (struct Bot *b, struct Message *message, char *location) {
 
 void check_special_location (struct Bot *b, int pindex) {
     char out[MAX_MESSAGE_BUFFER];
-    int cur_x = b->players[pindex].current_map.cur_x;
-    int cur_y = b->players[pindex].current_map.cur_y;
+    int cur_x = b->players[pindex].current_map.x;
+    int cur_y = b->players[pindex].current_map.y;
 
     for (int i=0; i<MAX_BUILDINGS; i++) {
-        if (b->players[pindex].current_map.buildings[i].x == cur_x
-                && b->players[pindex].current_map.buildings[i].y == cur_y) {
-            
-            if (cur_x == 0 && cur_y == 0) {
-                continue;
-            }
-            
-            sprintf(out, "PRIVMSG %s :%s stands in front of the %s\r\n",
-                b->active_room,
-                b->players[pindex].username,
-                b->players[pindex].current_map.buildings[i].name
-            );
+        int bld_startx = b->players[pindex].current_map.buildings[i].x;
+        int bld_endx   = b->players[pindex].current_map.buildings[i].height + bld_startx;
+        int bld_starty = b->players[pindex].current_map.buildings[i].y;
+	    int bld_endy   = b->players[pindex].current_map.buildings[i].width + bld_starty;
+	    char found_building[64] = {0};
 
-            add_msg(out, strlen(out));
+        strncpy(found_building, "lot of empty space", 64);
+
+
+	    if (cur_x == 0 && cur_y == 0) {
+            continue;
         }
+
+    	if (cur_x >= bld_startx && cur_x <= bld_endx) {
+    	    if (cur_y >= bld_starty && cur_y <= bld_endy) {
+		        strncpy(found_building, b->players[pindex].current_map.buildings[i].name, 62);
+            }
+	    }
+
+        sprintf(out, "PRIVMSG %s :%s stands in front of the %s\r\n",
+            b->active_room,
+            b->players[pindex].username,
+            found_building
+        );
+        add_msg(out, strlen(out));
     }
 }
 

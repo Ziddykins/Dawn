@@ -14,13 +14,13 @@ void cast_heal(const char *username, const char *target) {
     struct Message temp = {0};
     char out[MAX_MESSAGE_BUFFER];
     strncpy(temp.sender_nick, target, MAX_NICK_LENGTH);
-    
+
     if (tindex == -1) {
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Invalid target\r\n", dawn->active_room);
         add_msg(out, strlen(out));
         return;
     }
-    
+
     get_stat(&temp, stats);
     printf("%s stat0: %d\n", temp.sender_nick, stats[0]);
 
@@ -232,6 +232,7 @@ void check_learn_spells(const char *username) {
             dawn->players[pindex].spellbook.frost.level = 1;
             dawn->players[pindex].spellbook.frost.element = ICE;
             strcpy(spell, "Frost");
+            break;
         case 8:
             dawn->players[pindex].spellbook.rain.learned = 1;
             dawn->players[pindex].spellbook.rain.level = 1;

@@ -21,6 +21,6 @@ void gen_salt(char * salt, size_t len);
 void hash_pwd(unsigned char * digest, char const * salt, char const * password);
 int hash_cmp(unsigned char const * s1, unsigned char const * s2);
 
-extern char regex_group[15][2048];
+extern char regex_group[15][MAX_MESSAGE_BUFFER];
 
 #endif

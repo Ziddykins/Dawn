@@ -11,7 +11,7 @@ static char *get_monstring (enum MonsterType type, char *temp) {
         case THIEF:     snprintf(temp, 100, "%s%s%s", IRC_ORANGE, "Thief (5x Gold)", IRC_NORMAL); break;
         case TANK:      snprintf(temp, 100, "%s%s%s", IRC_DBLUE, "Tank (4x Defense)", IRC_NORMAL); break;
         case BOSS:      snprintf(temp, 100, "%s%s%s", IRC_BROWN, "BOSS (10x ALL 6x Payout)", IRC_NORMAL); break;
-        case DEFMON:    snprintf(temp, 1, "%c", '\0');
+        case DEFMON:    snprintf(temp, 1, "%s", "\0");
     }
     return temp;
 }
@@ -60,7 +60,7 @@ void call_monster(char const *username, int global) { //username -> MAX_NICK_LEN
     alignchance = rand() % 100;
     chance      = rand() % 100;
 
-    
+
     if (global) {
         if (dawn->global_monster.active) {
             sprintf(out, "PRIVMSG %s :The %s got bored and left town. Unfortunately his friend wandered in...\r\n",
@@ -139,7 +139,7 @@ void slay_monster(char const *username, int global, int amount) { //username -> 
                             "the monster. %d gold still has to be raised!\r\n", dawn->active_room, username, amount,
                     dawn->global_monster.slay_cost);
         } else {
-            sprintf(out, "PRIVMSG %s :%s, you do not have that much gold\r\n", dawn->active_room, username);    
+            sprintf(out, "PRIVMSG %s :%s, you do not have that much gold\r\n", dawn->active_room, username);
         }
 
         add_msg(out, strlen(out));

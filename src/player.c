@@ -103,7 +103,6 @@ void init_new_character(struct Message *message) {
     np.inventory[0] = sword;
     np.inventory[1] = shield;
 
-
     dawn->players[dawn->player_count] = np;
     dawn->player_count++;
 
@@ -130,10 +129,12 @@ void save_players(void) {
 
 void load_players(void) {
     FILE *file = fopen("players.bin", "rb");
+
     if (!file) {
         fprintf(stderr, WARN "Could not load players\n");
         return;
     }
+
     CALLEXIT(!(fread(dawn, sizeof *dawn, 1, file)))
     fclose(file);
     printf(INFO "Players loaded (%zu bytes)\n", sizeof *dawn);

@@ -11,8 +11,8 @@ void move_player(struct Message *, int, int, int);
 
 void print_location(int);
 
-void find_building(struct Bot *, struct Message *);
-//void check_special_location (struct Bot *, int); //DEPRECATED
+void find_building(struct Bot *, struct Message *, char *);
+void check_special_location (struct Bot *, int); //DEPRECATED
 void diamond_square(float *heightmap, int dim, float sigma, int level);
 
 
@@ -35,10 +35,14 @@ struct Building {
     int height;
 };
 
-struct Location {
+struct MapLocation {
     struct Building buildings[MAX_BUILDINGS];
     char name[64];
     int max_x, max_y;
+    int x, y;
+};
+
+struct Location {
     int x, y;
 };
 
