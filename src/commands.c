@@ -13,6 +13,8 @@
 
 #include <assert.h>
 #include <string.h>
+#include <errno.h>
+#include <limits.h>
 
 void init_cmds() {
     init_global_cmd_sys();
@@ -231,7 +233,13 @@ void cmd_fdel(int pindex, struct Message *msg) {
         } else {
             puts("good");
             printf("user %s slot %s\n", regex_group[1], regex_group[2]);
-            int slot = atoi(regex_group[2]);
+            char *endptr;
+            errno = 0;
+            long slot_l = strtol(regex_group[2], &endptr, 10);
+            if (errno == ERANGE || slot_l > INT_MAX || slot_l < 0 || *endptr != '\0') {
+                return;
+            }
+            int slot = (int)slot_l;
             dawn->players[pindex].inventory[slot] = empty;
             snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :Slot cleared\r\n", msg->receiver);
             add_msg(out, strlen(out));
@@ -303,7 +311,13 @@ void cmd_drop(int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_info(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+)")) {
-        int slot = atoi(regex_group[1]);
+        char *endptr;
+        errno = 0;
+        long slot_l = strtol(regex_group[1], &endptr, 10);
+        if (errno == ERANGE || slot_l > INT_MAX || slot_l < 0 || *endptr != '\0') {
+            return;
+        }
+        int slot = (int)slot_l;
         get_item_info(msg, slot);
     }
 }
@@ -407,7 +421,15 @@ void cmd_cast(int pindex, struct Message * msg) {
         } else if (strcmp(regex_group[1], "revive") == 0) {
             cast_revive(msg->sender_nick, to_lower(regex_group[2]));
         } else if (strcmp(regex_group[1], "teleport") == 0) {
-            cast_teleport(msg->sender_nick, atoi(regex_group[2]), atoi(regex_group[3]));
+            char *endptr1, *endptr2;
+            errno = 0;
+            long x = strtol(regex_group[2], &endptr1, 10);
+            long y = strtol(regex_group[3], &endptr2, 10);
+            if (errno == ERANGE || x > INT_MAX || x < 0 || y > INT_MAX || y < 0 || 
+                *endptr1 != '\0' || *endptr2 != '\0') {
+                return;
+            }
+            cast_teleport(msg->sender_nick, (int)x, (int)y);
         }
     }
     free(out);
@@ -415,7 +437,13 @@ void cmd_cast(int pindex, struct Message * msg) {
 
 void cmd_gslay(int pindex __attribute__((unused)), struct Message * msg) {
     if(matches_regex(msg->message, CMD_LIT" (\\d+)")) {
-        slay_monster(msg->sender_nick, 1, atoi(regex_group[1]));
+        char *endptr;
+        errno = 0;
+        long amount = strtol(regex_group[1], &endptr, 10);
+        if (errno == ERANGE || amount > INT_MAX || amount < 0 || *endptr != '\0') {
+            return;
+        }
+        slay_monster(msg->sender_nick, 1, (int)amount);
     } else {
         char * out;
         CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
@@ -440,7 +468,13 @@ void cmd_gcheck(int pindex __attribute__((unused)), struct Message * msg) {
 }
 void cmd_assign(int pindex, struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\w+) (\\d+)")) {
-        assign_attr_points(msg, to_lower(regex_group[1]), atoi(regex_group[2]));
+        char *endptr;
+        errno = 0;
+        long amount = strtol(regex_group[2], &endptr, 10);
+        if (errno == ERANGE || amount > INT_MAX || amount < 0 || *endptr != '\0') {
+            return;
+        }
+        assign_attr_points(msg, to_lower(regex_group[1]), (int)amount);
     } else {
         char * out;
         CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
@@ -463,7 +497,15 @@ void cmd_ap(int pindex, struct Message * msg) {
 
 void cmd_travel(int pindex __attribute__((unused)), struct Message * msg) {
     if (matches_regex(msg->message, CMD_LIT" (\\d+),(\\d+)")) {
-        move_player(msg, atoi(regex_group[1]), atoi(regex_group[2]), 0);
+        char *endptr1, *endptr2;
+        errno = 0;
+        long x = strtol(regex_group[1], &endptr1, 10);
+        long y = strtol(regex_group[2], &endptr2, 10);
+        if (errno == ERANGE || x > INT_MAX || x < 0 || y > INT_MAX || y < 0 ||
+            *endptr1 != '\0' || *endptr2 != '\0') {
+            return;
+        }
+        move_player(msg, (int)x, (int)y, 0);
     }
 }
 
@@ -523,9 +565,21 @@ void cmd_cry(int pindex __attribute__((unused)), struct Message * msg) {
 
 void cmd_gib(int pindex, struct Message * msg) {
     if(matches_regex(msg->message, CMD_LIT" gold (\\d+)")) {
-        dawn->players[pindex].gold += atoi(regex_group[1]);
+        char *endptr;
+        errno = 0;
+        long amount = strtol(regex_group[1], &endptr, 10);
+        if (errno == ERANGE || amount > INT_MAX || amount < 0 || *endptr != '\0') {
+            return;
+        }
+        dawn->players[pindex].gold += (int)amount;
     } else if(matches_regex(msg->message, CMD_LIT" ap (\\d+)")) {
-        dawn->players[pindex].attr_pts += atoi(regex_group[1]);
+        char *endptr;
+        errno = 0;
+        long amount = strtol(regex_group[1], &endptr, 10);
+        if (errno == ERANGE || amount > INT_MAX || amount < 0 || *endptr != '\0') {
+            return;
+        }
+        dawn->players[pindex].attr_pts += (int)amount;
     }
 }
 
@@ -534,10 +588,24 @@ void cmd_inv (int pindex, struct Message * msg) {
     CALLEXIT(!(out = malloc(MAX_MESSAGE_BUFFER)))
 
     if (matches_regex(msg->message, CMD_LIT" fav (\\d+)")) {
-        is_favorite(pindex, atoi(regex_group[1])) ? strcpy(action, "unfavorited") : strcpy(action, "favorited");
-        favorite_toggle(pindex, atoi(regex_group[1]));
+        char *endptr;
+        errno = 0;
+        long slot_l = strtol(regex_group[1], &endptr, 10);
+        if (errno == ERANGE || slot_l > INT_MAX || slot_l < 0 || *endptr != '\0') {
+            return;
+        }
+        int slot = (int)slot_l;
+        is_favorite(pindex, slot) ? strcpy(action, "unfavorited") : strcpy(action, "favorited");
+        char *endptr;
+        errno = 0;
+        long slot_l = strtol(regex_group[1], &endptr, 10);
+        if (errno == ERANGE || slot_l > INT_MAX || slot_l < 0 || *endptr != '\0') {
+            return;
+        }
+        int slot = (int)slot_l;
+        favorite_toggle(pindex, slot);
         snprintf(out, MAX_MESSAGE_BUFFER, "PRIVMSG %s :%s, you have %s %s\r\n",
-                dawn->active_room, msg->sender_nick, action, dawn->players[pindex].inventory[atoi(regex_group[1])].name);
+                dawn->active_room, msg->sender_nick, action, dawn->players[pindex].inventory[slot].name);
         add_msg(out, strlen(out));
         free(out);
     } else {
